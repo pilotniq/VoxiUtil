@@ -300,8 +300,6 @@ void bagRemove( Bag bag, void *obj )
   int res;
 
   res = bagRemoveMaybe( bag, obj );
-
-  assert( res == 1 );
 }
 
 void bagRemove2( Bag bag, void *data )
@@ -309,8 +307,6 @@ void bagRemove2( Bag bag, void *data )
   int res;
 
   res = bagRemoveMaybe2( bag, data );
-
-  assert( res == 1 );
 }
 
 int bagRemoveMaybe( Bag bag, void *obj )
