@@ -14,6 +14,8 @@
 extern "C" {
 #endif 
 
+#include <voxi/util/libcCompat.h>
+
 /* get the number of ms since some unspecified time */
 EXTERN_UTIL unsigned long millisec();
 EXTERN_UTIL unsigned long microsec();
