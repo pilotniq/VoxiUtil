@@ -9,11 +9,21 @@ AC_CONFIG_AUX_DIR(config)
 # Check what platform we run on.
 #
 AC_CANONICAL_HOST
+case $host in
+  i*86-*-linux*)
+    ;;
+  i*86-*-cygwin*)
+    ;;
+  *)
+    AC_MSG_ERROR([Unsupported platform: $host.])
+    ;;
+esac
 
 #
-# Make sure we use the right compiler.
+# Make sure we use the right compiler and preprocessor.
 #
 AC_PROG_CC(cl gcc cc)
+AC_PROG_CPP
 case $host in
   i*86-*-linux*)
     ;;
@@ -52,15 +62,27 @@ AM_INIT_AUTOMAKE(1.7)
 AC_MSG_CHECKING([automake version])
 AUTOMAKE_VERSION=`automake --version | head -1 | awk '{print $4}'`
 AC_MSG_RESULT($AUTOMAKE_VERSION)
+
 #
-# Initialize libtool
+# Initialize libtool, but not on Win32.
 #
 # AC_LIBTOOL_DLOPEN must be before AM_PROG_LIBTOOL
-AC_ENABLE_SHARED
-AC_DISABLE_STATIC
-AC_LIBTOOL_WIN32_DLL
-AC_LIBTOOL_DLOPEN
-AM_PROG_LIBTOOL
+case $host in
+
+  i*86-*-linux*)
+    AM_CONDITIONAL([USE_LIBTOOL], 1)
+    AC_ENABLE_SHARED
+    AC_DISABLE_STATIC
+    AC_LIBTOOL_WIN32_DLL
+    AC_LIBTOOL_DLOPEN
+    AM_PROG_LIBTOOL
+
+    ;;
+
+  i*86-*-cygwin*)
+    AM_CONDITIONAL([USE_LIBTOOL], 0)
+    ;;
+esac
 
 #
 # This is really just the copyright of our configure scripts, not the code 
@@ -79,6 +101,11 @@ AC_CONFIG_HEADER([config.h])
 # change the macro name to comply with the module name.
 #
 CFLAGS="$CFLAGS -DLIB_UTIL_INTERNAL"
+
+#
+# This is for err.c to compile it for multithreaded environments.
+# 
+CFLAGS="$CFLAGS -D_REENTRANT"
 
 #
 # Check if the C preprocessor can handle variable argument lists to 
@@ -221,6 +248,9 @@ AC_ARG_WITH(
     esac
   ]
 )
+# Bit of a hack. This is a POSIX macro that we define here just
+# to be sure (since we always use pthreads anyway).
+CPPFLAGS="$CPPFLAGS -D_POSIX_THREADS"
 
 #
 # Checks for system libraries.
@@ -236,7 +266,7 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_HEADER_STDC
 
 # Unix/Linux-related
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/socket.h sys/time.h sys/timeb.h unistd.h sys/types.h])
 
 # Threading-related
 AC_CHECK_HEADERS([pthread.h])
@@ -267,7 +297,7 @@ AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([bzero floor gethostbyname gettimeofday inet_ntoa memset munmap rint sqrt strcasecmp strchr strdup strerror strpbrk strrchr strstr strtoul])
+AC_CHECK_FUNCS([bzero floor gethostbyname gettimeofday inet_ntoa memset munmap rint sqrt strcasecmp strchr strdup strerror strpbrk strrchr strstr strtoul strsep])
 
 #
 # Debug build switch
@@ -305,34 +335,41 @@ AH_TEMPLATE([_FILE_IO],
 AC_DEFINE( [_FILE_IO], 1 )
 
 #
-# If we appear to be on Windows (use MSVC), define WIN32.
+# If we appear to be on Windows (use MSVC), some configuration
+# definitions.
+
+if test "x$CC" = "xcl" ; then
+
+#
+# define WIN32.
 #
 # NOTE:
 #
 # We should strive towards minimizing the use of this macro.  It
 # is, however, needed to be able to produce Win32 DLL correctly since
 # the DLL export/import definitions differ in a way not automatically
-# configured by the libtool macros. Rather, libtool expects us to
-# handle this by ourselves as a pre-requisite to using the
-# AC_LIBTOOL_WIN32_DLL macro above. See libtool docs.
+# configured by the libtool macros.
 #
 # Furthermore, we still have the win32_glue.[ch] stuff which of 
 # course gradually should migrate to a generic compatibility layer.
 # 
-if test "x$CC" = "xcl" ; then
   CFLAGS="$CFLAGS -DWIN32"
-fi
 
 #
 # The pthreads-win32 library we currently use on Win32 has certain
-# "features" we must take care of. Unfortunately.
+# "features" we must take care of in voxi source. Unfortunately.
 #
-if test "x$CC" = "xcl" ; then
-  CFLAGS="$CFLAGS -DPTHREADS_WIN32"
+  CFLAGS="$CFLAGS -DPTHREADS_WIN32 -DNEED_SEM"
+
+#
+# Use with MT-safe libc (MSVCRT.DLL) on Win32
+#
+  CFLAGS="$CFLAGS -MD"
+
 fi
 
 #
-# Collect all CPPFLAGS and LDFLAGS.
+# Collect all LIBS and LDFLAGS.
 #
 LIBS="$LIBS_FINAL"
 LDFLAGS="$LDFLAGS_FINAL"
@@ -341,6 +378,7 @@ LDFLAGS="$LDFLAGS_FINAL"
 # Substitution macros in Makefiles etc.
 #
 AC_SUBST(CFLAGS)
+AC_SUBST(PACKAGE_NAME)
 
 #
 # Generate the Makefiles
