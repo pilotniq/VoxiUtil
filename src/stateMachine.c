@@ -27,6 +27,7 @@ typedef struct sStateMachine
   StateMachineState currentState;
   void *userData;
   StateMachineState nextState;
+  Boolean immediateExit;
 } sStateMachine;
 
 typedef struct sStateClass 
@@ -113,7 +114,7 @@ Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, vo
   (*machine)->currentState = NULL;
   (*machine)->userData = userData;
   (*machine)->nextState = NULL;
-
+  (*machine)->immediateExit = FALSE;
   def->machineCount++;
 
   return NULL;
@@ -245,6 +246,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
 {
   machine->currentState = initialState;
   machine->nextState = NULL;
+  machine->immediateExit = FALSE;
 
   do
   {
@@ -257,9 +259,15 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         (machine->currentState->cls->entryFunc != NULL) )
       machine->currentState->cls->entryFunc( machine->currentState );
 
+    if( machine->immediateExit )
+      break;
+
     /* Call the state entry func */
     if( machine->currentState->entryFunc != NULL )
       machine->currentState->entryFunc( machine->currentState );
+
+    if( machine->immediateExit )
+      break;
 
     /* 
      * Leave the state
@@ -267,6 +275,9 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
       /* Call the state entry func */
     if( machine->currentState->exitFunc != NULL )
       machine->currentState->exitFunc( machine->currentState );
+
+    if( machine->immediateExit )
+      break;
     
     if( (machine->currentState->cls != NULL) && 
         (machine->currentState->cls->exitFunc != NULL) )
@@ -275,7 +286,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
     /* Go to the next state */
     machine->currentState = machine->nextState;
     machine->nextState = NULL;
-  } while( machine->currentState != NULL );
+  } while( (!machine->immediateExit) && (machine->currentState != NULL) );
 
   return NULL;
 }
@@ -311,4 +322,9 @@ CREATE_AND_RUN_FAIL_1:
 StateMachineState stateMachine_getCurrentState( StateMachine machine )
 {
   return machine->currentState;
+}
+
+void stateMachine_setImmediateExit( StateMachine machine )
+{
+  machine->immediateExit = TRUE;
 }
