@@ -38,8 +38,8 @@
 #include <voxi/types.h>
 
 #ifdef __cplusplus
-extern "C" {  // only need to export C interface if
-              // used by C++ source code
+extern "C" {  /* only need to export C interface if */
+              /* used by C++ source code */
 #endif
 
 
@@ -106,6 +106,10 @@ EXTERN_UTIL void threading_mutex_unlock( VoxiMutex mutex );
 EXTERN_UTIL void threading_mutex_destroy( VoxiMutex mutex );
 
 EXTERN_UTIL void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex );
+
+/*
+  Returns false when condition is signalled, and a true value if timed out 
+*/
 EXTERN_UTIL Boolean threading_cond_timedwait( pthread_cond_t *condition, 
                                               VoxiMutex mutex, 
                                               unsigned long usec );
