@@ -1,0 +1,11 @@
+autom4te.cache
+Makefile
+Makefile.in
+configure
+config.h
+config.h.in
+config.log
+config.status
+libtool
+stamp-h1
+util-1.4alpha
