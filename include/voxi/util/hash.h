@@ -22,6 +22,7 @@
 extern "C" {
 #endif
 
+#include <voxi/util/libcCompat.h>
 
 typedef int (*HashFuncPtr)(void *data);
 #ifndef _COMPFUNCPTR
@@ -39,8 +40,8 @@ typedef struct sHashTableCursor *HashTableCursor;
    function arguments, see the declaration of HashTable in hash.c.
    If the creation of the table fails, the return value is NULL. */
 
-HashTable HashCreateTable(unsigned int size, HashFuncPtr calc,
-		     CompFuncPtr comp, DestroyFuncPtr destr);
+EXTERN_UTIL HashTable HashCreateTable( unsigned int size, HashFuncPtr calc,
+                                       CompFuncPtr comp, DestroyFuncPtr destr);
 
 /*
   Set the debugging level for the hash table. 0 = no debugging.
@@ -53,66 +54,66 @@ HashTable HashCreateTable(unsigned int size, HashFuncPtr calc,
     3 = function internal details 
     
 */
-int HashSetDebug( HashTable ht, int debugLevel );
+EXTERN_UTIL int HashSetDebug( HashTable ht, int debugLevel );
 
 /* Frees all memory occupied by the hash table ht and its records. */
-void HashDestroyTable(HashTable ht);
+EXTERN_UTIL void HashDestroyTable(HashTable ht);
 
 /* return the number of elements in the hash table */
-int HashGetElementCount( HashTable ht );
+EXTERN_UTIL int HashGetElementCount( HashTable ht );
 
 /* If a data record matching 'data' is found in ht, HashFind returns a pointer
    to it -- if no match can be found, it returns NULL. */
-/*@observer@*/void *HashFind(HashTable ht, void *data);
+EXTERN_UTIL /*@observer@*/void *HashFind(HashTable ht, void *data);
 
 /* Removes the record containing 'data' from ht. If no such record exists,
    it returns 0. On success 1 is returned. */
-int HashDelete(HashTable ht, void *data);
+EXTERN_UTIL int HashDelete(HashTable ht, void *data);
 
 /* Removes the record containing 'data' from ht and destroys data.
    If no such record exists, it returns 0. On success 1 is returned. */
-int HashDestroy(HashTable ht, void *data);
+EXTERN_UTIL int HashDestroy(HashTable ht, void *data);
 
 /* Adds data to the specified hashtable. If an equivalent record (according to
    ht->compData() ) exists, no adding is done.
    Returns 1 on success, 0 on failure. */
-int HashAdd(HashTable ht, /*@only@*/void *data);
+EXTERN_UTIL int HashAdd(HashTable ht, /*@only@*/void *data);
 /*perhaps @keep@ would be sufficient*/
 
 /*
-	functions for traversing (enumerating) the entries in the hashtable added
-	by erl 981015.
-	
-	cursors are not expected to be used by more than one thread at a time.
+   functions for traversing (enumerating) the entries in the hashtable added
+   by erl 981015.
+
+   cursors are not expected to be used by more than one thread at a time.
 */
 /*
-	create a cursor for traversing the hash table 
+   create a cursor for traversing the hash table 
 */
-HashTableCursor HashCursorCreate( HashTable ht );
+EXTERN_UTIL HashTableCursor HashCursorCreate( HashTable ht );
 
-void HashCursorDestroy( /*@special@*/HashTableCursor cursor )/*@releases cursor@*/;
+EXTERN_UTIL void HashCursorDestroy( /*@special@*/HashTableCursor cursor )/*@releases cursor@*/;
 
 /* return the element that the cursor is pointing to */
-/*@observer@*/void *HashCursorGetElement( HashTableCursor cursor );
+EXTERN_UTIL /*@observer@*/void *HashCursorGetElement( HashTableCursor cursor );
 
 /* Move the cursor to the first element in the hashtable (according to some
-	 undefined, arbitrary order).
+   undefined, arbitrary order).
 */
-void HashCursorGoFirst( HashTableCursor );
+EXTERN_UTIL void HashCursorGoFirst( HashTableCursor );
 
 /* Move the cursor to the next element in the hash table */
-void HashCursorGoNext( HashTableCursor );
+EXTERN_UTIL void HashCursorGoNext( HashTableCursor );
 
 /* return TRUE if the cursor has passed the last element */
-Boolean HashCursorPastLastElement( HashTableCursor );
+EXTERN_UTIL Boolean HashCursorPastLastElement( HashTableCursor );
 
 /*
  * Utility hashing funcions 
  */
 
 /* calculates a hash value for a string */
-int HashString( const char *string );
-int HashLowercaseString( const char *string );
+EXTERN_UTIL int HashString( const char *string );
+EXTERN_UTIL int HashLowercaseString( const char *string );
 
 #ifdef __cplusplus
 }
