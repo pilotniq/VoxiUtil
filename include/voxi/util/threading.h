@@ -13,16 +13,16 @@
 #ifndef THREADING_H
 #define THREADING_H
 
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 /* The POSIX-feature definitions are here on unix-like systems. */
 #include <unistd.h>
 #endif
 
-#if HAVE_PTHREAD_H
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
 
-#if HAVE_SEMAPHORE_H
+#ifdef HAVE_SEMAPHORE_H
 #include <semaphore.h>
 #endif
 
@@ -41,7 +41,7 @@
 #  undef EXTERN
 #endif
 #ifdef LIB_UTIL_INTERNAL
-#  define EXTERN extern
+#  define EXTERN __declspec(dllexport)
 #else
 #  ifdef WIN32
 #    define EXTERN __declspec(dllimport)

@@ -26,7 +26,7 @@
 #  undef EXTERN
 #endif
 #ifdef LIB_UTIL_INTERNAL
-#  define EXTERN extern
+#  define EXTERN __declspec(dllexport)
 #else
 #  ifdef WIN32
 #    define EXTERN __declspec(dllimport)
