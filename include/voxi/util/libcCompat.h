@@ -1,9 +1,33 @@
 #ifndef LIBCCOMPAT_H
 #define LIBCCOMPAT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*
   C library (in)compatibility stuff
 */
+
+/* This is because on Windows, when somebody else uses this as a DLL,
+   we must declare external variables with a special directive.
+   Note: Since the EXTERN macro may be redefined in other .h files, the
+   following macro sequence must occur after any other inclusion
+   made in this .h file. */
+
+#ifdef EXTERN_UTIL
+#  error EXTERN_UTIL already defined
+#endif
+#ifdef WIN32
+#  ifdef LIB_UTIL_INTERNAL
+#    define EXTERN_UTIL __declspec(dllexport)
+#  else
+#    define EXTERN_UTIL __declspec(dllimport)
+#  endif /* LIB_UTIL_INTERNAL */
+#else
+#  define EXTERN_UTIL extern
+#endif /* WIN32 */
 
 /* We implement this, since it is better than strtok (doesn't modify
    the actual string data, only the pointer). See Linux man pages
@@ -16,12 +40,23 @@
    STRSEP_LINUX_BEHAVIOUR macro below when compiling win32_glue.c.
 */
 
+/* The __attribute__ directive is used in GCC to specify alignment of 
+   struct members */
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif
+
 #if !defined( HAVE_STRSEP) || !HAVE_STRSEP
 
 #define STRSEP_LINUX_BEHAVIOUR
 /** strsep(3) */
-char *strsep(char **stringp, const char *delim);
+EXTERN_UTIL char *strsep(char **stringp, const char *delim);
 
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* ifndef LIBCCOMPAT_H */
