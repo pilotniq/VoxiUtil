@@ -305,7 +305,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
             LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )( NULL, "StateMachine",
                 LOGLEVEL_INFO, __FILE__,
                 __LINE__, 
-                "-------------------------------------------------------------->\nStatemachine %p: Exiting from the state function %s", 
+                "\n-------------------------------------------------------------->\nStatemachine %p: Exiting from the state function %s", 
                 machine, machine->currentState->name );
         }
         
