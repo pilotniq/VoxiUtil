@@ -104,7 +104,8 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
 
   va_start( args, format );
 
-  filename = strrchr( sourceFile, DIR_DELIM ) + 1;
+  filename = strrchr( sourceFile, DIR_DELIM );
+  filename = (filename == NULL) ? sourceFile : (filename + 1);
 
   error = logger->driver->logText( logger, moduleName, logLevel, filename, 
                                    sourceLine, format, args );
