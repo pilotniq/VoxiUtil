@@ -83,7 +83,7 @@ static int debug = DEBUG_MESSAGES;
 #    else
 /* non-debug build with a c preprocessor *not* supporting variable argument 
    lists */
-__inline void DEBUG(char *str, ...) {}
+__inline static void DEBUG(char *str, ...) {}
 #    endif
 #  else /* a debug build */
 #    include <stdio.h> /* all debug configurations needs stdio */
@@ -160,6 +160,8 @@ static void DEBUG(char *str, ...)
  } while(0)
 #    endif /* if posix_threads */
 #  else /* if cpp_varargs ... else ... */
+#    include <stdarg.h>
+#    include <stdio.h>
 /* regardless of _POSIX_THREADS or not */
 static void DIAG(char *str, ...)
 {
