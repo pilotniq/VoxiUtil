@@ -89,7 +89,7 @@ Error queue_push( Queue queue, void *userElement )
   QueueEntry element;
 
   error = emalloc( (void **) &element, sizeof( sQueueEntry ) );
-  assert( error != NULL );
+  assert( error == NULL );
 
   element->userData = userElement;
 
