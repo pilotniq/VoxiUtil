@@ -36,6 +36,8 @@
 
 #ifdef WIN32
 #include <voxi/util/win32_glue.h>
+#else 
+#include <netinet/in.h>
 #endif /* WIN32 */
 
 CVSID("$Id$");
@@ -137,7 +139,7 @@ typedef struct sTextRPCConnection
 
   pthread_mutex_t initMutex;
   pthread_cond_t initFinishedCondition;
-
+  
 #ifdef TRPC_USE_THREADPOOL
   ThreadPool threadPool;
 #endif
@@ -173,7 +175,18 @@ static void *callConnectionClosed(TextRPCConnection connection);
 Error textRPCConnection_destroy(TextRPCConnection connection) {
   Error error = NULL;
   int err1, err2, err3, err4, err5, err6, err = 0;
-
+  
+  if( connection->threadPool != NULL )
+  {
+    error = threadPool_destroy( connection->threadPool );
+    if( error != NULL )
+    {
+      error = ErrNew( ERR_TEXTRPC, 0, error, 
+                      "Failed to destroy connection's thread pool" );
+      goto FAIL;
+    }
+  }
+  
   err1 = pthread_mutex_lock(&(connection->lock));
   if (err1 != 0)
     DEBUG("Warning, couldn't grab connection lock "
@@ -215,6 +228,7 @@ Error textRPCConnection_destroy(TextRPCConnection connection) {
   free(connection);
   connection = NULL;
   
+ FAIL:
   return error;
 }
 
@@ -224,8 +238,8 @@ Error textRPCConnection_destroy(TextRPCConnection connection) {
    Deficiency: does not allow the caller to dynamically allocate the port
  */
 Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
-                             TRPC_FunctionConnectionOpenedFunc connectionOpenedFunc,
-                             TRPC_FunctionConnectionClosedFunc connectionClosedFunc,
+                       TRPC_FunctionConnectionOpenedFunc connectionOpenedFunc,
+                       TRPC_FunctionConnectionClosedFunc connectionClosedFunc,
                              void *applicationServerData, unsigned short port, 
                              TextRPCServer *server )
 {
@@ -262,21 +276,12 @@ Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
   (*server)->connectionClosedFunc = connectionClosedFunc;
 
 #ifdef TRPC_USE_THREADPOOL
-  {
-    pthread_attr_t attr;
-    int err;
-
-    err = pthread_attr_init(&attr);
-    assert(err == 0);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-    /* Create a detached thread pool */
-    error = threadPool_create(TRPC_THREADPOOL_SIZE,
-                              attr,
-                              &((*server)->threadPool));
-    if (error != NULL)
-     goto ERR1;
-  }
+  /* Create a detached thread pool */
+  error = threadPool_create(TRPC_THREADPOOL_SIZE,
+                            detachedThreadAttr,
+                            &((*server)->threadPool));
+  if (error != NULL)
+    goto ERR1;
 #endif
   
   error = sock_create_server( (sock_handler) server_sock_handler, &address, &port,
@@ -331,6 +336,7 @@ static Error connection_create( Socket socket,
                      (CompFuncPtr) compFunction, NULL );
   (*connection)->server = rpcServer;
   (*connection)->dispatchFunc = dispatchFunc;
+  (*connection)->threadPool = NULL; /* use the one in the server */
   (*connection)->applicationData = applicationData;
     
   err = pthread_mutex_init( &((*connection)->initMutex), NULL );
@@ -504,12 +510,27 @@ static void connection_sock_handler( SocketConnection connection,
             /* Send event to the handler/dispatch func
              * that a connection has been initialized. */
 #ifdef TRPC_USE_THREADPOOL
-            error = threadPool_runThread(client->threadPool,
-                                         (ThreadFunc) callConnectionOpened,
-                                         client, &connOpenedThread);
-            assert(error == NULL);
+            {
+              ThreadPool threadPool;
+              
+              if( client->threadPool != NULL )
+                threadPool = client->threadPool;
+              else
+              {
+                assert( client->server != NULL );
+                assert( client->server->threadPool != NULL );
+                
+                threadPool = client->server->threadPool;
+              }
+              
+              error = threadPool_runThread( threadPool,
+                                            (ThreadFunc) callConnectionOpened,
+                                            client, &connOpenedThread);
+              assert(error == NULL);
+            }
 #else
-            err = threading_pthread_create( &connOpenedThread, &detachedThreadAttr,
+            err = threading_pthread_create( &connOpenedThread, 
+                                            &detachedThreadAttr,
                                             (ThreadFunc) callConnectionOpened,
                                             client);
             assert(err == 0);
@@ -643,6 +664,7 @@ static void connection_sock_handler( SocketConnection connection,
       {
 #ifdef TRPC_USE_THREADPOOL
         ThreadPoolThread connClosedThread;
+        ThreadPool threadPool;
 #else
         pthread_t connClosedThread;
 #endif
@@ -651,7 +673,17 @@ static void connection_sock_handler( SocketConnection connection,
          * that a connection has been closed. */
         
 #ifdef TRPC_USE_THREADPOOL
-        error = threadPool_runThread(client->threadPool,
+        if( client->threadPool != NULL )
+          threadPool = client->threadPool;
+        else
+        {
+          assert( client->server != NULL );
+          assert( client->server->threadPool != NULL );
+          
+          threadPool = client->server->threadPool;
+        }
+        
+        error = threadPool_runThread( threadPool,
                                      (ThreadFunc) callConnectionClosed,
                                      client, &connClosedThread);
         assert(error == NULL);
@@ -707,7 +739,11 @@ static Error handleReturn( Boolean isException, TextRPCConnection client,
     }
     else
     {
-      outstandingCall->result = strdup( message );
+      if( message == NULL )
+        outstandingCall->result = NULL;
+      else
+        outstandingCall->result = strdup( message );
+      
       outstandingCall->error = NULL;
     }
 
@@ -907,7 +943,7 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
   {
     error = ErrNew( ERR_TEXTRPC, 0, error, 
                     "Failed to connect to host '%s', port %d.\n", host, port );
-    goto CLIENT_CREATE_FAIL_2;
+    goto CLIENT_CREATE_FAIL_3;
   }
 
   (*connection)->tcpConnection = NULL;
@@ -924,6 +960,11 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
   assert(err == 0);
   
   return NULL;
+  
+ CLIENT_CREATE_FAIL_3:
+#ifdef TRPC_USE_THREADPOOL
+  threadPool_destroy( (*connection)->threadPool );
+#endif
   
  CLIENT_CREATE_FAIL_2:
   pthread_mutex_destroy(&((*connection)->nextCallIdMutex));
@@ -942,7 +983,8 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
 
 
 
-Error textRPC_call( TextRPCConnection connection, const char *text, char **result )
+Error textRPC_call( TextRPCConnection connection, const char *text, 
+                    char **result )
 {
   Error error;
   char buffer[10000];
@@ -1036,7 +1078,16 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
     }
 
   /*copy the result to a "safe" place. */
-  *result = strdup((outstandingCall)->result);
+  if( (outstandingCall)->result == NULL )
+  {
+    if( result != NULL )
+      *result = NULL;
+  }
+  else
+  {
+    if( result != NULL )
+      *result = strdup((outstandingCall)->result);
+  }
   
   HashDelete((connection->outstandingCalls),outstandingCall);
 
@@ -1046,13 +1097,24 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
 
 }
 
-static void *callConnectionOpened(TextRPCConnection connection) {
-  if (connection->server)
-    return connection->server->connectionOpenedFunc(connection);
-  return NULL;
+static void *callConnectionOpened(TextRPCConnection connection) 
+{
+  TextRPCServer server;
+  
+  assert( connection != NULL );
+  
+  server = connection->server;
+  
+  if( (server != NULL) && (server->connectionOpenedFunc != NULL) )
+    return server->connectionOpenedFunc( connection );
+  else
+    return NULL;
 }
+
 static void *callConnectionClosed(TextRPCConnection connection) {
-  if (connection->server)
+  if( (connection->server != NULL) && 
+      (connection->server->connectionClosedFunc == NULL) )
+    return NULL;
+  else
     return connection->server->connectionClosedFunc(connection);
-  return NULL;
 }
