@@ -350,10 +350,12 @@ static Error fileLogText( Logger logger, const char *moduleName,
   }
 
   tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
-                      ".%03ld\t%s\t%s\t%s\t%s:%d\t",
+                      ".%03ld\t%s\t%s\t%s\t[%ld]\t%s:%d\t",
                       now.millitm,
                       logger->applicationName, moduleName, 
-                      LogLevelName[ logLevel ], sourceFile, sourceLine );
+                      LogLevelName[ logLevel ],
+                      pthread_self(),
+                      sourceFile, sourceLine );
   if (tempInt >= 0) {
     
     index += tempInt;
