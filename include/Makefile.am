@@ -10,6 +10,7 @@ nobase_include_HEADERS = voxi/alwaysInclude.h voxi/debug.h voxi/cvsid.h \
                          voxi/util/idTable.h \
                          voxi/util/libcCompat.h \
                          voxi/util/license.h \
+                         voxi/util/logging.h \
                          voxi/util/mem.h \
                          voxi/util/memory.h \
                          voxi/util/path.h \
