@@ -63,12 +63,12 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
+# PROP Output_Dir "..\..\Libs\Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "C:\Documents and Settings\erland\My Documents\Development\voxi\util\util\include" /I "recognizer\include" /I "C:\Documents and Settings\erland\My Documents\Development\pthreads" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "..\..\pthreads" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x41d /d "_DEBUG"
@@ -91,107 +91,107 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\util\src\bag.c
+SOURCE=src\bag.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\bitFippling.c
+SOURCE=src\bitFippling.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\bt.c
+SOURCE=src\bt.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\IcepeakUtil\byteQueue.cpp
+SOURCE=src\byteQueue.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\circularBuffer.c
+SOURCE=src\circularBuffer.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\driver.c
+SOURCE=src\driver.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\err.c
+SOURCE=src\err.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\file.c
+SOURCE=src\file.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\geometry.c
+SOURCE=src\geometry.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\hash.c
+SOURCE=src\hash.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\idTable.c
+SOURCE=src\idTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\libcCompat.c
+SOURCE=src\libcCompat.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\mem.c
+SOURCE=src\mem.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\memory.c
+SOURCE=src\memory.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\path.c
+SOURCE=src\path.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\shlib.c
+SOURCE=src\shlib.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\sock.c
+SOURCE=src\sock.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\stateMachine.c
+SOURCE=src\stateMachine.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\strbuf.c
+SOURCE=src\strbuf.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\textRPC.c
+SOURCE=src\textRPC.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\threading.c
+SOURCE=src\threading.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\threadpool.c
+SOURCE=src\threadpool.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\time.c
+SOURCE=src\time.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\vector.c
+SOURCE=src\vector.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\win32_glue.c
+SOURCE=src\win32_glue.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\src\wordMap.c
+SOURCE=src\wordMap.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
