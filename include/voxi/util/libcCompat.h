@@ -30,12 +30,16 @@ extern "C" {
 #endif /* WIN32 */
 
 /*
- * String function naming brain damage on Win32.
+ * Various naming brain damage on Win32.
  */
 #ifdef WIN32
+  /* String functions */
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
-#endif
+  /* Time, ... */
+#define ftime _ftime
+#define timeb _timeb
+#endif /* WIN32 */
 
 /* We implement this, since it is better than strtok (doesn't modify
    the actual string data, only the pointer). See Linux man pages
