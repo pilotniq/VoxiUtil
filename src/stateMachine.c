@@ -13,6 +13,9 @@
 #include <voxi/util/err.h>
 #include <voxi/util/mem.h>
 #include <voxi/util/stateMachine.h>
+#include <voxi/util/logging.h>
+
+#define LOG_LEVEL   LOGLEVEL_DEBUG
 
 typedef struct sStateMachineDefinition
 {
@@ -256,51 +259,111 @@ Error stateMachine_setNextState( StateMachine machine,
 
 Error stateMachine_run( StateMachine machine, StateMachineState initialState )
 {
-  machine->currentState = initialState;
-  machine->nextState = NULL;
-  machine->immediateExit = FALSE;
-
-  do
-  {
-    /* 
-     * Enter the state. 
-     */
-    
-    /* Call the state class entry func */
-    if( (machine->currentState->cls != NULL) && 
-        (machine->currentState->cls->entryFunc != NULL) )
-      machine->currentState->cls->entryFunc( machine->currentState );
-
-    if( machine->immediateExit )
-      break;
-
-    /* Call the state entry func */
-    if( machine->currentState->entryFunc != NULL )
-      machine->currentState->entryFunc( machine->currentState );
-
-    if( machine->immediateExit )
-      break;
-
-    /* 
-     * Leave the state
-     */
-    /* Call the state entry func */
-    if( machine->currentState->exitFunc != NULL )
-      machine->currentState->exitFunc( machine->currentState );
-
-    if( machine->immediateExit )
-      break;
-    
-    if( (machine->currentState->cls != NULL) && 
-        (machine->currentState->cls->exitFunc != NULL) )
-      machine->currentState->cls->exitFunc( machine->currentState );
-
-    /* Go to the next state */
-    machine->currentState = machine->nextState;
+    machine->currentState = initialState;
     machine->nextState = NULL;
-  } while( (!machine->immediateExit) && (machine->currentState != NULL) );
+    machine->immediateExit = FALSE;
+    
+    do
+    {
+    /* 
+    * Enter the state. 
+        */
+        
+        /* Call the state class entry func */
+        if( (machine->currentState->cls != NULL) && 
+            (machine->currentState->cls->entryFunc != NULL) ) {
+            
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Entering the entry state function %s", 
+                machine, machine->currentState->name );
+            
+            machine->currentState->cls->entryFunc( machine->currentState );
+            
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Exiting from the entry state function %s", 
+                machine, machine->currentState->name );
+        }
+        
+        if( machine->immediateExit )
+            break;
+        
+        /* Call the state entry func */
+        if( machine->currentState->entryFunc != NULL ) {
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Entering the state function %s", 
+                machine, machine->currentState->name );
+            
+            machine->currentState->entryFunc( machine->currentState );
+            
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Exiting from the state function %s", 
+                machine, machine->currentState->name );
+        }
+        
+        if( machine->immediateExit )
+        {
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Performing immediate exit (in state %s).", 
+                machine, machine->currentState->name );
+            break;
+        }
+            /* 
+            * Leave the state
+        */
+        /* Call the state entry func */
+        if( machine->currentState->exitFunc != NULL ) {
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Entering the state post function %s", 
+                machine, machine->currentState->name );
+            
+            machine->currentState->exitFunc( machine->currentState );
+            
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Exiting from the post function %s", 
+                machine, machine->currentState->name );
+        }
+        
+        
+        if( machine->immediateExit )
+        {
+            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+                LOGLEVEL_DEBUG, __FILE__,
+                __LINE__, 
+                "Statemachine %p: Performing immediate exit (in state %s).", 
+                machine, machine->currentState->name );
+            break;
+        }
+        
+        if( (machine->currentState->cls != NULL) && 
+            (machine->currentState->cls->exitFunc != NULL) )
+            machine->currentState->cls->exitFunc( machine->currentState );
+        
+        /* Go to the next state */
+        machine->currentState = machine->nextState;
+        machine->nextState = NULL;
+    } while( (!machine->immediateExit) && (machine->currentState != NULL) );
+    
+    LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+        LOGLEVEL_DEBUG, __FILE__,
+        __LINE__, 
+        "Statemachine %p: Leaving statemachine run.", 
+        machine );
 
-  return NULL;
+    return NULL;
 }
 
 Error stateMachine_createAndRun( StateMachineDefinition def, 
@@ -340,5 +403,9 @@ StateMachineState stateMachine_getCurrentState( StateMachine machine )
 
 void stateMachine_setImmediateExit( StateMachine machine )
 {
-  machine->immediateExit = TRUE;
+    LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+        LOGLEVEL_DEBUG, __FILE__,
+        __LINE__, 
+        "Statemachine %p: Setting the statemachine to exit now!", machine );
+    machine->immediateExit = TRUE;
 }
