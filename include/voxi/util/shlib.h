@@ -11,20 +11,26 @@
 */
 
 #include <voxi/util/err.h>
+#include <voxi/util/config.h>
 
 #ifdef __cplusplus
-extern "C" {  // only need to export C interface if
-              // used by C++ source code
+extern "C" {  /* only need to export C interface if used by C++ source code */
 #endif
 
 typedef void *SharedLibrary;
 
-Error shlib_open( const char *filename, SharedLibrary *shlib );
-Error shlib_close( SharedLibrary shlib );
-Error shlib_findFunc( SharedLibrary shlib, const char *name, void **funcPtr );
+#ifdef WIN32
+#define SHLIB_EXPORT __declspec(dllexport)
+#else
+#define SHLIB_EXPORT
+#endif
+
+EXTERN_UTIL Error shlib_open( const char *filename, SharedLibrary *shlib );
+EXTERN_UTIL Error shlib_close( SharedLibrary shlib );
+EXTERN_UTIL Error shlib_findFunc( SharedLibrary shlib, const char *name, 
+                                  void **funcPtr );
 
 #ifdef __cplusplus
-}  // only need to export C interface if
-              // used by C++ source code
+}  /* only need to export C interface if used by C++ source code */
 #endif
 
