@@ -38,11 +38,11 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
+# PROP Output_Dir "..\..\Libs\Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /I "include" /I "..\..\pthreads" /I "..\..\external\pthreads_win32\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x41d /d "NDEBUG"
@@ -52,7 +52,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"..\..\Libs\Release/VoxiUtil_release.dll"
 
 !ELSEIF  "$(CFG)" == "VoxiUtil - Win32 Debug"
 
@@ -63,12 +63,12 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\Libs\Debug"
+# PROP Output_Dir "..\..\Libs\"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "..\..\pthreads" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "..\..\pthreads" /I "..\..\external\pthreads_win32\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x41d /d "_DEBUG"
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib pthreadVCE.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\Pre-built\lib" /libpath:"C:\Documents and Settings\erland\My Documents\Development\voxi\util\Debug"
+# ADD LINK32 ws2_32.lib pthreadVC_debug.lib /nologo /dll /debug /machine:I386 /out:"..\..\Libs\VoxiUtil_debug.dll" /pdbtype:sept /libpath:"..\..\Pre-built\lib" /libpath:"C:\Documents and Settings\erland\My Documents\Development\voxi\util\Debug" /libpath:"..\..\external\pthreads_win32\lib"
 
 !ENDIF 
 
@@ -139,6 +139,10 @@ SOURCE=src\libcCompat.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\logging.c
+# End Source File
+# Begin Source File
+
 SOURCE=src\mem.c
 # End Source File
 # Begin Source File
@@ -148,6 +152,10 @@ SOURCE=src\memory.c
 # Begin Source File
 
 SOURCE=src\path.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\queue.c
 # End Source File
 # Begin Source File
 
@@ -284,6 +292,10 @@ SOURCE=.\util\include\voxi\util\memory.h
 # Begin Source File
 
 SOURCE=.\util\include\voxi\util\path.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\voxi\util\queue.h
 # End Source File
 # Begin Source File
 
