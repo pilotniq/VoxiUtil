@@ -17,6 +17,8 @@
 
 #ifdef WIN32
 
+#include <assert.h>
+
 #include <winsock2.h>
 #include <windows.h>
 #include <io.h>
@@ -123,7 +125,40 @@ int munmap(void *start, size_t length)
   /* NOTE: We should probably also do a CloseHandle() on the mapping
      created in mmap. */
   if (UnmapViewOfFile(start) == 0)
-    return -1;
+  {
+#ifndef NDEBUG
+    DWORD errorCode;
+    char *message;
+    DWORD tempDword;
+
+    /* The function failed. Find out why */
+
+    errorCode = GetLastError();
+
+    tempDword = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+                               FORMAT_MESSAGE_FROM_SYSTEM, 
+                               0, errorCode, 0, (LPTSTR) &message, 0, NULL );
+    if( tempDword == 0 )
+    {
+      fprintf( stderr, "Win32_glue.c: munmap failed, error code %d with no "
+                       "error message.\n", errorCode );
+    }
+    else
+    {
+      HLOCAL hLocal;
+
+      fprintf( stderr, "Win32_glue.c: munmap failed: error code %d (%s).\n", 
+               errorCode, *message );
+
+      hLocal = LocalFree( message );
+      assert( hLocal == NULL );
+    }
+#endif
+    return -1;  
+  }
+
+  /* CloseHandle( hMapping ); */
+
   return 0;
 }
 
