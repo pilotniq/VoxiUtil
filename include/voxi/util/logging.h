@@ -25,8 +25,9 @@ extern "C" {
 /*
  * Type definitions
  */
-typedef enum { LOGLEVEL_CRITICAL, LOGLEVEL_ERROR, LOGLEVEL_INFO, 
-               LOGLEVEL_DEBUG, NUMBER_OF_LOGLEVELS } LogLevel;
+typedef enum { LOGLEVEL_CRITICAL, LOGLEVEL_ERROR, LOGLEVEL_WARNING,
+               LOGLEVEL_INFO, LOGLEVEL_DEBUG, LOGLEVEL_TRACE,
+               NUMBER_OF_LOGLEVELS } LogLevel;
 
 /* The possible error codes */
 enum { ERR_LOGGING_UNSPECIFIED };
@@ -138,6 +139,11 @@ EXTERN_UTIL LogLevel log_LogLevelGet();
 #define LOG_ERROR_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
 
+#define LOG_WARNING \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_WARNING )
+#define LOG_WARNING_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
+
 #define LOG_INFO \
    LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )
 #define LOG_INFO_ARG \
@@ -148,11 +154,19 @@ EXTERN_UTIL LogLevel log_LogLevelGet();
 #define LOG_DEBUG_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 
+#define LOG_TRACE \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_TRACE )
+#define LOG_TRACE_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
+
 #define LOGERR_INFO \
    LOGERR( _voxiUtilLogLevel >= LOGLEVEL_INFO )
 
 #define LOGERR_DEBUG \
    LOGERR( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )
+
+#define LOGERR_WARNING \
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_WARNING )
 
 #define LOGERR_ERROR \
    LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
