@@ -79,18 +79,32 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
 
 #include <voxi/util/libcCompat.h>
 
-/**
- * struct for errors in the new error handling.
- *
- * @remarks this struct should be made abstract, i.e moved inte err.c
+/*
+ * Macros
  */
-typedef struct s_Error
-{
-  ErrType type;
-  int  number;
-  const char *description;
-  Error reason;
-} sError;
+#define ERR_GOTO( func, label ) \
+  { \
+    Error error;\
+    \
+    error = (func); \
+    if( error != NULL ) \
+      goto label; \
+  }
+
+#define ERR_REPORT_AND_IGNORE( func, wrapMessage ) \
+  { \
+    Error error; \
+    \
+    error = (func); \
+    if( error != NULL ) \
+    { \
+      error = ErrNew( ERR_APP, 0, error, wrapMessage ); \
+      \
+      ErrReport( error ); \
+      ErrDispose( error, TRUE ); \
+    } \
+  }
+
 
 /**
  * Initalize the old error handling
@@ -132,9 +146,18 @@ EXTERN_UTIL Boolean DisplayTrace(Boolean newState);
  *        appropriate arguements. 
  *
  */ 
-EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason, 
-                     const char *description, ...);
+#if 0
+#define ErrNew( type, number, reason, description, x... ) \
+  ErrNew2( (type), (number), (reason), __FILE__, __LINE__, (description), ## x )
 
+EXTERN_UTIL Error ErrNew2( ErrType t, int number, /*@only@*/Error reason, 
+                           const char *file, int line, 
+                           const char *description, ...);
+
+#else
+EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason, 
+                          const char *description, ...);
+#endif
 /**
  * Free an error object in the new error handling.
  *
