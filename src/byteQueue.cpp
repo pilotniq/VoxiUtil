@@ -250,7 +250,6 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
   if( result < readRequest )
   {
     assert( IsEndOfStream() );
-    printf( "ByteQueue: setting eos reported to true\n" ); 
     endOfStreamReported = true;
   }
 
