@@ -31,7 +31,8 @@ enum { ERR_DRIVER_UNSPECIFIED };
   which returns the API version for which the driver was written 
   */
 EXTERN_UTIL Error driverOpen( const char *name, int *apiVersion, 
-                              void *driverStruct );
+                              void **driverStruct );
+EXTERN_UTIL Error driverClose( void *driverStruct );
 
 EXTERN_UTIL Error driverLoadFunctions( SharedLibrary shlib, int functionCount,
                                        sDriverFunctionInfo *driverFunctions, 
