@@ -140,9 +140,10 @@ EXTERN_UTIL void vectorRemoveLastElement( Vector vector );
  * Removes all the elements from the vector.
  * @post vector->elementCount == 0
  *
- * @warning No destory function is used here. If there is a
- * destroy function, an assert(false) is done. You should manually
- * free the elements.
+ * @warning The behaviour of this function has been changed. 
+ *    Previously this function would assert( FALSE ) if no destory function 
+ *    was defined. Now it will call the destroy function for each element if 
+ *    there is a destroy func.
  */
 EXTERN_UTIL void vectorRemoveAll( Vector vector );
 
