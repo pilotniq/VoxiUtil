@@ -320,3 +320,42 @@ static Error strbuf_enlarge( StringBuffer strbuf, size_t minFreeSpace )
   
   return error;
 }
+
+Error strbuf_stringList_append( StringBuffer strbuf, const char *string )
+{
+  return strbuf_appendBinary( strbuf, strlen( string ) + 1, string );
+}
+
+Error strbuf_stringList_append2( StringBuffer strbuf, const char *format,
+                                 ... )
+{
+  va_list args;
+  Error error = NULL;
+  char buf[ 1024 ];
+  
+  va_start( args, format );
+  
+  vsprintf( buf, format, args );
+  
+  error = strbuf_appendBinary( strbuf, strlen( buf ) + 1, buf );
+  
+  va_end( args );
+  
+  return error;
+}
+
+
+/* returns NULL if no more strings */
+Error strbuf_stringList_popString( StringBuffer strbuf, int *cursor, 
+                                   const char **string )
+{
+  *string = &(strbuf->string[ *cursor ]);
+  
+  if( *string == strbuf->cursor )
+    *string = NULL; /* at last string */
+  
+  cursor += (strlen( *string ) + 1);
+  
+  return NULL;
+}
+
