@@ -9,15 +9,25 @@ lib_LTLIBRARIES = libvoxiUtil.la
 
 #voxiUtilInclude_HEADERS = bag.h bitFippling.h bt.h circularBuffer.h collection.h err.h file.h geometry.h hash.h idTable.h libcCompat.h license.h mem.h memory.h path.h shlib.h sock.h strbuf.h textRPC.h threading.h threadpool.h time.h vector.h win32_glue.h
 
+if HAVE_LIBCRYPTO
 libvoxiUtil_la_SOURCES = bag.c bitFippling.c bt.c circularBuffer.c err.c \
                          file.c geometry.c hash.c idTable.c \
-                         license.c mem.c memory.c path.c shlib.c sock.c \
+                         mem.c memory.c path.c shlib.c sock.c \
+                         strbuf.c textRPC.c threading.c threadpool.c time.c \
+                         vector.c wordMap.c license.c
+else
+libvoxiUtil_la_SOURCES = bag.c bitFippling.c bt.c circularBuffer.c err.c \
+                         file.c geometry.c hash.c idTable.c \
+                         mem.c memory.c path.c shlib.c sock.c \
                          strbuf.c textRPC.c threading.c threadpool.c time.c \
                          vector.c wordMap.c
+endif
+
 #
 # Got strange compilation erro when including libcCompat.h
 #
 # libcCompat.c 
 
-libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread -lcrypt
+#libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread -lcrypt
+libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread
 
