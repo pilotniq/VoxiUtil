@@ -32,6 +32,15 @@ case $host in
 esac
 
 #
+# Collect all CPPFLAGS and LDFLAGS in other variable names to
+# avoid interference with AC macros. Will be collected at
+# the end before generating makefiles etc.
+#
+LIBS_FINAL="$LIBS"
+CPPFLAGS_FINAL="$CPPFLAGS"
+LDLAGS_FINAL="$LDFLAGS"
+
+#
 # Initialize Automake
 #
 # Requre automake version 1.7 or later, earlier versions give problems with 
@@ -157,9 +166,9 @@ case $host in
         # the user is not lying.
         have_libcrypto=true
         AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
-        LIBS="$LIBS libeay32.dll"
-        LDFLAGS="$LDFLAGS -libpath:${with_openssl}/lib"
-        CPPFLAGS="$CPPFLAGS -I${with_openssl}/include"
+        LIBS_FINAL="$LIBS_FINAL libeay32.lib"
+        LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_openssl}\lib"
+        CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_openssl}\include"
     esac
   ;;
 
@@ -197,14 +206,14 @@ AC_ARG_WITH(
         case $host in
 
           i*86-*-cygwin*)
-            LIBS="$LIBS pthreadVSE.dll"
-            LDFLAGS="$LDFLAGS -libpath:${with_pthreads}"
-            CPPFLAGS="$CPPFLAGS -I${with_pthreads}"
+            LIBS_FINAL="$LIBS_FINAL pthreadVSE.lib"
+            LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}\DLL"
+            CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_pthreads}\DLL"
           ;;
 
           *)
-            LDFLAGS="$LDFLAGS -libpath:${with_pthreads}/lib"
-            CPPFLAGS="$CPPFLAGS -I${with_pthreads}/include"
+            LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}/lib"
+            CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_pthreads}/include"
           ;;
 
         esac
@@ -278,7 +287,7 @@ AC_ARG_ENABLE(
   ],
   [
     AC_MSG_RESULT(debugging disabled)
-    CPPFLAGS="$CPPFLAGS -DNDEBUG"
+    CPPFLAGS_FINAL="$CPPFLAGS_FINAL -DNDEBUG"
     if test "x$CC" = "xgcc" ; then
       CFLAGS="$CFLAGS -O3"
     fi
@@ -322,6 +331,13 @@ fi
 if test "x$CC" = "xcl" ; then
   CFLAGS="$CFLAGS -DPTHREADS_WIN32"
 fi
+
+#
+# Collect all CPPFLAGS and LDFLAGS.
+#
+LIBS="$LIBS_FINAL"
+CPPFLAGS="$CPPFLAGS_FINAL"
+LDFLAGS="$LDFLAGS_FINAL"
 
 #
 # Substitution macros in Makefiles etc.
