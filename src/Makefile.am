@@ -28,6 +28,6 @@ endif
 #
 # libcCompat.c 
 
-#libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread -lcrypt
-libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread
+libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread -lcrypto
+#libvoxiUtil_la_LDFLAGS = -version-info 0:0:0 -lpthread
 
