@@ -218,14 +218,22 @@ Error textRPCConnection_destroy(TextRPCConnection connection) {
   return error;
 }
 
-
+/*
+   Deficiency: Does not allow the caller to specify the interface to listen on
+   Bug: does not support IPv6
+   Deficiency: does not allow the caller to dynamically allocate the port
+ */
 Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
                              TRPC_FunctionConnectionOpenedFunc connectionOpenedFunc,
                              TRPC_FunctionConnectionClosedFunc connectionClosedFunc,
-                             void *applicationServerData, int port, 
+                             void *applicationServerData, unsigned short port, 
                              TextRPCServer *server )
 {
   Error error = NULL;
+  struct in_addr address;
+  unsigned short port2 = port;
+
+  address.s_addr = INADDR_ANY;
 
   threading_init(); 
   /* printf("Calling threading_init()! \n"); */
@@ -265,7 +273,7 @@ Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
   }
 #endif
   
-  error = sock_create_server( (sock_handler) server_sock_handler, port, 
+  error = sock_create_server( (sock_handler) server_sock_handler, &address, &port,
                               (sock_handler) connection_sock_handler, 
                               *server, &((*server)->tcpServer) );
 
@@ -812,7 +820,7 @@ static void *call_threadFunc( IncomingCall call )
 
 
 Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc, 
-                             const char *host, int port, 
+                             const char *host, unsigned short port, 
                              void *applicationClientData,
                              TextRPCConnection *connection )
 {
