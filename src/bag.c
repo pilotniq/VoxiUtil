@@ -10,8 +10,14 @@
 	bag.
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdlib.h>
+
+#ifdef _POSIX_THREADS
+#include <voxi/util/threading.h>
+#endif
 
 #include <voxi/alwaysInclude.h>
 
@@ -139,7 +145,7 @@ Bag bagCreate2( int initialCapacity,
 }
 
 /* creates a new bag with the same elements as the original */
-Bag bagDuplicate( Bag original )
+Bag bagDuplicate( const Bag original )
 {
   Bag result;
 
@@ -329,7 +335,7 @@ int bagRemoveMaybe2( Bag bag, void *data )
   return 0;
 }
 
-int bagNoElements( Bag bag )
+int bagNoElements( const Bag bag )
 {
   PreCond( bag == NULL || bag_isValid( bag ) );
 
@@ -625,7 +631,7 @@ void bagAppend( Bag result, Bag source )
   bagForEach2( source, (ForEachFunc2) bagAdd2, result );
 }
 
-void *bagGetRandomElement( Bag bag )
+void *bagGetRandomElement( const Bag bag )
 {
   int elementNumber;
   

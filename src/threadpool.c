@@ -10,6 +10,8 @@
  * A thread pool.
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <pthread.h>
 #include <errno.h>
