@@ -13,24 +13,17 @@
 #ifndef THREADING_H
 #define THREADING_H
 
-#ifndef WIN32
-/* The POSIX-feature definitions are here. */
+#if HAVE_UNISTD_H
+/* The POSIX-feature definitions are here on unix-like systems. */
 #include <unistd.h>
-#else  /* WIN32 */
-#include <voxi/util/win32_glue.h>
-#endif /* WIN32 */
+#endif
 
-#ifdef _POSIX_THREADS
+#if HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
-/* Linux: Somewhere between glibc version 2.1.3 and 2.2.2, _POSIX_SEMAPHORES 
-   was defined. Previously, it was not defined, but the semaphores are
-   available anyay. So, always assume that semaphores exist under Linux.
-*/
-#if defined(_POSIX_SEMAPHORES) || __linux__
+
+#if HAVE_SEMAPHORE_H
 #include <semaphore.h>
-#else
-#error _POSIX_SEMAPHORES not defined.
 #endif
 
 #ifdef WIN32

@@ -10,6 +10,8 @@
  * Utility functions for threading 
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <pthread.h>
 #include <errno.h>
