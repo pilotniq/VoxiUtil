@@ -29,6 +29,14 @@ extern "C" {
 #  define EXTERN_UTIL extern
 #endif /* WIN32 */
 
+/*
+ * String function naming brain damage on Win32.
+ */
+#ifdef WIN32
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
+
 /* We implement this, since it is better than strtok (doesn't modify
    the actual string data, only the pointer). See Linux man pages
    strsep(3) and strtok(3) for further info.
