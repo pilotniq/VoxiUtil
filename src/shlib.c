@@ -144,7 +144,6 @@ Error shlib_close( SharedLibrary shlib )
   int err;
 #else  /* WIN32 */
   BOOL err;
-  Error error;
 #endif
   
   DEBUG("shlib_close(%p)\n", shlib);
@@ -157,10 +156,16 @@ Error shlib_close( SharedLibrary shlib )
   
 #else  /* WIN32 */
   err = FreeLibrary((HINSTANCE)shlib);
-  if (err)
+  if (err == 0)
+  {
+    Error error;
+
     error = ErrNew( ERR_SHLIB, 0, ErrWin32(), "Win32 FreeLibrary failed." );
 
-  return error;
+    return error;
+  }
+
+  return NULL;
 #endif /* WIN32 */
 }
 #include <stdio.h>
