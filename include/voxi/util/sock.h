@@ -40,37 +40,44 @@ typedef enum sock_EventEnum { SOCK_CONNECTION, SOCK_MESSAGE, SOCK_OVERFLOW,
 typedef void (*sock_handler)(SocketConnection connection, void *id, 
                              sock_Event what, ...);
 
-Error sock_init();
-Error sock_end();
+EXTERN_UTIL Error sock_init();
+EXTERN_UTIL Error sock_end();
 
-Error sock_connect(const char *computer, int port, 
-                   sock_handler handler, void *id, 
-                   SocketConnection *connection );
-void sock_disconnect(SocketConnection c);
+EXTERN_UTIL Error sock_connect( const char *computer, unsigned short port, 
+                                sock_handler handler, void *id, 
+                                SocketConnection *connection );
+EXTERN_UTIL void sock_disconnect(SocketConnection c);
 
-Error sock_create_server(sock_handler handler, int port, 
-                         sock_handler connectionHandler, void *userData,
-                         Server *server );
-void sock_destroy_server(Server s);
-char *sock_serv_conn_adrs_c(ServerConn sc);
+/*
+ * sending a port number 0 will dynamically allocate a port. 
+ * The port number can be retrieved with sock_server_getPortNumber
+ */
+EXTERN_UTIL Error sock_create_server( sock_handler handler, 
+                                      struct in_addr *address, 
+                                      unsigned short *port, 
+                                      sock_handler connectionHandler, 
+                                      void *userData,
+                                      Server *server );
+EXTERN_UTIL void sock_destroy_server(Server s);
+EXTERN_UTIL char *sock_serv_conn_adrs_c(ServerConn sc);
 
 /*
   Note, msg must end in a newline 
 */
-Error sock_send(Socket c, const char *msg);
+EXTERN_UTIL Error sock_send(Socket c, const char *msg);
 /*
  *  For sending data which may contain '\0'-bytes.
  */
-Error sock_send_binary(Socket c, const char *msg, size_t length);
+EXTERN_UTIL Error sock_send_binary(Socket c, const char *msg, size_t length);
 
-void sock_setUserData( Socket c, void *data );
+EXTERN_UTIL void sock_setUserData( Socket c, void *data );
 
 /* reads a line from a socket, skipping lines beginning with '#' (comments) */
 /* can return an errno */
-int sock_readLine( int sock, char *buffer, int bufSize );
+EXTERN_UTIL int sock_readLine( int sock, char *buffer, int bufSize );
 
 /* Functionality similar to fgets(3) but reads from a socket instead. */
-char *sock_gets(char *buf, int size, int sock);
+EXTERN_UTIL char *sock_gets(char *buf, int size, int sock);
 
 #ifdef __cplusplus
 } /* extern "C" */
