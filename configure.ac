@@ -5,7 +5,10 @@ AC_CONFIG_AUX_DIR(config)
 #
 # Initialize Automake
 #
-AM_INIT_AUTOMAKE
+# Requre automake version 1.7 or later, earlier versions give problems with 
+# AM_CONFIG_HEADER
+#
+AM_INIT_AUTOMAKE(1.7) 
 #
 # Check the automake version
 #
@@ -27,14 +30,6 @@ AM_PROG_LIBTOOL
 #AC_COPYRIGHT( "Copyright 2002, Voxi AB" )
 
 AC_CONFIG_SRCDIR([src/bag.c])
-
-#
-# This test is bad - we should be chechking for any version before 1.7, not
-# just the version 1.6.2 which Mårten happens to have on his cygwin
-#
-if test "x$AUTOMAKE_VERSION" = "x1.6.2"; then
-  AM_CONFIG_HEADER
-fi
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
