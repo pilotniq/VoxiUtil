@@ -1,0 +1,4 @@
+This is Voxi's utility library.
+
+The code herein should not depend on any other Voxi packages, but is required
+by most, if not all other voxi packages.
