@@ -5,6 +5,10 @@ AC_CONFIG_AUX_DIR(config)
 #
 # Initialize Automake
 #
+
+# Checks for programs.
+AC_PROG_CC(cl gcc cc)
+
 # Requre automake version 1.7 or later, earlier versions give problems with 
 # AM_CONFIG_HEADER
 #
@@ -32,9 +36,6 @@ AM_PROG_LIBTOOL
 AC_CONFIG_SRCDIR([src/bag.c])
 AC_CONFIG_HEADER([config.h])
 
-# Checks for programs.
-AC_PROG_CC(cl.exe gcc cc)
-
 #
 # Check if the C preprocessor can handle variable argument lists to 
 # preprocessor macros
@@ -49,6 +50,32 @@ AC_TRY_CPP([#define VMACRO(x...) printf( ## x)
             VMACRO( "1", "2" );], 
            [AC_DEFINE( [HAVE_CPP_VARARGS], 1 ) AC_MSG_RESULT([yes])],
            [AC_DEFINE( [HAVE_CPP_VARARGS], 0 ) AC_MSG_RESULT([no])])
+
+#
+# Check if the C compiler supports the "long long" datatype.
+#
+AH_TEMPLATE( [HAVE_LONG_LONG], 
+             [True if the C compiler supports the type long long.] )
+
+AC_MSG_CHECKING([if the C compiler supports long long])
+
+AC_TRY_COMPILE([],
+               [long long int foo;], 
+               [AC_DEFINE( [HAVE_LONG_LONG], 1 ) AC_MSG_RESULT([yes])],
+               [AC_DEFINE( [HAVE_LONG_LONG], 0 ) AC_MSG_RESULT([no])])
+
+#
+# Check if the C compiler supports the "__int64" datatype.
+#
+AH_TEMPLATE( [HAVE___INT64], 
+             [True if the C compiler supports the type __int64.] )
+
+AC_MSG_CHECKING([if the C compiler supports __int64])
+
+AC_TRY_COMPILE([],
+               [__int64 foo;], 
+               [AC_DEFINE( [HAVE___INT64], 1 ) AC_MSG_RESULT([yes])],
+               [AC_DEFINE( [HAVE___INT64], 0 ) AC_MSG_RESULT([no])])
 
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
@@ -68,6 +95,8 @@ AC_CHECK_LIB([pthread], [pthread_create])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
+AC_CHECK_HEADERS([pthread.h])
+AC_CHECK_HEADERS([semaphore.h], [], [], [#include <pthread.h>])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -116,7 +145,6 @@ AH_TEMPLATE([_FILE_IO],
             [Whether to use File IO])
 
 AC_DEFINE( [_FILE_IO], 1 )
-
 
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile])
 AC_OUTPUT
