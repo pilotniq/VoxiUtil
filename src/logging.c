@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 
 #include <voxi/util/err.h>
 #include <voxi/util/logging.h>
@@ -48,6 +49,7 @@ typedef struct sLogger
 {
   LoggingDriver driver;
   const char *applicationName;
+  pthread_mutex_t mutex;
   void *data;
 } sLogger;
 
@@ -67,13 +69,24 @@ static Error fileLogText( Logger logger, const char *moduleName,
  * Global variables
  */
 
-static const char* LogLevelName[] = { "Critical", "Error", "Info", "Debug" };
+const char* LogLevelName[NUMBER_OF_LOGLEVELS] = {
+  "Critical", "Error", "Info", "Debug"
+};
 
 static sLoggingDriver fileLoggingDriver = { fileCreate, fileDestroy, fileLogText };
-static sLogger sDefaultLogger = { &fileLoggingDriver, "unknown", NULL };
+
+static sLogger sDefaultLogger = {
+  &fileLoggingDriver,
+  "unknown",
+  PTHREAD_MUTEX_INITIALIZER,
+  NULL
+};
+
 static Logger DefaultLogger = &sDefaultLogger;
 
 LoggingDriver LoggingDriverFile = &fileLoggingDriver;
+
+LogLevel _voxiUtilLogLevel = LOGLEVEL_INFO;
 
 /*
  *  Code
@@ -178,6 +191,7 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
                     "Failed to allocate memory for application string '%s'", appName );
     goto FAIL;
   }
+  (*logger)->mutex = PTHREAD_MUTEX_INITIALIZER;
 
   if( (args == NULL) || (strlen( args ) == 0) )
     (*logger)->data = stderr;
@@ -234,6 +248,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
   time_t now;
   int index, tempInt, stdOutIndex;
 
+  pthread_mutex_lock(&logger->mutex);
+
   /* Special case for the default logger */
   if( logger->data == NULL )
     logger->data = stderr;
@@ -274,5 +290,17 @@ static Error fileLogText( Logger logger, const char *moduleName,
   if (logger->data != stderr)
     fprintf( stderr, "%s\n", stdOutBuffer );
 
+  pthread_mutex_unlock(&logger->mutex);
+  
   return NULL;
+}
+
+LogLevel log_LogLevelSet(LogLevel level)
+{
+  return (_voxiUtilLogLevel = level);
+}
+
+LogLevel log_LogLevelGet()
+{
+  return _voxiUtilLogLevel;
 }
