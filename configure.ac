@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(voxiUtil, 1.4alpha, bugs@voxi.com, util)
+AC_INIT(voxiUtil, 1.4alpha2, bugs@voxi.com, util)
 # insert this when things are stable.
 AC_CONFIG_AUX_DIR(config)
 #
