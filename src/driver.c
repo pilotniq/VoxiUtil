@@ -68,6 +68,18 @@ OPEN_DRIVER_FAIL_1:
   return error;
 }
 
+Error driverClose( void *driverStruct )
+{
+  Error error;
+
+  error = shlib_close( (SharedLibrary) driverStruct );
+  if( error != NULL )
+    error = ErrNew( ERR_DRIVER, ERR_DRIVER_UNSPECIFIED, error, 
+      "Failed to close the driver's shared library" );
+
+  return error;
+}
+
 Error driverLoadFunctions( SharedLibrary shlib, int functionCount, 
                            sDriverFunctionInfo *driverFunctions, void *driverStruct )
 {
