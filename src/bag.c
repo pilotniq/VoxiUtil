@@ -7,7 +7,7 @@
 */
 
 /*
-	bag.
+  bag.
 */
 
 #include "config.h"
@@ -35,7 +35,7 @@ typedef struct sBag
   int capacity;
   int capacityIncrement;
   size_t elementSize;
-	
+
   void *array;
 
   DestroyElementFunc destroyFunc;
@@ -53,7 +53,8 @@ typedef struct sBagIterator
   Bag bag;
 } sBagIterator;
 
-Boolean bag_isValid( Bag bag ) {
+Boolean bag_isValid( Bag bag ) 
+{
   if( bag == NULL ) return FALSE;
 
   if( bag->cookie != bag_isValid ) return FALSE;
@@ -76,7 +77,7 @@ Boolean bag_isValid( Bag bag ) {
 */
 static void ensureIncCapacity( Bag bag );
 
-		 
+ 
 /* 
    beginning of code 
 */
@@ -96,38 +97,38 @@ void bagUnlock( Bag bag )
 }
 
 Bag bagCreate( int initialCapacity, 
-	       int capacityIncrement,
-	       DestroyElementFunc destroyFunc )
+               int capacityIncrement,
+               DestroyElementFunc destroyFunc )
 {
   /* default is a bag of pointers unless otherwise specified */
   return bagCreate2( initialCapacity, 
-		     capacityIncrement, 
-		     sizeof( void * ),
-		     destroyFunc );
+                     capacityIncrement, 
+                     sizeof( void * ),
+                     destroyFunc );
 }
 
 Bag bagCreate2( int initialCapacity, 
-		int capacityIncrement, 
-		size_t elementSize,
-		DestroyElementFunc destroyFunc )
+    int capacityIncrement, 
+    size_t elementSize,
+    DestroyElementFunc destroyFunc )
 {
   Bag result;
 
   DEBUG("enter\n");
-	
+  
   assert( capacityIncrement >= 0 );
-	
+
   result = malloc( sizeof( sBag ) );
   assert( result != NULL );
-	
+
   result->cookie = bag_isValid;
 
   result->noElements = 0;
   result->capacity = initialCapacity;
   result->capacityIncrement = capacityIncrement;
-	
+
   result->elementSize = elementSize;
-	
+
   result->array = malloc( result->elementSize * initialCapacity );
   
   result->destroyFunc = destroyFunc;
@@ -150,30 +151,30 @@ Bag bagDuplicate( const Bag original )
   Bag result;
 
   PreCond( original == NULL || bag_isValid( original ) );
-	
+
   if( original == NULL )
     return NULL;
 
   result = malloc( sizeof( sBag ) );
   assert( result != NULL ); 
-	
+
   bagLock( original );
 
   result->cookie = original->cookie;
-	
+
   result->noElements = original->noElements; 
   result->capacity = original->capacity; 
   result->capacityIncrement = original->capacityIncrement;
-	
+
   result->elementSize = original->elementSize; 
-	
+
   result->array = malloc( result->elementSize * result->capacity ); 
 
   if (original->noElements > 0 )          
     assert( result->array != NULL ); 
-	
+
   memcpy( result->array, original->array, 
-	  result->noElements * result->elementSize );
+  result->noElements * result->elementSize );
 
   bagUnlock( original );
 
@@ -187,16 +188,42 @@ void bagDestroy( Bag bag, DestroyElementFunc destroyFunc )
   int i;
   
   PreCond( bag == NULL || bag_isValid( bag ) );
-
+  
   if( bag == NULL )
     return;
 
+  /* use bagDestroy2 otherwise */
+  assert( bag->elementSize == sizeof( void * ) ); 
   bag->cookie = bagDestroy;
   
   if( destroyFunc != NULL )
     for( i = 0; i < bag->noElements; i++ )
       destroyFunc( ( (void **) bag->array)[ i ] );
   
+  free( bag->array );
+  
+  free( bag );
+}
+
+void bagDestroy2( Bag bag )
+{
+  PreCond( bag == NULL || bag_isValid( bag ) );
+
+  if( bag == NULL )
+    return;
+
+  bag->cookie = bagDestroy;
+  
+  if( bag->destroyFunc != NULL )
+  {
+    char *ptr;
+    int i;
+
+    for( ptr = bag->array, i = 0; i < bag->noElements; i++, 
+           ptr += bag->elementSize )
+      bag->destroyFunc( (void **) ptr );
+  }
+
   free( bag->array );
   
   free( bag );
@@ -221,7 +248,7 @@ void bagAdd( Bag bag, void *obj )
 {
   assert( bag != NULL );
   assert( bag->elementSize == sizeof( void * ) );
-    
+
   PreCond( bag_isValid( bag ) );
 
   ensureIncCapacity( bag );
@@ -241,7 +268,7 @@ void bagAdd2( Bag bag, void *data )
   ensureIncCapacity( bag );
     
   memcpy( ((char *) bag->array) + bag->noElements * bag->elementSize, data, 
-	  bag->elementSize );
+    bag->elementSize );
   bag->noElements++;
 
   PostCond( bag_isValid( bag ) );
@@ -255,34 +282,34 @@ static void ensureIncCapacity( Bag bag )
   assert( bag != NULL );
   
   if( bag->noElements == bag->capacity )
-    {
-      if( bag->capacityIncrement == 0 )
-	bag->capacity = (bag->capacity == 0) ? 1 : (bag->capacity * 2); /* erl */
-      else
-	bag->capacity += bag->capacityIncrement; /* mst & dad */
-		
-      assert( bag->capacity != 0 );
-		
-      bag->array = realloc( bag->array, bag->capacity * bag->elementSize );
-      assert( bag->array != NULL );
-    }
+  {
+    if( bag->capacityIncrement == 0 )
+      bag->capacity = (bag->capacity == 0) ? 1 : (bag->capacity * 2); /* erl */
+    else
+      bag->capacity += bag->capacityIncrement; /* mst & dad */
+
+    assert( bag->capacity != 0 );
+    
+    bag->array = realloc( bag->array, bag->capacity * bag->elementSize );
+    assert( bag->array != NULL );
+  }
 }
 
 void bagRemove( Bag bag, void *obj )
 {
   int res;
-	
+
   res = bagRemoveMaybe( bag, obj );
-	
+
   assert( res == 1 );
 }
 
 void bagRemove2( Bag bag, void *data )
 {
   int res;
-	
+
   res = bagRemoveMaybe2( bag, data );
-	
+
   assert( res == 1 );
 }
 
@@ -291,25 +318,23 @@ int bagRemoveMaybe( Bag bag, void *obj )
   int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return 0;
   
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   for( i = 0; i < bag->noElements; i++ )
     if( ((void **) bag->array)[ i ] == obj )
-      {
-	((void **) bag->array)[ i ] = 
-	  ((void **) bag->array)[ bag->noElements - 1 ];
-	bag->noElements--;
-	return 1;
-      }
-	
+    {
+      ((void **) bag->array)[ i ] = 
+        ((void **) bag->array)[ bag->noElements - 1 ];
+      bag->noElements--;
+      return 1;
+    }
+
   return 0;
 }
-
-
 
 int bagRemoveMaybe2( Bag bag, void *data )
 {
@@ -317,21 +342,21 @@ int bagRemoveMaybe2( Bag bag, void *data )
   char *ptr;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return 0;
   
   for( i = 0, ptr = (char *) bag->array; i < bag->noElements; 
        i++, ptr += bag->elementSize )
     if( memcmp( data, ptr, bag->elementSize ) == 0 )
-      {
-	memcpy( ptr, 
-		((char *) bag->array) + (bag->noElements - 1) * bag->elementSize,
-		bag->elementSize );
-	bag->noElements--;
-	return 1;
-      }
-	
+    {
+      memcpy( ptr, 
+              ((char *) bag->array) + (bag->noElements - 1) * bag->elementSize,
+              bag->elementSize );
+      bag->noElements--;
+      return 1;
+    }
+
   return 0;
 }
 
@@ -372,36 +397,36 @@ Boolean bagContains( Bag bag, void *element )
   int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return FALSE;
-	
+
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   for( i = 0; i < bag->noElements; i++ )
     if( ((void **) bag->array)[ i ] == element )
       return TRUE;
-	
+
   return FALSE;
 }
 
 Boolean bagContainsCompare( Bag bag, void *element,
                             CompareFunc compareFunction )
 {
-	int i;
+  int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return FALSE;
-	
+
   assert( bag->elementSize == sizeof( void * ) );
-	
-	for( i = 0; i < bag->noElements; i++ )
-		if( compareFunction(((void **) bag->array)[ i ], element) == 0 )
-			return TRUE;
-	
-	return FALSE;
+
+  for( i = 0; i < bag->noElements; i++ )
+    if( compareFunction(((void **) bag->array)[ i ], element) == 0 )
+      return TRUE;
+
+  return FALSE;
 }
 
 Boolean bagContains2( Bag bag, void *element )
@@ -411,16 +436,16 @@ Boolean bagContains2( Bag bag, void *element )
   Boolean contains = FALSE;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag != NULL )
-	
+
     for( i = 0, ptr = (char *) bag->array; i < bag->noElements; 
          i++, ptr += bag->elementSize )
       if( memcmp( ptr, element, bag->elementSize ) == 0 )
         contains = TRUE;
 
   PostCond( bag == NULL || bag_isValid( bag ) );
-	
+
   return contains;
 }
 
@@ -430,19 +455,19 @@ Bag bagFilter( Bag bag, FilterFunc filterFunc, void *filterArgs )
   int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return NULL;
   
   result = bagCreate( 10, 10, bag->destroyFunc );
-	
+
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   /* should protect this section with a semaphore */
   for( i = 0; i < bag->noElements; i++ )
     if( filterFunc( filterArgs, ((void **) bag->array)[ i ] ) )
       bagAdd( result, ((void **) bag->array)[i] );
-	
+
   return result;
 }
 
@@ -452,31 +477,31 @@ void bagFilter2( Bag bag, FilterFunc2 filterFunc, void *filterArgs )
   char *ptr, *lastPtr;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return;
   
   bagLock( bag );
-	
+
   /* it would be more efficient to loop through the bag backwards. In the 
      case that the bag is completely emptied, no memcpy's would be neccessary.
   */
   for( i = 0, ptr = (char *) bag->array, 
-	 lastPtr = ptr + (bag->noElements - 1) * bag->elementSize; 
+         lastPtr = ptr + (bag->noElements - 1) * bag->elementSize; 
        i < bag->noElements; 
        )
     if( filterFunc( filterArgs, ptr ) )
-      {
-	i++;
-	ptr += bag->elementSize;
-      }
+    {
+      i++;
+      ptr += bag->elementSize;
+    }
     else
-      {
-	memcpy( ptr, lastPtr, bag->elementSize );
-	bag->noElements--;
-	lastPtr -= bag->elementSize;
-      }
-	
+    {
+      memcpy( ptr, lastPtr, bag->elementSize );
+      bag->noElements--;
+      lastPtr -= bag->elementSize;
+    }
+
   bagUnlock( bag ); 
 }
 
@@ -485,12 +510,12 @@ void bagForEach( Bag bag, ForEachFunc forEachFunc, void *args )
   int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return;
   
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   /* the locks are to ensure that other threads don't add/remove elements from 
      the bag while we iterate over it. This could otherwise cause chaos.
   */
@@ -508,16 +533,16 @@ void bagForEach2( Bag bag, ForEachFunc2 forEachFunc, void *args )
   int i;
 
   PreCond( bag == NULL || bag_isValid( bag ) );
-	
+
   if( bag == NULL )
     return;
   
   bagLock( bag );
-	
+
   /* should protect this section with a semaphore? */
   for( i = 0; i < bag->noElements; i++ )
     forEachFunc( args, ((char *) bag->array) + i * bag->elementSize );
-	
+
   bagUnlock( bag );
 }
 
@@ -526,14 +551,14 @@ void bagFilterForEach( Bag bag, FilterFunc filterFunc, void *filterArgs,
                        ForEachFunc forEachFunc, void *args )
 {
   int i;
-	
+
   PreCond( bag == NULL || bag_isValid( bag ) );
 
   if( bag == NULL )
     return;
   
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   /* should protect this section with a semaphore? */
   for( i = 0; i < bag->noElements; i++ )
     if( filterFunc( filterArgs, ((void **) bag->array)[ i ] ) )
@@ -553,17 +578,17 @@ Boolean bagUntil( Bag bag, FilterFunc filterFunc, void *funcArgs,
     return FALSE;
   
   assert( bag->elementSize == sizeof( void * ) );
-	
+
   /* should protect this section with a semaphore? */
   for( i = 0; !done && (i < bag->noElements); i++ )
     done = filterFunc( funcArgs, ((void **) bag->array)[ i ]);
   
   if( done && (element != NULL ) )
-    {
-      assert( i > 0 );
+  {
+    assert( i > 0 );
     
-      *element = ((void **) bag->array)[ i - 1 ];
-    }
+    *element = ((void **) bag->array)[ i - 1 ];
+  }
   
   return done;
 }
@@ -584,12 +609,12 @@ Boolean bagUntil2( Bag bag, FilterFunc2 filterFunc, void *funcArgs,
     done = filterFunc( funcArgs, ((char *) bag->array) + i * bag->elementSize);
   
   if( done && (element != NULL ) )
-    {
-      assert( i > 0 );
-    
-      memcpy( element, ((char *) bag->array) + (i - 1) * bag->elementSize,
-	      bag->elementSize );
-    }
+  {
+    assert( i > 0 );
+
+    memcpy( element, ((char *) bag->array) + (i - 1) * bag->elementSize,
+            bag->elementSize );
+  }
 
   return done;
 }
@@ -627,7 +652,7 @@ void bagAppend( Bag result, Bag source )
   
   assert( result != NULL );
   assert( result->elementSize == source->elementSize );
-	
+
   bagForEach2( source, (ForEachFunc2) bagAdd2, result );
 }
 
@@ -691,7 +716,7 @@ BagIterator bagIteratorCreate2(const Bag bag)
 
 /* was bagIteratorGet */
 Error bagIteratorCreate(const Bag bag, 
-			BagIterator *bi)
+      BagIterator *bi)
 {
   PreCond( bag_isValid( bag ) );
 
