@@ -61,7 +61,7 @@
 #define _POSIX_SEMAPHORES
 #endif
 
-typedef int pid_t;
+/*  typedef int pid_t; */
 
 #include "libcCompat.h" /* to get strsep */
 /*
