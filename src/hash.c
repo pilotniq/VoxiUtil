@@ -310,7 +310,6 @@ int HashDelete(HashTable ht, void *data)
   ErrPushFunc("HashDelete");
   if(ht->infoArray[hashval]!=NULL) {
     if(!(ht->compData(ht->infoArray[hashval]->data, data))) {
-      int error = 0;
       HashInfoPtr toTrash;             /*First record matched -- remove it! */
       toTrash=ht->infoArray[hashval];
       ht->infoArray[hashval]=toTrash->next;
