@@ -186,6 +186,7 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
 
   error = emalloc( logger, sizeof( sLogger ) );
   if( error != NULL ) {
+    *logger = NULL;
     return error;
   }
 
@@ -226,6 +227,7 @@ FAIL_2:
 FAIL:
   free((char*)((*logger)->logFileName));
   free( *logger );
+  *logger = NULL;
 
   return error;
 }
@@ -362,7 +364,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
     
     tempInt = vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
                           format, args );
-
+    buffer[BUFFER_LENGTH-1] = '\0';
   }
 
 /*   if (logger->data != stderr) */

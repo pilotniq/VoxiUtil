@@ -54,6 +54,8 @@
  */
 #define DISABLE_PUSH_POP
 
+#define ERR_BUFF_SIZE 1024
+
 CVSID("$Id$");
 
 __inline static Vector getErrorStack();
@@ -373,7 +375,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 {
   Error result;
   va_list args;
-  static char buf[1024];
+  static char buf[ERR_BUFF_SIZE];
   char *string;
 
   ErrPushFunc("ErrNew");
@@ -381,6 +383,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
   va_start(args, description);
 
   vsnprintf( buf, sizeof(buf), description, args); /* print parameters int buf */
+  buf[ERR_BUFF_SIZE-1] = '\0';
   string = strdup( buf );
 
   if( string == NULL )
