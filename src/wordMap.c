@@ -424,6 +424,35 @@ Error wordMap_deleteByNumber( WordMap map, int number )
   return NULL;
 }
 
+Error wordMap_deleteByName( WordMap map, const char *name )
+{
+  sEntry template;
+  Entry entry;
+  int tempInt;
+  
+  assert( map->type & WORDMAPMASK_BYNAME );
+  
+  template.name = name;
+  
+  entry = HashFind( map->byName, &template );
+  assert( entry != NULL );
+  
+  tempInt = HashDelete( map->byName, entry );
+  assert( tempInt == 1 );
+  
+  if( map->type & WORDMAPMASK_BYNUMBER )
+  {
+    tempInt = HashDelete( map->byNumber, entry );
+    assert( tempInt == 1 );
+  }
+  
+  free( (char *) entry->name );
+  free( entry );
+  
+  return NULL;
+}
+
+
 /*
  *  Cursor functions
  */
