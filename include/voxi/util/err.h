@@ -69,7 +69,7 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
                ERR_TEXTRPC, ERR_STRBUF, ERR_LOOP, ERR_ISI_IDE, ERR_OOW,
                ERR_PARSER, ERR_JAVA_GENERIC, ERR_COOWA, ERR_WINSOCK,
                ERR_SPEECH_RECOGNITION, ERR_HTTP, ERR_IVR, ERR_WIN32, 
-               ERR_DRIVER } ErrType;
+               ERR_DRIVER, ERR_NUANCE, ERR_STATE_MACHINE } ErrType;
 
 #include <voxi/types.h>
 #include <voxi/util/strbuf.h>
@@ -143,10 +143,24 @@ EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason,
  */ 
 EXTERN_UTIL void ErrDispose(Error err, Boolean recursive);
 
+/*
+ *  Error Reporting functions (greatly expanded 2003-10-10)
+ */
+
+/*
+ *  predefined drivers are:
+ *    "file", parameter is complete pathname
+ *    "stdout", noparameter, prints to stdout 
+ *    "stderr", no parameter, prints to stderr (Default)
+ *    "mail", parameters: smtpserver, sending mail address, receiving mail address
+ *    
+ */
+EXTERN_UTIL void ErrReportAddDestination( const char *driver, ... );
+
 /**
  * Print the error object on stderr (in the new error handling).
  */
-EXTERN_UTIL void ErrReport(Error err);
+EXTERN_UTIL void ErrReport( Error err );
 
 /**
  * get error-category (in the new error handling)
