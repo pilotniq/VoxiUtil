@@ -25,15 +25,15 @@
 #ifdef EXTERN
 #  undef EXTERN
 #endif
-#ifdef LIB_UTIL_INTERNAL
-#  define EXTERN __declspec(dllexport)
-#else
-#  ifdef WIN32
-#    define EXTERN __declspec(dllimport)
+#ifdef WIN32
+#  ifdef LIB_UTIL_INTERNAL
+#    define EXTERN __declspec(dllexport)
 #  else
-#    define EXTERN extern
-#  endif /* WIN32 */
-#endif /* LIB_UTIL_INTERNAL */
+#    define EXTERN __declspec(dllimport)
+#  endif /* LIB_UTIL_INTERNAL */
+#else
+#  define EXTERN extern
+#endif /* WIN32 */
 
 typedef EVP_PKEY *PublicKey;
 typedef struct sSoftwareLicense *SoftwareLicense;
