@@ -122,7 +122,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelSet(LogLevel level);
 EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
 
 #define LOG_GLOBAL_LEVEL_SET( level) \
-  log_LogLevelSet( level );
+  log_GlobalLogLevelSet( level );
   
 #define LOG_MODULE_LEVEL_SET( level ) \
   _voxiUtilModuleLogLevel = (level);
