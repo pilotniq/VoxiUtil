@@ -289,11 +289,11 @@ static Error fileLogText( Logger logger, const char *moduleName,
       strcpy( fileName, logger->logFileName );
       strcat( fileName, "_" );
       strcat( fileName, logger->date );
-      err = rename( logger->data, fileName );
+      err = rename( logger->logFileName, fileName );
       if ( err != 0 ) {
         Error error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
                               "Failed to rename logging file '%s' to '%s'",
-                              logger->data, fileName );
+                              logger->logFileName, fileName );
         ErrReport( error);
         ErrDispose(error, TRUE); error = NULL;
       }
