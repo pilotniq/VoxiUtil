@@ -265,9 +265,9 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
     
     do
     {
-    /* 
-    * Enter the state. 
-        */
+      /* 
+       * Enter the state. 
+       */
         
         /* Call the state class entry func */
         if( (machine->currentState->cls != NULL) && 
@@ -279,7 +279,8 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
                 "Statemachine %p: Entering the entry state function %s", 
                 machine, machine->currentState->name );
             
-            machine->currentState->cls->entryFunc( machine->currentState );
+            machine->currentState->cls->entryFunc( machine, 
+                                                   machine->currentState );
             
             LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
@@ -299,7 +300,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
                 "Statemachine %p: Entering the state function %s", 
                 machine, machine->currentState->name );
             
-            machine->currentState->entryFunc( machine->currentState );
+            machine->currentState->entryFunc( machine, machine->currentState );
             
             LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
@@ -328,7 +329,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
                 "Statemachine %p: Entering the state post function %s", 
                 machine, machine->currentState->name );
             
-            machine->currentState->exitFunc( machine->currentState );
+            machine->currentState->exitFunc( machine, machine->currentState );
             
             LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
@@ -350,7 +351,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         
         if( (machine->currentState->cls != NULL) && 
             (machine->currentState->cls->exitFunc != NULL) )
-            machine->currentState->cls->exitFunc( machine->currentState );
+          machine->currentState->cls->exitFunc( machine, machine->currentState );
         
         /* Go to the next state */
         machine->currentState = machine->nextState;

@@ -17,7 +17,7 @@ typedef struct sStateMachineDefinition *StateMachineDefinition;
 typedef struct sStateClass *StateClass;
 typedef struct sStateMachineState *StateMachineState;
 
-typedef void (*StateFunction)( StateMachineState );
+typedef void (*StateFunction)( StateMachine, StateMachineState );
 
 enum { ERR_STATE_MACHINE_UNSPECIFIED, ERR_STATE_MACHINE_OUT_OF_MEMORY, 
        ERR_STATE_MACHINE_DEF_HAS_MACHINES, 
