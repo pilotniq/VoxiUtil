@@ -18,7 +18,6 @@
 */
 
 #include <voxi/util/err.h>
-
 #ifdef __cplusplus
 extern "C" {  /* only need to export C interface if used by C++ source code */
 #endif
@@ -39,12 +38,12 @@ EXTERN_UTIL
 Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
                              TRPC_FunctionConnectionOpenedFunc connectionOpenedFunc,
                              TRPC_FunctionConnectionClosedFunc connectionClosedFunc,
-                             void *applicationServerData, int port, 
+                             void *applicationServerData, unsigned short port, 
                              TextRPCServer *server );
 
 EXTERN_UTIL
 Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc, 
-                             const char *host, int port, 
+                             const char *host, unsigned short port, 
                              void *applicationClientData,
                              TextRPCConnection *connection );
 
@@ -63,5 +62,4 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
 #ifdef __cplusplus
 }  /* only need to export C interface if used by C++ source code */
 #endif
-
 
