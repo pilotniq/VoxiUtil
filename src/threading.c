@@ -504,11 +504,24 @@ void threading_mutex_destroy( VoxiMutex mutex )
 Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, 
                                   unsigned long usec )
 {
+  struct timespec wakeuptime;
+  struct timeval now;
+ /* Fix timespec struct */
+  gettimeofday(&now, NULL);
+  wakeuptime.tv_sec = now.tv_sec + (usec / 1000000);
+  wakeuptime.tv_nsec = (now.tv_usec + (usec % 1000000)) * 1000;
+
+  return threading_cond_absolute_timedwait(condition, mutex, &wakeuptime);
+}
+
+Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition, 
+                                           VoxiMutex mutex, 
+                                           struct timespec *wakeuptime ) 
+{
   int oldCount, tempInt;
   int err;
   const char *oldLastLockFrom;
-  struct timeval now;
-  struct timespec timeout;
+
   Boolean timedout;
   
   err = sem_wait( &(mutex->semaphore) );
@@ -542,12 +555,8 @@ Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex,
   err = sem_post( &(mutex->semaphore) );
   assert( err == 0 );
 
-  /* Fix timespec struct */
-  gettimeofday(&now, NULL);
-  timeout.tv_sec = now.tv_sec;
-  timeout.tv_nsec = (now.tv_usec + usec) * 1000;
   /* Do the wait */
-  err = pthread_cond_timedwait( condition, &(mutex->mutex), &timeout );
+  err = pthread_cond_timedwait( condition, &(mutex->mutex), wakeuptime );
   assert( (err == 0) || (err == ETIMEDOUT) );
   timedout = (err == ETIMEDOUT);
 
@@ -593,7 +602,6 @@ Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex,
 
   return timedout;
 }
-
 
 void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug )
 {
