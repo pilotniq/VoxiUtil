@@ -350,12 +350,12 @@ Boolean DisplayTrace(Boolean newState)
   return(retval);
 }
 
-ErrType Err_getType(Error err) {
+ErrType Err_getType( ConstError err) {
   assert(err != NULL);
   return err->type;
 }
 
-int Err_getNum(Error err) {
+int Err_getNum( ConstError err) {
   assert(err != NULL);
   return err->number;
 }
@@ -396,7 +396,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
   return result;
 }
 
-Error ErrCopy( Error originalError, Error *errorCopy )
+Error ErrCopy( ConstError originalError, Error *errorCopy )
 {
   Error error;
 
@@ -456,7 +456,7 @@ void ErrDispose(Error err, Boolean recursive)
   Any spaces within the type, number, description or reason are quoted with
   a percent character followed by the hexadecimal code for the character
 */
-Error ErrToString( Error error, StringBuffer strbuf )
+Error ErrToString( ConstError error, StringBuffer strbuf )
 {
   Error error2;
   
@@ -503,7 +503,7 @@ __inline static Vector getErrorStack()
 #include <MacTCPCommonTypes.h>
 #include <erl/mac.h>
 
-void ErrReport(Error err)
+void ErrReport( ConstError err )
 {
   static short alertID;
   static Boolean gotAlertID = FALSE;
@@ -619,7 +619,7 @@ const char *ErrOSErrName( OSErr err )
 #else
 
 
-void ErrReport(Error err)
+void ErrReport( ConstError err )
 {
   fprintf( stderr, "Error:\n" );
 

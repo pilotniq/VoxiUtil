@@ -54,7 +54,7 @@ typedef enum { ERR_WARN, ERR_ABORT } Err_Action;
  * pointer to Error struct for the new error handling
  */
 typedef /*@null@*/struct s_Error *Error;
-
+typedef const struct s_Error *ConstError;
 
 /**
    Predefined error types for the new error handling.
@@ -161,7 +161,8 @@ EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason,
 /**
  * Create a copy of an error
  */
-EXTERN_UTIL Error ErrCopy( Error originalError, Error *errorCopy );
+EXTERN_UTIL Error ErrCopy( ConstError originalError, 
+                           Error *errorCopy );
 
 /**
  * Free an error object in the new error handling.
@@ -188,16 +189,16 @@ EXTERN_UTIL void ErrReportAddDestination( const char *driver, ... );
 /**
  * Print the error object on stderr (in the new error handling).
  */
-EXTERN_UTIL void ErrReport( Error err );
+EXTERN_UTIL void ErrReport( ConstError error );
 
 /**
  * get error-category (in the new error handling)
  */
-EXTERN_UTIL ErrType Err_getType(Error err);
+EXTERN_UTIL ErrType Err_getType( ConstError err);
 /**
  * get category specific identifier (in the new error handling)
  */
-EXTERN_UTIL int Err_getNum(Error err);
+EXTERN_UTIL int Err_getNum( ConstError err);
 
 /**
  * convenience macro.
@@ -217,7 +218,7 @@ EXTERN_UTIL int Err_getNum(Error err);
   
   It is intended for marshalling purposes rather than for human consumption.
 */
-EXTERN_UTIL Error ErrToString( Error error, StringBuffer strbuf );
+EXTERN_UTIL Error ErrToString( ConstError error, StringBuffer strbuf );
 
 #ifdef WIN32
 /*
