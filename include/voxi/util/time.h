@@ -15,8 +15,8 @@ extern "C" {
 #endif 
 
 /* get the number of ms since some unspecified time */
-unsigned long millisec();
-unsigned long microsec();
+EXTERN_UTIL unsigned long millisec();
+EXTERN_UTIL unsigned long microsec();
 
 #ifdef __cplusplus
 }
