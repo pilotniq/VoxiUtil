@@ -409,3 +409,8 @@ void stateMachine_setImmediateExit( StateMachine machine )
         "Statemachine %p: Setting the statemachine to exit now!", machine );
     machine->immediateExit = TRUE;
 }
+
+char *stateMachine_getStateName( StateMachine machine )
+{
+    return machine->currentState->name;
+}
