@@ -1,11 +1,11 @@
 //
-#include <afx.h> // junk to avoid windows include conficts.
+//#include <afx.h> // junk to avoid windows include conficts.
 
 #include <assert.h>
 #include <queue>
 #include <pthread.h>
 
-#include "byteQueue.hpp"
+#include <voxi/util/byteQueue.hpp>
 
 #define DEBUG 1
 
@@ -23,7 +23,8 @@ static FILE *debugLogFile = NULL;
 //
 // read from head, write to tail
 //
-ByteQueue::ByteQueue( size_t size ): isFull( false ), head( 0 ), tail( 0 )
+ByteQueue::ByteQueue( size_t size ): isFull( false ), head( 0 ), tail( 0 ), 
+                                     endOfStream( true ), endOfStreamReported( false )
 {
 	int err;
 
@@ -59,6 +60,11 @@ bool ByteQueue::IsEmpty()
 	return (head == tail) && !isFull;
 }
 
+bool ByteQueue::IsEndOfStream()
+{
+	return endOfStream;
+}
+
 // Returns TRUE if all data was written successfully,
 // FALSE if data was dropped.
 bool ByteQueue::WriteData( const char *data, size_t length )
@@ -66,6 +72,8 @@ bool ByteQueue::WriteData( const char *data, size_t length )
 	size_t bytesToCopy;
 	bool noDrop = true, wasEmpty;
 	int err;
+
+  assert( !IsEndOfStream() );
 
 	err = pthread_mutex_lock( &(mutex) );
 	assert( err == 0 );
@@ -113,7 +121,7 @@ bool ByteQueue::WriteData( const char *data, size_t length )
 		if( wasEmpty )
 		{
 			assert( !IsEmpty() );
-			pthread_cond_signal( &condition );
+			pthread_cond_broadcast( &condition );
 			wasEmpty = false;
 		}
 	}
@@ -131,11 +139,50 @@ bool ByteQueue::WriteData( const char *data, size_t length )
 	return noDrop;
 }
 
+void ByteQueue::WriteEndOfStream()
+{
+  int err;
+
+  err = pthread_mutex_lock( &mutex );
+  assert( err == 0 );
+
+  assert( !endOfStream );
+
+  endOfStreamReported = false;
+  endOfStream = true;
+
+	err = pthread_cond_broadcast( &condition ); // the readthread may be waiting for more data
+  assert( err == 0 );
+
+  err = pthread_mutex_unlock( &mutex );
+  assert( err == 0 );
+}
+
+void ByteQueue::WriteStartOfStream()
+{
+  int err;
+
+  err = pthread_mutex_lock( &mutex );
+  assert( err == 0 );
+
+  assert( endOfStream );
+  assert( endOfStreamReported ); // actually, we should wait until it is reported
+
+  endOfStream = false;
+
+  err = pthread_mutex_unlock( &mutex );
+  assert( err == 0 );
+}
+
 // Behaviour: block on read
-void ByteQueue::ReadData( char *data, size_t length )
+size_t ByteQueue::ReadData( char *data, size_t readRequest )
 {
 	size_t bytesToCopy;
 	int err;
+  size_t result;
+  size_t length;
+
+  length = readRequest;
 
 	err = pthread_mutex_lock( &mutex );
 	assert( err == 0 );
@@ -148,10 +195,23 @@ void ByteQueue::ReadData( char *data, size_t length )
 		IsEmpty(), IsFull() );
 #endif
 
+  result = 0;
+
 	while( length > 0 )
 	{
 		if( IsEmpty() )
-			pthread_cond_wait( &condition, &mutex );
+    {
+      if( IsEndOfStream() && !endOfStreamReported )
+        break;
+      else
+      {
+			  pthread_cond_wait( &condition, &mutex );
+
+        // the condition may have been signalled from the end of stream 
+        // function, in which case we should do the IsEmpty check again
+        continue;
+      }
+    }
 
 		if( tail <= head )
 			bytesToCopy = size - head;
@@ -172,6 +232,8 @@ void ByteQueue::ReadData( char *data, size_t length )
 		}
 		data += bytesToCopy;
 		head += bytesToCopy;
+    result += bytesToCopy;
+
 		assert( head <= size );
 		if( head == size )
 			head = 0;
@@ -185,5 +247,14 @@ void ByteQueue::ReadData( char *data, size_t length )
 	fflush( debugLogFile );
 #endif
 
+  if( result < readRequest )
+  {
+    assert( IsEndOfStream() );
+    printf( "ByteQueue: setting eos reported to true\n" ); 
+    endOfStreamReported = true;
+  }
+
 	pthread_mutex_unlock( &mutex );
+
+  return result;
 }
