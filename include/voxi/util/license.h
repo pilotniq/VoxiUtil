@@ -18,6 +18,11 @@
 
 #include <voxi/util/err.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /* Local EXTERN macro
    Note: Since the EXTERN macro may be redefined in other .h files, the
    following macro sequence must occur after any other inclusion
@@ -98,5 +103,7 @@ Error license_checkProductLicense(VoxiCertificate certificate,
                                   char *licenseFilename,
                                   Boolean printMessage);
 
-
+#ifdef __cplusplus
+}
+#endif
 

@@ -25,6 +25,12 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
+
 typedef struct sThreadPool *ThreadPool;
 typedef struct sThreadPoolThread *ThreadPoolThread;
 
@@ -97,6 +103,12 @@ Error threadPool_runThread(ThreadPool threadPool, ThreadFunc func, void *args,
  * @return NULL if successful, else a pointer to an error.
  */
 Error threadPoolThread_join(ThreadPoolThread threadToJoin, void **threadFuncResult);
+
+#ifdef __cplusplus
+}  // only need to export C interface if
+              // used by C++ source code
+#endif
+
 
 #endif /* ifndef threadpool_h */
 

@@ -20,6 +20,9 @@
 
 #include "config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if HAVE_LONG_LONG
 #define VOXI_LONG_LONG long long
@@ -53,5 +56,9 @@ short tanj(short i);
   Change endianess of a float
  */
 float smeg(float f);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

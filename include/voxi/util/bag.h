@@ -40,6 +40,10 @@
 #include "collection.h"
 #include "err.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A filter function is used when you want to step through the elements of
  * the bag, removing some of them according to the implementation of your
@@ -373,7 +377,11 @@ Error bagIteratorDestroy(BagIterator bi);
  * once, putting a space in between.
  */
 Error bagCrossProd(Bag bag1, Bag bag2, Bag *result);
-     
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _BAG_H */
 
 

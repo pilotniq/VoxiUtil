@@ -24,6 +24,11 @@
 #include <stdio.h>
 #include "collection.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 typedef struct sIDTable *IDTable;
 
 /* this function writes an element to a stream. */
@@ -74,6 +79,10 @@ void idt_load2( IDTable *table, FILE *stream, const char *cookie,
 									IDTElementReadFunc readFunc, void *readFuncParam );
 
 void idt_forEach( IDTable table, ForEachFunc func, void *funcArgs );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -22,6 +22,12 @@
 #include <stdarg.h>
 #include <stddef.h> 
 
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
+
 enum { STRBUF_ERR_OTHER, STRBUF_ERR_UNKNOWN_FORMAT, 
        STRBUF_ERR_ENLARGE_FAILED };
 
@@ -59,5 +65,11 @@ Error strbuf_stringList_popString( StringBuffer strbuf, int *cursor,
 Error strbuf_stringList_append( StringBuffer strbuf, const char *string );
 Error strbuf_stringList_append2( StringBuffer strbuf, const char *format,
                                  ... );
+
+#ifdef __cplusplus
+}  // only need to export C interface if
+              // used by C++ source code
+#endif
+
 
 #endif

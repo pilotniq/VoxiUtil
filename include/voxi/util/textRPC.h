@@ -17,6 +17,12 @@
 
 #include <voxi/util/err.h>
 
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
+
 enum { TEXTRPC_ERR_REMOTE_EXCEPTION = 1 };
 
 typedef struct sTextRPCServer *TextRPCServer;
@@ -47,5 +53,10 @@ void textRPC_server_destroy( TextRPCServer server );
 Error textRPCConnection_destroy( TextRPCConnection connection );
 
 Error textRPC_call( TextRPCConnection connection, const char *text, char **result );
+
+#ifdef __cplusplus
+}  // only need to export C interface if
+              // used by C++ source code
+#endif
 
 

@@ -29,6 +29,10 @@
 #include <voxi/util/err.h>
 #include <voxi/util/collection.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct sCircularBuffer *CircularBuffer;
 
 Error circBuf_create( int size, DestroyElementFunc destroyFunc,
@@ -52,6 +56,10 @@ Error circBuf_popHead( CircularBuffer circBuf, void **element );
    It is not destroyed. */
 void *circBuf_popTail( CircularBuffer circBuf );
 int circBuf_getElementCount( CircularBuffer circBuf );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

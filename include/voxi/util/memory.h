@@ -12,6 +12,11 @@
   Voxi memory utilities
 */
 
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
 typedef struct sMemoryManager *MemoryManager;
 
 /*
@@ -29,5 +34,9 @@ void *memManager_allocate( MemoryManager manager, const char *where );
 void memManager_free( void *block );
 void memManager_validate( void *block );
 
+#ifdef __cplusplus
+}  // only need to export C interface if
+              // used by C++ source code
+#endif
 
 

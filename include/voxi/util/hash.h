@@ -18,6 +18,11 @@
 #ifndef HASH_H
 #define HASH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 typedef int (*HashFuncPtr)(void *data);
 #ifndef _COMPFUNCPTR
 #  define _COMPFUNCPTR
@@ -108,5 +113,10 @@ Boolean HashCursorPastLastElement( HashTableCursor );
 /* calculates a hash value for a string */
 int HashString( const char *string );
 int HashLowercaseString( const char *string );
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

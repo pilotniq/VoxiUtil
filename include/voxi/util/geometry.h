@@ -14,6 +14,11 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -92,6 +97,10 @@ void geo_transformCoordinatesInward(Coordinate objectPos,
 void geo_translateCoordinates(Coordinate objectPos,
                               Coordinate translateBy,
                               Coordinate result);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

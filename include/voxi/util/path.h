@@ -18,6 +18,12 @@
 #include <voxi/util/err.h>
 #include <voxi/util/vector.h>
 
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
+
 #ifdef WIN32
 #  include "win32_glue.h"
 #  define PATH_DELIM ';'
@@ -53,5 +59,11 @@ char *path_concat_dir(const char *dir, const char *str);
    directories in the path are searched from left to right. Returns
    NULL if no such file was found */
 FILE *path_fopen(const char *path, const char *name, const char *mode);
+
+#ifdef __cplusplus
+}  // only need to export C interface if
+              // used by C++ source code
+#endif
+
 
 #endif /* PATH_H */
