@@ -273,19 +273,19 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         if( (machine->currentState->cls != NULL) && 
             (machine->currentState->cls->entryFunc != NULL) ) {
             
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Entering the entry state function %s", 
+                "<=======\nStatemachine %p: Entering the entry state function %s", 
                 machine, machine->currentState->name );
             
             machine->currentState->cls->entryFunc( machine, 
                                                    machine->currentState );
             
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Exiting from the entry state function %s", 
+                "=======>\nStatemachine %p: Exiting from the entry state function %s", 
                 machine, machine->currentState->name );
         }
         
@@ -294,24 +294,24 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         
         /* Call the state entry func */
         if( machine->currentState->entryFunc != NULL ) {
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
-                LOGLEVEL_DEBUG, __FILE__,
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )( NULL, "StateMachine",
+                LOGLEVEL_INFO, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Entering the state function %s", 
+                "\n<--------------------------------------------------------------\nStatemachine %p: Entering the state function %s", 
                 machine, machine->currentState->name );
             
             machine->currentState->entryFunc( machine, machine->currentState );
             
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
-                LOGLEVEL_DEBUG, __FILE__,
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )( NULL, "StateMachine",
+                LOGLEVEL_INFO, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Exiting from the state function %s", 
+                "-------------------------------------------------------------->\nStatemachine %p: Exiting from the state function %s", 
                 machine, machine->currentState->name );
         }
         
         if( machine->immediateExit )
         {
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
                 "Statemachine %p: Performing immediate exit (in state %s).", 
@@ -323,25 +323,24 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         */
         /* Call the state entry func */
         if( machine->currentState->exitFunc != NULL ) {
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Entering the state post function %s", 
+                "<=======\nStatemachine %p: Entering the state post function %s", 
                 machine, machine->currentState->name );
             
             machine->currentState->exitFunc( machine, machine->currentState );
             
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
-                "Statemachine %p: Exiting from the post function %s", 
+                "=======>\nStatemachine %p: Exiting from the post function %s", 
                 machine, machine->currentState->name );
-        }
-        
+        }        
         
         if( machine->immediateExit )
         {
-            LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+            LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
                 LOGLEVEL_DEBUG, __FILE__,
                 __LINE__, 
                 "Statemachine %p: Performing immediate exit (in state %s).", 
@@ -358,7 +357,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
         machine->nextState = NULL;
     } while( (!machine->immediateExit) && (machine->currentState != NULL) );
     
-    LOG( LOG_LEVEL >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
+    LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )( NULL, "StateMachine",
         LOGLEVEL_DEBUG, __FILE__,
         __LINE__, 
         "Statemachine %p: Leaving statemachine run.", 
