@@ -376,7 +376,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 
   va_start(args, description);
 
-  vsprintf(buf, description, args); /* print parameters int buf */
+  vsnprintf( buf, sizeof(buf), description, args); /* print parameters int buf */
   string = strdup( buf );
 
   if( string == NULL )
