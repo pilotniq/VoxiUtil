@@ -17,6 +17,9 @@
   Depends on the sock.h layer, which should be properly initialized.
 */
 
+#ifndef TEXTRPC_H
+#define TEXTRPC_H
+
 #include <voxi/util/err.h>
 #ifdef __cplusplus
 extern "C" {  /* only need to export C interface if used by C++ source code */
@@ -63,3 +66,4 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
 }  /* only need to export C interface if used by C++ source code */
 #endif
 
+#endif
