@@ -56,6 +56,24 @@ CVSID("$Id$");
 
 __inline static Vector getErrorStack();
 
+/**
+ * struct for errors in the new error handling.
+ *
+ * @remarks this struct should be made abstract, i.e moved inte err.c
+ */
+typedef struct s_Error
+{
+  ErrType type;
+  int  number;
+  const char *description;
+  Error reason;
+#if 0 /* Implement this some day */
+  const char *sourceFileName;
+  int sourceLineNumber;
+  struct timespec timestamp;
+  pthread_t thread;
+#endif
+} sError;
 
 #if _REENTRANT && defined(_POSIX_THREADS)
 static pthread_key_t ErrorStackKey, InErrorKey, IndentCountKey;
@@ -341,7 +359,7 @@ int Err_getNum(Error err) {
 }
 
 
-Error ErrNew(ErrType t, int number, Error reason, const char *description,...)
+Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 {
   Error result;
   va_list args;
@@ -367,6 +385,9 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description,...)
     result->number = number;
     result->description = string;
     result->reason = reason;
+    /* result->sourceFileName = file; */
+    /* result->sourceLineNumber = line; */
+    /* result->thread = pthread_self(); */
   }
 
   ErrPopFunc();
