@@ -219,6 +219,56 @@ Error wordMap_save( WordMap map, FILE *file )
 	return NULL;
 }
 
+Error wordMap_saveToStringBuffer( WordMap map, StringBuffer *memBlock )
+{
+  Error error;
+  HashTable hashTable;
+  HashTableCursor cursor;
+  
+  error = strbuf_create( 65536, memBlock );
+  assert( error == NULL );
+  
+  error = strbuf_stringList_append2( *memBlock, "%d", FILE_FORMAT_VERSION );
+  assert( error == NULL );
+  
+  error = strbuf_stringList_append2( *memBlock, "%s", map->name );
+  assert( error == NULL );
+  error = strbuf_stringList_append2( *memBlock, "%d", map->type );
+  assert( error == NULL );
+  
+	if( map->type & WORDMAPMASK_BYNAME )
+		hashTable = map->byName;
+	else if( map->type & WORDMAPMASK_BYNUMBER )
+		hashTable = map->byNumber;
+	else {
+		assert( FALSE );
+    hashTable = NULL;
+	}
+  
+	error = strbuf_stringList_append2( *memBlock, "%d", 
+                                     HashGetElementCount( hashTable ) );
+  assert( error == NULL );
+	cursor = HashCursorCreate( hashTable );
+	
+	while( !HashCursorPastLastElement( cursor ) )
+	{
+		Entry entry = (Entry) HashCursorGetElement( cursor );
+		
+		assert( entry != NULL );
+		
+    error = strbuf_stringList_append2( *memBlock, "%d", entry->number );
+    assert( error == NULL );
+    error = strbuf_stringList_append2( *memBlock, "%s", entry->name );
+    assert( error == NULL );
+    
+		HashCursorGoNext( cursor );
+	}
+	
+	HashCursorDestroy( cursor );
+	
+	return NULL;
+}
+
 Error wordMap_load( FILE *file, WordMap *map )
 {
 	int version, count, i;
@@ -281,14 +331,14 @@ Error wordMap_load( FILE *file, WordMap *map )
 }
 /* #endif */ /* ifdef _FILE_IO */
 
-Error wordMap_createFromString(char *str[], WordMap *map) {
+Error wordMap_createFromString(const char *str[], WordMap *map) {
   Error error = NULL;
   int version, count, i;
-	char *name;
+	const char *name;
   int type;
   char *ptr;
   int j = 0;
-
+  
   version = atoi(str[j]);
   j++;
   
@@ -330,7 +380,7 @@ Error wordMap_createFromString(char *str[], WordMap *map) {
     char *charPtr1, *charPtr2;
     
     /* fscanf here doesn't work if there are spaces in the name */
-    buffer = str[j];
+    buffer = strdup( str[j] );
     j++;
     
     charPtr1 = buffer;
@@ -338,6 +388,7 @@ Error wordMap_createFromString(char *str[], WordMap *map) {
     charPtr2 = strsep( &charPtr1, " " );
     
     wordMap_add( *map, charPtr1, atoi( charPtr2 ) );
+    free( buffer );
 	}
 	
 	return NULL;
