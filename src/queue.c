@@ -200,8 +200,10 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
 
     if( errno == ETIMEDOUT )
       error = ErrNew( ERR_QUEUE, ERR_QUEUE_TIMEDOUT, NULL, "Wait timed out" );
-    else
-      error = ErrNew( ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, ErrErrno(), "sem_timedwait failed" );
+    else {
+      Error err2 = ErrErrno();
+      error = ErrNew( ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, err2, "sem_timedwait failed" );
+    }
 
     return error;
   }
