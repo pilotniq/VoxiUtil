@@ -270,19 +270,19 @@ static Error fileLogText( Logger logger, const char *moduleName,
                       now.millitm,
                       logger->applicationName, moduleName, 
                       LogLevelName[ logLevel ], sourceFile, sourceLine );
-  assert( tempInt >= 0 );
+  if (tempInt >= 0) {
+    
+    index += tempInt;
+    
+    tempInt = vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
+                          format, args );
 
-  index += tempInt;
-
-  tempInt = vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
-                        format, args );
+  }
 
 /*   if (logger->data != stderr) */
 /*     vsnprintf( &(stdOutBuffer[ stdOutIndex ]), */
 /*                sizeof( stdOutBuffer ) - stdOutIndex,  */
 /*                format, args ); */
-  
-  assert( tempInt >= 0 );
 
   tempInt = fputs( buffer, (FILE *) logger->data );
   assert( tempInt >= 0 ); /* fix error handling */
