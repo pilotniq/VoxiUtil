@@ -69,7 +69,7 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
                ERR_TEXTRPC, ERR_STRBUF, ERR_LOOP, ERR_ISI_IDE, ERR_OOW,
                ERR_PARSER, ERR_JAVA_GENERIC, ERR_COOWA, ERR_WINSOCK,
                ERR_SPEECH_RECOGNITION, ERR_HTTP, ERR_IVR, ERR_WIN32, 
-               ERR_DRIVER, ERR_NUANCE, ERR_STATE_MACHINE } ErrType;
+               ERR_DRIVER, ERR_NUANCE, ERR_STATE_MACHINE, ERR_LOGGING } ErrType;
 
 #include <voxi/types.h>
 #include <voxi/util/strbuf.h>
