@@ -36,11 +36,11 @@ void geo_init()
 	if( init_count == 0 )
 	{
 		for( i = 0; i < 8193; i++ )
-			atan_table[ i ] = rint( atan( i / 8192.0 ) * 32768 / M_PI);
+			atan_table[ i ] = (unsigned short) rint( atan( i / 8192.0 ) * 32768 / M_PI);
 		
 		for( i = 0; i < 16385; i++ )
     {
-      int val = rint( sin( i * (2 * M_PI) / 65536 ) * 32768 );
+      int val = (int) rint( sin( i * (2 * M_PI) / 65536 ) * 32768 );
       sin_table[ i ] = (val >= 32768) ? 32767 : val;
     }
 	}
@@ -181,7 +181,7 @@ int geo_distance( Coordinate a, Coordinate b )
 	
 	/* Long Live Pythagoras! */
 	/* WARNING: float function call here! */
-	return sqrt( dx * dx + dz * dz );
+	return (int) rint( sqrt( dx * dx + dz * dz ));
 }
 
 Angle geo_directionFromAtoB( Coordinate a, Coordinate b )
@@ -267,12 +267,12 @@ void geo_transformCoordinatesInward(Coordinate objectPos,
   tempz = objectPos->z - coordinateSystem->z;
   
   result->x =
-    tempx * geo_cos(- coordinateSystem->xzRotation) / 32768 +
-    tempz * geo_sin(- coordinateSystem->xzRotation) / 32768;
+    tempx * geo_cos( (unsigned short) -coordinateSystem->xzRotation) / 32768 +
+    tempz * geo_sin( (unsigned short) -coordinateSystem->xzRotation) / 32768;
   
   result->z =
-    - tempx * geo_sin(- coordinateSystem->xzRotation) / 32768 +
-    tempz * geo_cos(- coordinateSystem->xzRotation) / 32768;
+    - tempx * geo_sin( (unsigned short) -coordinateSystem->xzRotation) / 32768 +
+    tempz * geo_cos( (unsigned short) -coordinateSystem->xzRotation) / 32768;
 
   result->y = objectPos->y - coordinateSystem->y;
   result->xzRotation =
