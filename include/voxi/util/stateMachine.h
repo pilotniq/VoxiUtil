@@ -9,25 +9,31 @@
 extern "C" {
 #endif
 
+#include <voxi/util/config.h>
 #include <voxi/util/err.h>
 
 typedef struct sStateMachine *StateMachine;
+typedef struct sStateMachineDefinition *StateMachineDefinition;
 typedef struct sStateClass *StateClass;
 typedef struct sStateMachineState *StateMachineState;
 
 typedef void (*StateFunction)( StateMachineState );
 
-enum { ERR_STATE_MACHINE_UNSPECIFIED };
+enum { ERR_STATE_MACHINE_UNSPECIFIED, ERR_STATE_MACHINE_OUT_OF_MEMORY, 
+       ERR_STATE_MACHINE_DEF_HAS_MACHINES };
 
-EXTERN_UTIL Error stateMachine_create( StateMachine *machine, void *userData );
+EXTERN_UTIL Error stateMachine_defCreate( StateMachineDefinition *machineDef );
+EXTERN_UTIL Error stateMachine_defDestroy( StateMachineDefinition machineDef );
+
+EXTERN_UTIL Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, void *userData );
 EXTERN_UTIL Error stateMachine_destroy( StateMachine machine );
 
-EXTERN_UTIL Error stateMachine_createClass( StateMachine, StateClass *result, 
+EXTERN_UTIL Error stateMachine_createClass( StateMachineDefinition, StateClass *result, 
                                             const char *name, StateFunction entryFunc, 
                                             StateFunction exitFunc, void *userData );
 EXTERN_UTIL Error stateMachine_destroyClass( StateClass stateClass );
 
-EXTERN_UTIL Error stateMachine_createState( StateMachine, StateMachineState *state, 
+EXTERN_UTIL Error stateMachine_createState( StateMachineDefinition, StateMachineState *state, 
                                             const char *name, StateClass, 
                                             StateFunction entryFunc, 
                                             StateFunction exitFunc );
@@ -35,7 +41,7 @@ EXTERN_UTIL Error stateMachine_destroyState( StateMachineState state );
 
 EXTERN_UTIL void *stateMachine_classGetUserData( StateClass cls );
 
-EXTERN_UTIL StateMachine stateMachine_stateGetMachine( StateMachineState );
+EXTERN_UTIL StateMachineDefinition stateMachine_stateGetMachineDefinition( StateMachineState );
 EXTERN_UTIL StateClass stateMachine_stateGetClass( StateMachineState state );
 
 EXTERN_UTIL void *stateMachine_classGetUserData( StateClass cls );
@@ -46,6 +52,8 @@ EXTERN_UTIL Error stateMachine_setNextState( StateMachine machine,
                                              StateMachineState nextState );
 
 EXTERN_UTIL Error stateMachine_run( StateMachine machine, StateMachineState initialState );
+EXTERN_UTIL Error stateMachine_createAndRun( StateMachineDefinition, StateMachineState initialState,
+                                             void *userData );
 
 #ifdef __cplusplus
 }

@@ -14,10 +14,16 @@
 #include <voxi/util/mem.h>
 #include <voxi/util/stateMachine.h>
 
-typedef struct sStateMachine 
+typedef struct sStateMachineDefinition
 {
+  int machineCount;
   Bag classes;
   Bag states;
+} sStateMachineDefinition;
+
+typedef struct sStateMachine 
+{
+  StateMachineDefinition definition;
   StateMachineState currentState;
   void *userData;
   StateMachineState nextState;
@@ -26,7 +32,7 @@ typedef struct sStateMachine
 typedef struct sStateClass 
 {
   char *name;
-  StateMachine machine;
+  StateMachineDefinition machineDefinition;
   StateFunction entryFunc;
   StateFunction exitFunc;
   int stateCount;
@@ -36,13 +42,66 @@ typedef struct sStateClass
 typedef struct sStateMachineState
 {
   char *name;
-  StateMachine machine;
+  StateMachineDefinition machineDefinition;
   StateClass cls;
   StateFunction entryFunc, exitFunc;
 } sStateMachineState;
 
+Error stateMachine_defCreate( StateMachineDefinition *def )
+{
+  Error error;
 
-Error stateMachine_create( StateMachine *machine, void *userData )
+  error = emalloc( (void **) def, sizeof( sStateMachineDefinition ) );
+  if( error != NULL )
+    return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_OUT_OF_MEMORY, error, 
+      "Failed to allocate %d bytes of memory for state machine definition",
+      sizeof( sStateMachineDefinition ) );
+
+  (*def)->machineCount = 0;
+  (*def)->classes = bagCreate( 32, 32, NULL );
+  (*def)->states = bagCreate( 32, 32, NULL );
+
+  return NULL;
+}
+
+Error stateMachine_defDestroy( StateMachineDefinition def )
+{
+  Error error;
+
+  if( def->machineCount != 0 )
+  {
+    return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_DEF_HAS_MACHINES, NULL,
+      "The state machine definition has %d state machines refering to it.",
+      def->machineCount );
+  }
+
+  /* Destroy all states */
+  while( bagNoElements( def->states) > 0 )
+  {
+    error = stateMachine_destroyState( 
+                  (StateMachineState) bagGetRandomElement( def->states ) );
+    if( error != NULL )
+      return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, 
+                     "Could not destroy state." );
+  }
+
+  /* Destroy all state classes */
+  while( bagNoElements( def->classes) > 0 )
+  {
+    error = stateMachine_destroyClass( (StateClass) bagGetRandomElement( def->classes ) );
+    if( error != NULL )
+      return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, "stateMachine_destroyClass failed." );
+  }
+
+  bagDestroy( def->states, NULL );
+  bagDestroy( def->classes, NULL );
+  
+  free( def );
+  
+  return NULL;
+}
+
+Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, void *userData )
 {
   Error error;
 
@@ -50,46 +109,30 @@ Error stateMachine_create( StateMachine *machine, void *userData )
   if( error != NULL )
     return error;
 
-  (*machine)->classes = bagCreate( 32, 32, NULL );
-  (*machine)->states = bagCreate( 32, 32, NULL );
+  (*machine)->definition = def;
   (*machine)->currentState = NULL;
   (*machine)->userData = userData;
   (*machine)->nextState = NULL;
+
+  def->machineCount++;
 
   return NULL;
 }
 
 Error stateMachine_destroy( StateMachine machine )
 {
-  Error error;
+  StateMachineDefinition def;
 
-  /* Destroy all states */
-  while( bagNoElements( machine->states) > 0 )
-  {
-    error = stateMachine_destroyState( 
-                  (StateMachineState) bagGetRandomElement( machine->states ) );
-    if( error != NULL )
-      return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, 
-                     "stateMachine_destroyState failed." );
-  }
+  def = machine->definition;
 
-  /* Destroy all states */
-  while( bagNoElements( machine->classes) > 0 )
-  {
-    error = stateMachine_destroyClass( (StateClass) bagGetRandomElement( machine->classes ) );
-    if( error != NULL )
-      return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, "stateMachine_destroyClass failed." );
-  }
-
-  bagDestroy( machine->states, NULL );
-  bagDestroy( machine->classes, NULL );
-  
   free( machine );
   
+  def->machineCount--;
+
   return NULL;
 }
 
-Error stateMachine_createClass( StateMachine machine, StateClass *result, 
+Error stateMachine_createClass( StateMachineDefinition def, StateClass *result, 
                                 const char *name, 
                                 StateFunction entryFunc, StateFunction exitFunc,
                                 void *userData )
@@ -101,13 +144,13 @@ Error stateMachine_createClass( StateMachine machine, StateClass *result,
     return error;
 
   (*result)->name = strdup( name );
-  (*result)->machine = machine;
+  (*result)->machineDefinition = def;
   (*result)->entryFunc = entryFunc;
   (*result)->exitFunc = exitFunc;
   (*result)->stateCount = 0;
   (*result)->userData = userData;
 
-  bagAdd( machine->classes, *result );
+  bagAdd( def->classes, *result );
 
   return NULL;
 }
@@ -118,14 +161,14 @@ Error stateMachine_destroyClass( StateClass stateClass )
     return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, NULL,
       "The state class still had %d states.", stateClass->stateCount );
 
-  bagRemove( stateClass->machine->classes, stateClass );
+  bagRemove( stateClass->machineDefinition->classes, stateClass );
 
   free( stateClass->name ); 
 
   return NULL;
 }
 
-Error stateMachine_createState( StateMachine machine, StateMachineState *state, 
+Error stateMachine_createState( StateMachineDefinition def, StateMachineState *state, 
                                 const char *name, 
                                 StateClass stateClass, StateFunction entryFunc, 
                                 StateFunction exitFunc )
@@ -137,12 +180,12 @@ Error stateMachine_createState( StateMachine machine, StateMachineState *state,
     return error;
 
   (*state)->name = strdup( name );
-  (*state)->machine = machine;
+  (*state)->machineDefinition = def;
   (*state)->cls = stateClass;
   (*state)->entryFunc = entryFunc;
   (*state)->exitFunc = exitFunc;
 
-  bagAdd( machine->states, *state );
+  bagAdd( def->states, *state );
 
   if( stateClass != NULL )
     stateClass->stateCount++;
@@ -155,7 +198,7 @@ Error stateMachine_destroyState( StateMachineState state )
   if( state->cls != NULL )
     state->cls->stateCount--;
 
-  bagRemove( state->machine->states, state );
+  bagRemove( state->machineDefinition->states, state );
   free( state->name );
 
   free( state );
@@ -178,9 +221,9 @@ StateClass stateMachine_stateGetClass( StateMachineState state )
 }
 
 
-StateMachine stateMachine_stateGetMachine( StateMachineState state )
+StateMachineDefinition stateMachine_stateGetMachineDefinition( StateMachineState state )
 {
-  return state->machine;
+  return state->machineDefinition;
 }
 
 void *stateMachine_getUserData( StateMachine machine )
@@ -235,4 +278,32 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
   } while( machine->currentState != NULL );
 
   return NULL;
+}
+
+Error stateMachine_createAndRun( StateMachineDefinition def, StateMachineState initialState, void *userData )
+{
+  StateMachine machine;
+  Error error;
+
+  error = stateMachine_create( def, &machine, userData );
+  if( error != NULL )
+  {
+    error = ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, 
+      "Failed to create the state machine." );
+    return error;
+  }
+
+  error = stateMachine_run( machine, initialState );
+  if( error != NULL )
+    goto CREATE_AND_RUN_FAIL_1;
+
+  error = stateMachine_destroy( machine );
+
+  return error;
+
+CREATE_AND_RUN_FAIL_1:
+  stateMachine_destroy( machine ); /* ignore error */
+
+  assert( error != NULL );
+  return error;
 }
