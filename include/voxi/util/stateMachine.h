@@ -11,6 +11,7 @@ extern "C" {
 
 #include <voxi/util/config.h>
 #include <voxi/util/err.h>
+#include <voxi/util/logging.h>
 
 typedef struct sStateMachine *StateMachine;
 typedef struct sStateMachineDefinition *StateMachineDefinition;
@@ -18,6 +19,7 @@ typedef struct sStateClass *StateClass;
 typedef struct sStateMachineState *StateMachineState;
 
 typedef void (*StateFunction)( StateMachine, StateMachineState );
+
 
 enum { ERR_STATE_MACHINE_UNSPECIFIED, ERR_STATE_MACHINE_OUT_OF_MEMORY, 
        ERR_STATE_MACHINE_DEF_HAS_MACHINES, 
