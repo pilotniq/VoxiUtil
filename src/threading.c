@@ -18,11 +18,19 @@
 #include <semaphore.h>
 #include <stdio.h>
 
-#ifdef WIN32
+#ifdef HAVE_TIME_H
 #include <time.h>
-#include "win32_glue.h"
-#else
+#endif
+
+#ifdef WIN32
+#include <voxi/util/win32_glue.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
@@ -37,7 +45,7 @@ CVSID("$Id$");
 */
 
 /*
- * External data
+ * Exported data
  */
 
 /*
@@ -162,9 +170,14 @@ void threading_mutex_init( VoxiMutex mutex )
   
   err = pthread_mutex_init( &(mutex->mutex), NULL );
   assert( err == 0 );
-  
+
+#ifndef NDEBUG
   mutex->thread = 46;  // I dont set them to 0 since i want to know that
   mutex->pid = 10;     // I was the one that set these values (when i'm debugging)
+#else
+  mutex->thread = (pthread_t)0;
+  mutex->pid = 0;
+#endif
 
   mutex->lastLockFrom = NULL;
   mutex->count = 0;

@@ -12,6 +12,8 @@
 	The pthreads version.
 */
 
+#include "config.h"
+
 #ifdef hpux 
 #include <stropts.h>
 #endif
@@ -20,29 +22,63 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <winsock2.h>
-#include <io.h>
-#include <fcntl.h>
-
-#define bzero(s, n) memset(s, 0, n)
-
-#else  /* WIN32 */
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <arpa/inet.h>
-#include <unistd.h> /* for getpid */
 
-#endif /* WIN32 */
+/*
+ * Win32 related socket includes
+ */
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+/*
+ * Unix/Linux related socket includes
+ */
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#ifdef ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> /* for getpid */
+#endif
+
+/* ----- */
 
 #include <errno.h>
 #include <string.h>
+
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
+
 #include <voxi/alwaysInclude.h>
 #include <voxi/types.h>
 #include <voxi/util/threading.h>
@@ -54,6 +90,10 @@
 #include <voxi/util/sock.h>
 
 CVSID("$Id$");
+
+#ifndef HAVE_BZERO
+#define bzero(s, n) memset(s, 0, n)
+#endif
 
 #ifndef WIN32
 #define ErrSock() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )

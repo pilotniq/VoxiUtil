@@ -10,13 +10,24 @@
   time.c
 */
 
-#ifdef WIN32
-#include <windows.h>
+#ifdef HAVE_TIME_H
 #include <time.h>
-#include "win32_glue.h"
-#else
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
+#ifdef WIN32
+#include <voxi/util/win32_glue.h>
 #endif
 
 #include <voxi/alwaysInclude.h>

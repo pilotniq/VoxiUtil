@@ -15,6 +15,8 @@
   etcetera. 
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -33,7 +35,7 @@
 #include <voxi/util/textRPC.h>
 
 #ifdef WIN32
-#include "win32_glue.h"
+#include <voxi/util/win32_glue.h>
 #endif /* WIN32 */
 
 CVSID("$Id$");

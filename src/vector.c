@@ -12,14 +12,18 @@
  * A vector is a dynamic one-dimensional array.
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#ifndef WIN32
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> /* for POSIX-feature definitions */
-#else  /* WIN32 */
+#endif
+
+#ifdef WIN32
 #include <voxi/util/win32_glue.h>
 #endif /* WIN32 */
 
