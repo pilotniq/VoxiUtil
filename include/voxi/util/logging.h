@@ -58,6 +58,11 @@ EXTERN_UTIL Error log_logText( Logger logger, const char *moduleName,
                                const char *sourceFile, int sourceLine,
                                const char *format, ... );
 
+EXTERN_UTIL Error log_logError( Logger logger, const char *moduleName, 
+                               LogLevel logLevel, 
+                               const char *sourceFile, int sourceLine,
+                               Error error );
+
 /* 
   This function does nothing, then returns NULL. Hack to work around
    C preprocessors that don't support variable argument lists.

@@ -113,6 +113,24 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
   return error;
 }
 
+Error log_logError( Logger logger, const char *moduleName, LogLevel logLevel, 
+                    const char *sourceFile, int sourceLine, Error error )
+{
+  char *errorMessage;
+  Error internalError;
+
+  internalError = ErrToHumanReadableString( error, &errorMessage );
+  if( internalError != NULL )
+    return internalError;
+
+  log_logText( logger, moduleName, logLevel, sourceFile, sourceLine, "%s", 
+                errorMessage );
+
+  free( errorMessage );
+
+  return NULL;
+}
+
 Error log_noLogText( Logger logger, const char *moduleName,
                               LogLevel logLevel, const char *sourceFile,
                               int sourceLine, const char *format, ... )
