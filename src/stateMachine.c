@@ -307,3 +307,8 @@ CREATE_AND_RUN_FAIL_1:
   assert( error != NULL );
   return error;
 }
+
+StateMachineState stateMachine_getCurrentState( StateMachine machine )
+{
+  return machine->currentState;
+}

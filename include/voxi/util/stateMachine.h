@@ -50,6 +50,7 @@ EXTERN_UTIL void *stateMachine_getUserData( StateMachine );
 
 EXTERN_UTIL Error stateMachine_setNextState( StateMachine machine, 
                                              StateMachineState nextState );
+EXTERN_UTIL StateMachineState stateMachine_getCurrentState( StateMachine machine );
 
 EXTERN_UTIL Error stateMachine_run( StateMachine machine, StateMachineState initialState );
 EXTERN_UTIL Error stateMachine_createAndRun( StateMachineDefinition, StateMachineState initialState,
