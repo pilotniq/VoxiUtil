@@ -23,6 +23,9 @@
 #ifndef CVSID_H
 #define CVSID_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
   @def CVSID   Macro for putting a static CVS (RCS) id symbol in the object file.
@@ -39,5 +42,9 @@ static const char * cvsid[] = {(const char*)cvsid, msg}
 #define CVSID(msg)
 #endif /* NDEBUG */
 #endif /* CVSID */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CVSID_H */

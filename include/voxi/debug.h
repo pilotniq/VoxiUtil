@@ -38,9 +38,12 @@
   $Id$
 */
 
-
 #ifndef DEBUG_H
 #  define DEBUG_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
   @var static int debug  
@@ -175,5 +178,10 @@ static void DIAG(char *str, ...)
     va_end(args);
 }
 #  endif
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* DEBUG_H */
