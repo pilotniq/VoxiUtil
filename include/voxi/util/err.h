@@ -84,8 +84,6 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
  */
 #define ERR_GOTO( func, label ) \
   { \
-    Error error;\
-    \
     error = (func); \
     if( error != NULL ) \
       goto label; \
