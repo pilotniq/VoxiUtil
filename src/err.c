@@ -71,7 +71,7 @@ typedef struct s_Error
 {
   ErrType type;
   int  number;
-  const char *description;
+  char *description;
   Error reason;
 #if 0 /* Implement this some day */
   const char *sourceFileName;
@@ -280,7 +280,7 @@ void ErrPopFunc(void)
 void Err(char *file, unsigned int line, Err_Action action, char *string, ...)
 {
   va_list args;
-  char *temp;
+  char *temp = NULL;
   int index;
 
 #if _REENTRANT

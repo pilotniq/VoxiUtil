@@ -15,7 +15,7 @@
 #include <voxi/util/stateMachine.h>
 #include <voxi/util/logging.h>
 
-#define LOG_LEVEL   LOGLEVEL_DEBUG
+#define LOG_LEVEL   LOGLEVEL_ERROR
 
 typedef struct sStateMachineDefinition
 {
