@@ -126,12 +126,12 @@ Vector vectorCreate( const char *name, size_t elementSize,
   result->elementCount = 0;
 #ifdef _POSIX_THREADS
   error = threading_mutex_init( &(result->lock) );
-  if (error == NULL) {
+  if (error != NULL) {
     ErrDispose(error, TRUE);
     goto ERR_RETURN;
   }
   error = threading_mutex_init( &(result->refCountLock) );
-  if (error == NULL) {
+  if (error != NULL) {
     ErrDispose(error, TRUE);
     goto ERR_RETURN;
   }
