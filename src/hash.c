@@ -27,7 +27,7 @@
       Will the cursor stuff still work properly if we don't have semaphores?
 */
 
-#include "config.h"
+#include <voxi/util/config.h>
 
 #include <assert.h>
 #include <ctype.h> /* for tolower */
@@ -178,7 +178,7 @@ HashTable HashCreateTable(unsigned int sz, HashFuncPtr calc,
   assert( sz != 0 );
   
   if((ht=(HashTable)malloc(sizeof(struct Hasht) + sz*sizeof(HashInfoPtr))) != NULL) {
-    int i;
+    unsigned int i;
     ht->size = sz;
     for(i=0; i<sz; i++) ht->infoArray[i]=NULL;
     ht->calcIndx = calc;
@@ -212,7 +212,7 @@ int HashSetDebug( HashTable ht, int debugLevel )
 
 void HashDestroyTable(HashTable ht)
 {
-  int i;
+  unsigned int i;
   HashInfoPtr tmp, tmp2;
 
   ErrPushFunc("HashDestroyTable");
@@ -469,7 +469,7 @@ void HashCursorGoNext( HashTableCursor cursor )
 /* return TRUE if the cursor has passed the last element */
 Boolean HashCursorPastLastElement( HashTableCursor cursor )
 {
-	return (cursor->hashIndex >= cursor->hashTable->size);
+	return (cursor->hashIndex >= (long) cursor->hashTable->size);
 }
 
 void *HashCursorGetElement( HashTableCursor cursor )
@@ -592,12 +592,12 @@ static void moveCursorToNextIndex( HashTableCursor cursor )
 {
   assert( cursor->element == NULL );
   
-	for( cursor->hashIndex++; (cursor->hashIndex < cursor->hashTable->size) && 
+	for( cursor->hashIndex++; (cursor->hashIndex < ((long) cursor->hashTable->size)) && 
 				 (cursor->hashTable->infoArray[ cursor->hashIndex ] == NULL); 
 			 cursor->hashIndex++ )
 		;
 	
-	if( cursor->hashIndex < cursor->hashTable->size )
+	if( cursor->hashIndex < ((long) cursor->hashTable->size) )
 	{
 		cursor->element = cursor->hashTable->infoArray[ cursor->hashIndex ];
 	
