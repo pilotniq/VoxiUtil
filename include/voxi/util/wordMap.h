@@ -37,7 +37,7 @@ int wordMap_getNoElements(WordMap map);
 Error wordMap_load( FILE *file, WordMap *wordMap );
 Error wordMap_save( WordMap pm, FILE *file );
 
-Error wordMap_createFromString(char *str[], WordMap *wordMap);
+Error wordMap_createFromString(const char *str[], WordMap *wordMap);
   
 Error wordMap_add( WordMap map, const char *name, int hmmNo );
 Error wordMap_deleteByNumber( WordMap map, int number );
