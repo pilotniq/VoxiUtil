@@ -57,6 +57,9 @@
 CVSID("$Id$");
 
 __inline static Vector getErrorStack();
+static void writeHumanReadableString( Error error, char *string, 
+                                      int remainingLength );
+static size_t calculateHumanReadableStringLength( ConstError error );
 
 /**
  * struct for errors in the new error handling.
@@ -630,6 +633,70 @@ void ErrReport( ConstError err )
       fprintf( stderr, "because\n" );
     err = err->reason;
   }
+}
+
+/*
+   Return a human readable string describing the error, without newlines.
+
+  The caller is responsible for freeing the returned string
+   */
+Error ErrToHumanReadableString( ConstError error, char **string )
+{
+  size_t stringLength, descriptionLength;
+  char *ptr;
+  Error error2;
+  
+  assert( error != NULL );
+  assert( string != NULL );
+
+  stringLength = calculateHumanReadableStringLength( error );
+
+  error2 = emalloc( string, stringLength + 1 );
+  if( error2 != NULL )
+    return error2;
+
+  descriptionLength = strlen( error->description );
+
+  assert( descriptionLength < stringLength );
+  strcpy( *string, error->description );
+  ptr = *string + descriptionLength;
+
+  if( error->reason != NULL )
+    writeHumanReadableString( error->reason, ptr, 
+                              stringLength - descriptionLength );
+
+  return NULL;
+}
+
+static void writeHumanReadableString( Error error, char *string, 
+                                      int remainingLength )
+{
+  size_t addedLength;
+
+  assert( string != NULL );
+  assert( remainingLength >= (strlen( ", because " ) + strlen( error->description )) );
+
+  strcpy( string, ", because " );
+  strcat( string, error->description );
+
+  addedLength = strlen( string );
+
+  if( error->reason != NULL )
+    writeHumanReadableString( error->reason, string + addedLength, 
+                              remainingLength - addedLength );
+}
+
+/* Returns the length of the required string, not including the final '\0' */
+static size_t calculateHumanReadableStringLength( ConstError error )
+{
+  int length;
+
+  length = strlen( error->description );
+  if( error->reason != NULL )
+    length += strlen( ", because " ) + 
+      calculateHumanReadableStringLength( error->reason );
+
+  return length;
 }
 
 #endif

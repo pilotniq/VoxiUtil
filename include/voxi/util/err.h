@@ -69,7 +69,9 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
                ERR_TEXTRPC, ERR_STRBUF, ERR_LOOP, ERR_ISI_IDE, ERR_OOW,
                ERR_PARSER, ERR_JAVA_GENERIC, ERR_COOWA, ERR_WINSOCK,
                ERR_SPEECH_RECOGNITION, ERR_HTTP, ERR_IVR, ERR_WIN32, 
-               ERR_DRIVER, ERR_NUANCE, ERR_STATE_MACHINE, ERR_LOGGING } ErrType;
+               ERR_DRIVER, ERR_NUANCE, ERR_STATE_MACHINE, ERR_LOGGING, 
+               ERR_LLT, ERR_DIALOGIC_GLOBAL_CALL, ERR_DIALOGIC_CALL_CONTROL 
+} ErrType;
 
 #include <voxi/types.h>
 #include <voxi/util/strbuf.h>
@@ -190,6 +192,8 @@ EXTERN_UTIL void ErrReportAddDestination( const char *driver, ... );
  * Print the error object on stderr (in the new error handling).
  */
 EXTERN_UTIL void ErrReport( ConstError error );
+
+EXTERN_UTIL Error ErrToHumanReadableString( ConstError error, char **string );
 
 /**
  * get error-category (in the new error handling)
