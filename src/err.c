@@ -20,6 +20,7 @@
   */
 #define ERR_C
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -43,6 +44,7 @@
 #include <voxi/util/vector.h>
 #include <voxi/util/strbuf.h>
 #include <voxi/util/err.h>
+#include <voxi/util/mem.h>
 
 /*
  * These don't work with the thread pool since
@@ -392,6 +394,48 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 
   ErrPopFunc();
   return result;
+}
+
+Error ErrCopy( Error originalError, Error *errorCopy )
+{
+  Error error;
+
+  assert( errorCopy != NULL );
+
+  error = emalloc( (void **) errorCopy, sizeof( sError ) );
+  if( error != NULL )
+    goto FAIL_1;
+
+  (*errorCopy)->type = originalError->type;
+  (*errorCopy)->number = originalError->number;
+
+  error = estrdup( originalError->description, (char **) &((*errorCopy)->description) );
+  if( error != NULL )
+    goto FAIL_2;
+  
+  if( originalError->reason == NULL )
+    (*errorCopy)->reason = NULL;
+  else
+  {
+    error = ErrCopy( originalError->reason, &( (*errorCopy)->reason ) );
+    if( error != NULL )
+      goto FAIL_3;
+  }
+
+  assert( error == NULL );
+
+  return NULL;
+
+FAIL_3:
+  free( (void *) (*errorCopy)->description );
+
+FAIL_2:
+  free( *errorCopy );
+
+FAIL_1:
+  assert( error != NULL );
+
+  return error;
 }
 
 void ErrDispose(Error err, Boolean recursive)

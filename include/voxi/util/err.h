@@ -157,6 +157,12 @@ EXTERN_UTIL Error ErrNew2( ErrType t, int number, /*@only@*/Error reason,
 EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason, 
                           const char *description, ...);
 #endif
+
+/**
+ * Create a copy of an error
+ */
+EXTERN_UTIL Error ErrCopy( Error originalError, Error *errorCopy );
+
 /**
  * Free an error object in the new error handling.
  *
