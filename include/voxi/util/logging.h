@@ -148,6 +148,12 @@ EXTERN_UTIL LogLevel log_LogLevelGet();
 #define LOG_DEBUG_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 
+#define LOGERR_INFO \
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_INFO )
+
+#define LOGERR_DEBUG \
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )
+
 #define LOGERR_ERROR \
    LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
 
