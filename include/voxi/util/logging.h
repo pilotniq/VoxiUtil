@@ -77,9 +77,66 @@ EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName,
                                   const char *sourceFile, int sourceLine,
                                   Error error );
 
+/*
+ * Convenience macros.
+ *
+ * Use LOG_MODULE_DECL() in a module to declare the module name
+ * and initial logging level to be used in that module. Example:
+ *
+ *   LOG_MODULE_DECL("MyModule", LOGLEVEL_INFO);
+ *
+ *
+ * Then, use the LOG_CRITICAL, LOG_ERROR, LOG_INFO, LOG_DEBUG, and
+ * LOGERR_ERROR macros for logging. Examples:
+ *
+ *   LOG_ERROR(LOG_ERROR_ARG, "Error %d\n", 17);
+ *
+ *   LOG_INFO(LOG_INFO_ARG, "Hello, world\n");
+ *
+ *
+ * LOGERR_ERROR and LOGERR_CRITICAL are special cases for logging an
+ * Error structure. Example:
+ *
+ *   Error error = ErrNew( ... );
+ *   ...
+ *   LOGERR_ERROR(LOG_ERROR_ARG, error);
+ *   ...
+ *   ErrDispose(error, ...);
+ *
+ */
+  
+#define LOG_MODULE_DECL(moduleName, defaultLevel) \
+  static LogLevel _voxiUtilLogLevel = (defaultLevel); \
+  static char *_voxiUtilLogModuleName = (moduleName)
 
 #define LOG( condition ) ((condition) ? log_logText : log_noLogText)
 #define LOGERR( condition ) ((condition) ? log_logError : log_noLogError)
+
+#define LOG_CRITICAL \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_CRITICAL )
+#define LOG_CRITICAL_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
+
+#define LOG_ERROR \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
+#define LOG_ERROR_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
+
+#define LOG_INFO \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )
+#define LOG_INFO_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
+
+#define LOG_DEBUG \
+   LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )
+#define LOG_DEBUG_ARG \
+   NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
+
+#define LOGERR_ERROR \
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
+
+#define LOGERR_CRITICAL \
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
 
 
 /*
