@@ -410,7 +410,7 @@ void stateMachine_setImmediateExit( StateMachine machine )
     machine->immediateExit = TRUE;
 }
 
-char *stateMachine_getStateName( StateMachine machine )
+const char *stateMachine_getStateName( StateMachine machine )
 {
     return machine->currentState->name;
 }

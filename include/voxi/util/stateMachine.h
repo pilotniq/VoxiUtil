@@ -71,7 +71,7 @@ EXTERN_UTIL Error stateMachine_createAndRun( StateMachineDefinition,
                                              void *userData, 
                                              Boolean nuanceSemantics );
 
-EXTERN_UTIL char *stateMachine_getStateName( StateMachine machine );
+EXTERN_UTIL const char *stateMachine_getStateName( StateMachine machine );
 
 #ifdef __cplusplus
 }
