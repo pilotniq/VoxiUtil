@@ -310,9 +310,17 @@ int HashDelete(HashTable ht, void *data)
   ErrPushFunc("HashDelete");
   if(ht->infoArray[hashval]!=NULL) {
     if(!(ht->compData(ht->infoArray[hashval]->data, data))) {
+      int error = 0;
       HashInfoPtr toTrash;             /*First record matched -- remove it! */
       toTrash=ht->infoArray[hashval];
       ht->infoArray[hashval]=toTrash->next;
+#if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
+      {
+        int error = sem_destroy(&(toTrash->cursorListSemaphore));
+        if (error != 0)
+          perror("hash.c HashDelete sem_destroy");
+      }
+#endif
       free(toTrash);
       ht->elementCount--;
       assert( ht->elementCount >= 0 );
@@ -328,6 +336,13 @@ int HashDelete(HashTable ht, void *data)
         HashInfoPtr toTrash;
         toTrash = tmp->next;
         tmp->next = toTrash->next;
+#if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
+        {
+          int error = sem_destroy(&(toTrash->cursorListSemaphore));
+          if (error != 0)
+            perror("hash.c HashDelete sem_destroy");
+        }
+#endif
         free(toTrash);
         ht->elementCount--;
         assert( ht->elementCount >= 0 );
