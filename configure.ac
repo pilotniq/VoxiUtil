@@ -211,6 +211,7 @@ esac
 
 AM_CONDITIONAL(HAVE_LIBCRYPTO, $have_libcrypto)
 
+AM_CONDITIONAL(USE_LIBTOOL,true)
 #
 # Give location for pthreads.
 #
