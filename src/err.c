@@ -11,8 +11,8 @@
 
   based on:
     The Hemuls error functions (Which are, of course, never called)
-		
-	adapted to support POSIX threads in May 1998 by erl
+
+  adapted to support POSIX threads in May 1998 by erl
   integrated into the Voxi cvs in January 2000 by erl
   
   $Id$
@@ -70,23 +70,23 @@ static Boolean Initialized = FALSE;
 Boolean ErrInit(void)
 {
 #if _REENTRANT && defined(_POSIX_THREADS)
-	int err;
+  int err;
 #endif
 
   DEBUG("enter\n");
 
-	if(Initialized)
+  if(Initialized)
     return(TRUE);
 
 #if _REENTRANT && defined(_POSIX_THREADS)
-	err = pthread_key_create( &ErrorStackKey, NULL /*  vectorRefcountDecrease */ );
-	assert( err == 0 );
-	
-	err = pthread_key_create( &InErrorKey, NULL );
-	assert( err == 0 );
-	
-	err = pthread_key_create( &IndentCountKey, NULL );
-	assert( err == 0 );
+  err = pthread_key_create( &ErrorStackKey, NULL /*  vectorRefcountDecrease */ );
+  assert( err == 0 );
+  
+  err = pthread_key_create( &InErrorKey, NULL );
+  assert( err == 0 );
+
+  err = pthread_key_create( &IndentCountKey, NULL );
+  assert( err == 0 );
 #else
   ErrorStack = vectorCreate( "Error Function Trace Stack", sizeof( char * ), 
                              8, 8, NULL );
@@ -110,29 +110,29 @@ void ErrPushFunc(char *funcname, ...)
   char buf[256];
   char *string;
 #if _REENTRANT && defined(_POSIX_THREADS)
-	Vector ErrorStack;
-	Boolean inError;
+  Vector ErrorStack;
+  Boolean inError;
 #endif
-	/*  Boolean DATraceStatus; */
+  /*  Boolean DATraceStatus; */
 
   if(!Initialized) /* The error stack must have been initialized */
     return;
-	
+
 #if _REENTRANT && defined(_POSIX_THREADS)
-	inError = (Boolean) pthread_getspecific( InErrorKey );
-	if( inError )
-		return;
-	
-	pthread_setspecific( InErrorKey, (void *) TRUE );
-	
-	ErrorStack = getErrorStack();
+  inError = (Boolean) pthread_getspecific( InErrorKey );
+  if( inError )
+    return;
+
+  pthread_setspecific( InErrorKey, (void *) TRUE );
+
+  ErrorStack = getErrorStack();
 #else
   if(InError)
     return;
   else
     InError = TRUE;
 #endif
-	
+
   /* Don't display trace of DA-calls from error handlers */
   /* DATraceStatus = DA_Trace(FALSE); */
 
@@ -146,7 +146,7 @@ void ErrPushFunc(char *funcname, ...)
   
   if( string == NULL )
     ERR ERR_ABORT, "Ran out of memory in ErrPushFunc, strdup(%d)", 
-			(strlen(buf)+1) ENDERR;
+      (strlen(buf)+1) ENDERR;
 
   vectorAppend( ErrorStack, &string );
 
@@ -154,25 +154,25 @@ void ErrPushFunc(char *funcname, ...)
   {
     int i;
 #if _REENTRANT && defined(_POSIX_THREADS)
-		int indentCount;
-		
-		fprintf( stderr, "Thread %p:", (void *) pthread_self() );
-		
-		indentCount = (int) pthread_getspecific( IndentCountKey );
-		
-		pthread_setspecific( IndentCountKey, (void *) (indentCount + 1) );
+    int indentCount;
+
+    fprintf( stderr, "Thread %p:", (void *) pthread_self() );
+
+    indentCount = (int) pthread_getspecific( IndentCountKey );
+
+    pthread_setspecific( IndentCountKey, (void *) (indentCount + 1) );
 #endif
     fflush(stdout);
     fflush(stderr);
-		
+
     for(i=0; i<indentCount; i++) fprintf(stderr, "  ");
     fprintf(stderr, "Entering %s\n", string);
     indentCount++;
-		
+
     fflush(stderr);
   }
 #if _REENTRANT && defined(_POSIX_THREADS)
-	pthread_setspecific( InErrorKey, (void *) FALSE );
+  pthread_setspecific( InErrorKey, (void *) FALSE );
 #else
   InError=FALSE;
 #endif
@@ -188,22 +188,22 @@ void ErrPopFunc(void)
   char *funcname;
   int stackCount;
 #ifdef _POSIX_THREADS
-	Boolean inError;
-	Vector ErrorStack;
+  Boolean inError;
+  Vector ErrorStack;
 #endif
  /* Boolean DATraceStatus; */
 
   if(!Initialized)
     return;
-	
+
 #if _REENTRANT && defined(_POSIX_THREADS)
-	inError = (Boolean) pthread_getspecific( InErrorKey );
-	if( inError )
-		return;
-	
-	pthread_setspecific( InErrorKey, (void *) TRUE );
-	
-	ErrorStack = getErrorStack();
+  inError = (Boolean) pthread_getspecific( InErrorKey );
+  if( inError )
+    return;
+
+  pthread_setspecific( InErrorKey, (void *) TRUE );
+
+  ErrorStack = getErrorStack();
 #else
   if(InError)
     return;
@@ -225,13 +225,13 @@ void ErrPopFunc(void)
     {
       int i;
 #if _REENTRANT 
-			int indentCount;
-		
-			fprintf( stderr, "Thread %p:", (void *) pthread_self() );
-		
-			indentCount = (int) pthread_getspecific( IndentCountKey );
-		
-			pthread_setspecific( IndentCountKey, (void *) (indentCount - 1) );
+      int indentCount;
+
+      fprintf( stderr, "Thread %p:", (void *) pthread_self() );
+
+      indentCount = (int) pthread_getspecific( IndentCountKey );
+
+      pthread_setspecific( IndentCountKey, (void *) (indentCount - 1) );
 #endif
       fflush(stdout);
       fflush(stderr);
@@ -244,7 +244,7 @@ void ErrPopFunc(void)
     free(funcname); /* malloc'd in ErrPushFunc */
   }
 #if _REENTRANT
-	pthread_setspecific( InErrorKey, (void *) FALSE );
+  pthread_setspecific( InErrorKey, (void *) FALSE );
 #else
   InError = FALSE;
 #endif
@@ -260,13 +260,13 @@ void Err(char *file, unsigned int line, Err_Action action, char *string, ...)
   int index;
 
 #if _REENTRANT
-	Vector ErrorStack = getErrorStack();
+  Vector ErrorStack = getErrorStack();
 #endif
-	
+
   va_start(args, string);
 
   fprintf(stderr, "%s in file %s, line %d : ",
-	 action == ERR_ABORT ? "Fatal Error" : "Warning", file, line);
+   action == ERR_ABORT ? "Fatal Error" : "Warning", file, line);
 
   vfprintf(stderr, string, args);
   putc('\n', stderr);
@@ -343,34 +343,34 @@ int Err_getNum(Error err) {
 
 Error ErrNew(ErrType t, int number, Error reason, const char *description,...)
 {
-	Error result;
-	va_list args;
-	static char buf[1024];
-	char *string;
-	
-	ErrPushFunc("ErrNew");
-	
-	va_start(args, description);
+  Error result;
+  va_list args;
+  static char buf[1024];
+  char *string;
+
+  ErrPushFunc("ErrNew");
+
+  va_start(args, description);
 
   vsprintf(buf, description, args); /* print parameters int buf */
-	string = strdup( buf );
-	
-	if( string == NULL )
+  string = strdup( buf );
+
+  if( string == NULL )
     ERR ERR_ABORT, "Ran out of memory in ErrNew" ENDERR;
 
-	result = malloc(sizeof(sError));
-	if(result == NULL)
-		ERR ERR_WARN, "malloc failed" ENDERR;
-	else
-	{
-		result->type = t;
-		result->number = number;
-		result->description = string;
-		result->reason = reason;
-	}
-	
-	ErrPopFunc();
-	return result;
+  result = malloc(sizeof(sError));
+  if(result == NULL)
+    ERR ERR_WARN, "malloc failed" ENDERR;
+  else
+  {
+    result->type = t;
+    result->number = number;
+    result->description = string;
+    result->reason = reason;
+  }
+
+  ErrPopFunc();
+  return result;
 }
 
 void ErrDispose(Error err, Boolean recursive)
@@ -416,19 +416,19 @@ Error ErrToString( Error error, StringBuffer strbuf )
 __inline static Vector getErrorStack()
 {
 #if _REENTRANT
-	Vector  ErrorStack = pthread_getspecific( ErrorStackKey );
-	
-	if( ErrorStack == NULL )
-	{
-		ErrorStack = vectorCreate( "Error Function Trace Stack", sizeof( char * ),
+  Vector  ErrorStack = pthread_getspecific( ErrorStackKey );
+
+  if( ErrorStack == NULL )
+  {
+    ErrorStack = vectorCreate( "Error Function Trace Stack", sizeof( char * ),
                                8, 8, NULL );
-	
-		pthread_setspecific( ErrorStackKey, ErrorStack );
-	}
-														 
-	return ErrorStack;
+
+    pthread_setspecific( ErrorStackKey, ErrorStack );
+  }
+ 
+  return ErrorStack;
 #else
-	return ErrorStack;
+  return ErrorStack;
 #endif
 }
 
@@ -440,115 +440,115 @@ __inline static Vector getErrorStack()
 
 void ErrReport(Error err)
 {
-	static short alertID;
-	static Boolean gotAlertID = FALSE;
-	DialogPtr dlog;
-	short ditlType;
-	Handle ditlHandle;
-	Rect ditlRect;
-	short item;
-	
-	if( !gotAlertID )
-	{
-		Handle res;
-		ResType type;
-		unsigned char name[ 256 ];
-		
-		res = GetNamedResource( 'DLOG', "\pErrReport");
-		if(res == NULL)
-		{
-			ERR ERR_WARN, "Couldn't find ErrReport dialog, GetNamedResource: '%s', #%d",
-				ErrOSErrName( ResError() ), ResError() ENDERR;
-			return;
-		}
-		
-		GetResInfo( res, &alertID, &type, (ConstStr255Param) name );
-		if( ResError() != 0)
-		{
-			ERR ERR_WARN, "ErrReport: GetResInfo: '%s', #%d", ErrOSErrName( ResError() ), ResError() 
-				ENDERR;
-			return;
-		}
-		
-		gotAlertID = TRUE;
-		
-		ReleaseResource(res);
-		if( ResError() != 0)
-		{
-			ERR ERR_WARN, "ErrReport: ReleaseResource: '%s', #%d", ErrOSErrName( ResError() ), ResError() 
-				ENDERR;
-			return;
-		}
-	} /* end of if we don't know alert ID */
-	
-	macParamText(err->description);
-	
-	dlog = GetNewDialog(alertID, NULL, (WindowPtr) -1);
-	if(dlog == NULL)
-		ERR ERR_WARN, "ErrReport: GetNewDialog failed." ENDERR;
-		
-	
-	/* Enable/Disable Why button according to whether we have that info in the Error record */
-	/* Disabling doesn't seem to gray the button - how do we do that? */
-	GetDItem( dlog, 2, &ditlType, &ditlHandle, &ditlRect );
-	if(err->reason == NULL)
-		ditlType = ditlType | 0x0080;
-	else
-		ditlType = ditlType & 0xff7f;
-		
-	SetDItem( dlog, 2, ditlType, ditlHandle, &ditlRect );
-	
-	/* Let user interact with dialog */
-	ShowWindow(dlog);
-	ModalDialog(NULL, &item);
-	if(item == 2) /* Why */
-		ErrReport(err->reason);
-		
-	DisposDialog(dlog);
+  static short alertID;
+  static Boolean gotAlertID = FALSE;
+  DialogPtr dlog;
+  short ditlType;
+  Handle ditlHandle;
+  Rect ditlRect;
+  short item;
+
+  if( !gotAlertID )
+  {
+    Handle res;
+    ResType type;
+    unsigned char name[ 256 ];
+
+    res = GetNamedResource( 'DLOG', "\pErrReport");
+    if(res == NULL)
+    {
+      ERR ERR_WARN, "Couldn't find ErrReport dialog, GetNamedResource: '%s', #%d",
+        ErrOSErrName( ResError() ), ResError() ENDERR;
+      return;
+    }
+
+    GetResInfo( res, &alertID, &type, (ConstStr255Param) name );
+    if( ResError() != 0)
+    {
+      ERR ERR_WARN, "ErrReport: GetResInfo: '%s', #%d", ErrOSErrName( ResError() ), ResError() 
+        ENDERR;
+      return;
+    }
+
+    gotAlertID = TRUE;
+
+    ReleaseResource(res);
+    if( ResError() != 0)
+    {
+      ERR ERR_WARN, "ErrReport: ReleaseResource: '%s', #%d", ErrOSErrName( ResError() ), ResError() 
+        ENDERR;
+      return;
+    }
+  } /* end of if we don't know alert ID */
+
+  macParamText(err->description);
+
+  dlog = GetNewDialog(alertID, NULL, (WindowPtr) -1);
+  if(dlog == NULL)
+    ERR ERR_WARN, "ErrReport: GetNewDialog failed." ENDERR;
+
+
+  /* Enable/Disable Why button according to whether we have that info in the Error record */
+  /* Disabling doesn't seem to gray the button - how do we do that? */
+  GetDItem( dlog, 2, &ditlType, &ditlHandle, &ditlRect );
+  if(err->reason == NULL)
+    ditlType = ditlType | 0x0080;
+  else
+    ditlType = ditlType & 0xff7f;
+  
+  SetDItem( dlog, 2, ditlType, ditlHandle, &ditlRect );
+
+  /* Let user interact with dialog */
+  ShowWindow(dlog);
+  ModalDialog(NULL, &item);
+  if(item == 2) /* Why */
+    ErrReport(err->reason);
+
+  DisposDialog(dlog);
 }
-		
+
 
 const char *ErrOSErrName( OSErr err )
 {
-	char buf[256];
-	
-	switch( err )
-	{
-		case portNotCf: 
-			return "AppleTalk: Turned off?";
-			break;
-			
-		case openErr:
-			return "Error opening driver";
-			break;
-		
-		case resNotFound:
-			return "Resource not found";
-			break;
-		
-		case fnOpnErr:
-			return "File not open";
-			break;
-			
-		case iMemFullErr:
-			return "Not enough room in heap zone. (Memory full)";
-			break;
-					
-		/* MacTCP */
-		case ipBadAddr:
-			return "MacTCP: Error getting address (not connected to network?)";
-			break;
-			
-		/* Sound Input */
-		case siDeviceBusyErr:
-			return "Sound Input: Input device already in use.";
-			break;
-			
-		default:
-			sprintf(buf, "Unknown MacOS error (#%d)", err );
-			return strdup(buf);
-			break;
-	}
+  char buf[256];
+
+  switch( err )
+  {
+    case portNotCf: 
+      return "AppleTalk: Turned off?";
+      break;
+
+    case openErr:
+      return "Error opening driver";
+      break;
+
+    case resNotFound:
+      return "Resource not found";
+      break;
+
+    case fnOpnErr:
+      return "File not open";
+      break;
+
+    case iMemFullErr:
+      return "Not enough room in heap zone. (Memory full)";
+      break;
+
+    /* MacTCP */
+    case ipBadAddr:
+      return "MacTCP: Error getting address (not connected to network?)";
+      break;
+
+    /* Sound Input */
+    case siDeviceBusyErr:
+      return "Sound Input: Input device already in use.";
+      break;
+
+    default:
+      sprintf(buf, "Unknown MacOS error (#%d)", err );
+      return strdup(buf);
+      break;
+  }
 }
 
 #else
@@ -556,15 +556,44 @@ const char *ErrOSErrName( OSErr err )
 
 void ErrReport(Error err)
 {
-	fprintf( stderr, "Error:\n" );
-	
-	while( err != NULL )
-	{
-		fprintf( stderr, "  %s\n", err->description );
-		if( err->reason != NULL )
-			fprintf( stderr, "because\n" );
-		err = err->reason;
-	}
+  fprintf( stderr, "Error:\n" );
+
+  while( err != NULL )
+  {
+    fprintf( stderr, "  %s\n", err->description );
+    if( err->reason != NULL )
+      fprintf( stderr, "because\n" );
+    err = err->reason;
+  }
 }
 
+#endif
+
+#ifdef WIN32
+
+#include <voxi/util/win32_glue.h>
+
+Error ErrWin32()
+{
+  Error error;
+  LPVOID lpMsgBuf;
+
+  FormatMessage( 
+    FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+    FORMAT_MESSAGE_FROM_SYSTEM | 
+    FORMAT_MESSAGE_IGNORE_INSERTS,
+    NULL,
+    GetLastError(),
+    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
+    (LPTSTR) &lpMsgBuf,
+    0,
+    NULL 
+  );
+
+  error = ErrNew( ERR_WIN32, GetLastError(), NULL, "Win32: %s", lpMsgBuf );
+
+  LocalFree( lpMsgBuf );
+
+  return error;
+}
 #endif
