@@ -7,18 +7,20 @@
 */
 
 /*
-	wordMap.c
-	
-	Second try, now using hash tables rather than binary trees (which caused
-	problems when files were read in alphabetical order, because they got 
-	pathologically unbalanced).
-	
+  wordMap.c
+
+  Second try, now using hash tables rather than binary trees (which caused
+  problems when files were read in alphabetical order, because they got 
+  pathologically unbalanced).
+
 */
 #include <assert.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <voxi/util/config.h>
 
 #include <voxi/alwaysInclude.h>
 
@@ -43,18 +45,18 @@ CVSID("$Id$");
 
 typedef struct sWordMap
 {
-	char *name;
-	
-	WordMapType type;
-	
-	HashTable byName;
-	HashTable byNumber;
+  char *name;
+
+  WordMapType type;
+
+  HashTable byName;
+  HashTable byNumber;
 } sWordMap;
 
 typedef struct sEntry
 {
-	const char *name;
-	unsigned short number;
+  const char *name;
+  unsigned short number;
 } sEntry, *Entry;
 
 typedef struct sWordMapCursor
@@ -69,36 +71,36 @@ static int hashEntryNumber( Entry e );
 
 Error wordMap_create( const char *name, WordMapType type, WordMap *phoneMap )
 {
-	return wordMap_create2( name, type, phoneMap, DEFAULT_HASHTABLE_SIZE );
+  return wordMap_create2( name, type, phoneMap, DEFAULT_HASHTABLE_SIZE );
 }
 
 Error wordMap_create2( const char *name, WordMapType type, WordMap *phoneMap,
-											 int hashTableSize )
+                       int hashTableSize )
 {
   DEBUG("enter\n");
 
-	*phoneMap = malloc( sizeof( sWordMap ) );
-	
-	assert( *phoneMap != NULL );
-	
-	(*phoneMap)->name = strdup( name );
-	(*phoneMap)->type = type;
-	
-	if( type & WORDMAPMASK_BYNAME )
-		(*phoneMap)->byName = HashCreateTable( hashTableSize, 
-																					 (HashFuncPtr) hashEntryName, 
-																					 (CompFuncPtr) compareEntryNames,
-																					 NULL );
-	
-	if( type & WORDMAPMASK_BYNUMBER )
-		(*phoneMap)->byNumber = HashCreateTable( hashTableSize, 
-																						 (HashFuncPtr) hashEntryNumber,
-																						 (CompFuncPtr) compareEntryNumbers,
-																						 NULL );
-	
+  *phoneMap = malloc( sizeof( sWordMap ) );
+
+  assert( *phoneMap != NULL );
+
+  (*phoneMap)->name = strdup( name );
+  (*phoneMap)->type = type;
+
+  if( type & WORDMAPMASK_BYNAME )
+    (*phoneMap)->byName = HashCreateTable( hashTableSize, 
+                                           (HashFuncPtr) hashEntryName, 
+                                           (CompFuncPtr) compareEntryNames,
+                                           NULL );
+
+  if( type & WORDMAPMASK_BYNUMBER )
+    (*phoneMap)->byNumber = HashCreateTable( hashTableSize, 
+                                             (HashFuncPtr) hashEntryNumber,
+                                             (CompFuncPtr) compareEntryNumbers,
+                                             NULL );
+
   DEBUG("leave\n");
 
-	return NULL;
+  return NULL;
 }
 
 WordMapType wordMap_getType( WordMap map )
@@ -113,110 +115,110 @@ const char *wordMap_getName( WordMap map )
 
 Error wordMap_add( WordMap map, const char *name, int number )
 {
-	Entry newEntry;
-	
-	newEntry = malloc( sizeof( sEntry ));
-	assert( newEntry != NULL );
-	
-	newEntry->name = strdup( name );
-	newEntry->number = number;
-	
-	if( map->type & WORDMAPMASK_BYNAME )
-		HashAdd( map->byName, newEntry );
-	
-	if( map->type & WORDMAPMASK_BYNUMBER )
-		HashAdd( map->byNumber, newEntry );
-	
-	return NULL;
+  Entry newEntry;
+
+  newEntry = malloc( sizeof( sEntry ));
+  assert( newEntry != NULL );
+
+  newEntry->name = strdup( name );
+  newEntry->number = number;
+
+  if( map->type & WORDMAPMASK_BYNAME )
+    HashAdd( map->byName, newEntry );
+
+  if( map->type & WORDMAPMASK_BYNUMBER )
+    HashAdd( map->byNumber, newEntry );
+
+  return NULL;
 }
 
 int wordMap_findByName( WordMap map, const char *name )
 {
-	sEntry template;
-	Entry entry;
-	
-	ErrPushFunc( "wordMap_findByName( map %p, '%s' )", map, name );
-	
-	if( !(map->type & WORDMAPMASK_BYNAME) )
-	{
-		fprintf( stderr, "wordMap_findByName( %p, '%s' ) for map with type %d\n",
-						 map, name, map->type );
-		return -1;
-	}
-			
-	template.name = name;
-	
-	entry = HashFind( map->byName, &template );
-	
-	ErrPopFunc();
-	
-	if( entry == NULL )
-		return -1;
-	else
-		return entry->number;
+  sEntry template;
+  Entry entry;
+
+  ErrPushFunc( "wordMap_findByName( map %p, '%s' )", map, name );
+
+  if( !(map->type & WORDMAPMASK_BYNAME) )
+  {
+    fprintf( stderr, "wordMap_findByName( %p, '%s' ) for map with type %d\n",
+             map, name, map->type );
+    return -1;
+  }
+
+  template.name = name;
+
+  entry = HashFind( map->byName, &template );
+
+  ErrPopFunc();
+
+  if( entry == NULL )
+    return -1;
+  else
+    return entry->number;
 }
 
 const char *wordMap_findByNumber( WordMap map, int number )
 {
-	sEntry template;
-	Entry entry;
-	
-	assert( map->type & WORDMAPMASK_BYNUMBER );
-	
-	template.number = number;
-	
-	entry = HashFind( map->byNumber, &template );
-	
-	if( entry == NULL )
-		return NULL;
-	else
-		return entry->name;
+  sEntry template;
+  Entry entry;
+
+  assert( map->type & WORDMAPMASK_BYNUMBER );
+
+  template.number = number;
+  
+  entry = HashFind( map->byNumber, &template );
+  
+  if( entry == NULL )
+    return NULL;
+  else
+    return entry->name;
 }
 
-int wordMap_getNoElements(WordMap map) {
-
+int wordMap_getNoElements(WordMap map) 
+{
   if( map->type & WORDMAPMASK_BYNUMBER ) 
     return HashGetElementCount(map->byNumber);
   else 
     return HashGetElementCount(map->byName);      
 }
 
-/* #ifdef _FILE_IO */
+#ifdef _FILE_IO
 Error wordMap_save( WordMap map, FILE *file )
 {
-	HashTable hashTable;
-	HashTableCursor cursor;
-	
-	fprintf( file, "%d\n", FILE_FORMAT_VERSION );
-	fprintf( file, "%s\n", map->name );
-	fprintf( file, "%d\n", map->type );
-	
-	if( map->type & WORDMAPMASK_BYNAME )
-		hashTable = map->byName;
-	else if( map->type & WORDMAPMASK_BYNUMBER )
-		hashTable = map->byNumber;
-	else {
-		assert( FALSE );
+  HashTable hashTable;
+  HashTableCursor cursor;
+
+  fprintf( file, "%d\n", FILE_FORMAT_VERSION );
+  fprintf( file, "%s\n", map->name );
+  fprintf( file, "%d\n", map->type );
+
+  if( map->type & WORDMAPMASK_BYNAME )
+    hashTable = map->byName;
+  else if( map->type & WORDMAPMASK_BYNUMBER )
+    hashTable = map->byNumber;
+  else {
+    assert( FALSE );
     hashTable = NULL;
-	}
-	fprintf( file, "%d\n", HashGetElementCount( hashTable ) );
-	
-	cursor = HashCursorCreate( hashTable );
-	
-	while( !HashCursorPastLastElement( cursor ) )
-	{
-		Entry entry = (Entry) HashCursorGetElement( cursor );
-		
-		assert( entry != NULL );
-		
-		fprintf( file, "%d %s\n", entry->number, entry->name );
-		
-		HashCursorGoNext( cursor );
-	}
-	
-	HashCursorDestroy( cursor );
-	
-	return NULL;
+  }
+  fprintf( file, "%d\n", HashGetElementCount( hashTable ) );
+  
+  cursor = HashCursorCreate( hashTable );
+  
+  while( !HashCursorPastLastElement( cursor ) )
+  {
+    Entry entry = (Entry) HashCursorGetElement( cursor );
+    
+    assert( entry != NULL );
+    
+    fprintf( file, "%d %s\n", entry->number, entry->name );
+    
+    HashCursorGoNext( cursor );
+  }
+
+  HashCursorDestroy( cursor );
+  
+  return NULL;
 }
 
 Error wordMap_saveToStringBuffer( WordMap map, StringBuffer *memBlock )
@@ -236,78 +238,78 @@ Error wordMap_saveToStringBuffer( WordMap map, StringBuffer *memBlock )
   error = strbuf_stringList_append2( *memBlock, "%d", map->type );
   assert( error == NULL );
   
-	if( map->type & WORDMAPMASK_BYNAME )
-		hashTable = map->byName;
-	else if( map->type & WORDMAPMASK_BYNUMBER )
-		hashTable = map->byNumber;
-	else {
-		assert( FALSE );
+  if( map->type & WORDMAPMASK_BYNAME )
+    hashTable = map->byName;
+  else if( map->type & WORDMAPMASK_BYNUMBER )
+    hashTable = map->byNumber;
+  else {
+    assert( FALSE );
     hashTable = NULL;
-	}
+  }
   
-	error = strbuf_stringList_append2( *memBlock, "%d", 
+  error = strbuf_stringList_append2( *memBlock, "%d", 
                                      HashGetElementCount( hashTable ) );
   assert( error == NULL );
-	cursor = HashCursorCreate( hashTable );
-	
-	while( !HashCursorPastLastElement( cursor ) )
-	{
-		Entry entry = (Entry) HashCursorGetElement( cursor );
-		
-		assert( entry != NULL );
-		
+  cursor = HashCursorCreate( hashTable );
+  
+  while( !HashCursorPastLastElement( cursor ) )
+  {
+    Entry entry = (Entry) HashCursorGetElement( cursor );
+    
+    assert( entry != NULL );
+    
     error = strbuf_stringList_append2( *memBlock, "%d", entry->number );
     assert( error == NULL );
     error = strbuf_stringList_append2( *memBlock, "%s", entry->name );
     assert( error == NULL );
     
-		HashCursorGoNext( cursor );
-	}
-	
-	HashCursorDestroy( cursor );
-	
-	return NULL;
+    HashCursorGoNext( cursor );
+  }
+
+  HashCursorDestroy( cursor );
+  
+  return NULL;
 }
 
 Error wordMap_load( FILE *file, WordMap *map )
 {
-	int version, count, i;
-	char name[256];
-	Error error;
-	int type;
-	
-	fscanf( file, "%d\n", &version );
-	
-	fgets( name, 256, file );
-	name[ strlen( name ) - 1 ] = '\0'; /* remove newline */
-	
-	switch( version )
-	{
-		case 1:
-			fscanf( file, "%d\n", &count );
-			/* passing count here will result in a fairly large but fast hash table.
-				 We might consider using count / 5 or some such thing here instead
-				 to make a more memory efficient hash table with marginal efficiency 
-				 loss */
-			error = wordMap_create2( name, WORDMAP_BYNAME_NUMBER, map, count );
-			break;
-			
-		case 2:
-			fscanf( file, "%d\n", &type );
-			fscanf( file, "%d\n", &count );
-			
-			error = wordMap_create2( name, type, map, count );
-			break;
-			
-		default:
-			return ErrNew( ERR_APP, 0, NULL, "Unsupported version number (%d) in "
-										 "WordMap.", version );
-	}
-	
-	assert( error == NULL );
-	
-	for( i = 0; i < count; i++ )
-	{
+  int version, count, i;
+  char name[256];
+  Error error;
+  int type;
+  
+  fscanf( file, "%d\n", &version );
+  
+  fgets( name, 256, file );
+  name[ strlen( name ) - 1 ] = '\0'; /* remove newline */
+  
+  switch( version )
+  {
+    case 1:
+      fscanf( file, "%d\n", &count );
+      /* passing count here will result in a fairly large but fast hash table.
+         We might consider using count / 5 or some such thing here instead
+         to make a more memory efficient hash table with marginal efficiency 
+         loss */
+      error = wordMap_create2( name, WORDMAP_BYNAME_NUMBER, map, count );
+      break;
+
+  case 2:
+    fscanf( file, "%d\n", &type );
+    fscanf( file, "%d\n", &count );
+    
+    error = wordMap_create2( name, type, map, count );
+    break;
+    
+  default:
+    return ErrNew( ERR_APP, 0, NULL, "Unsupported version number (%d) in "
+                   "WordMap.", version );
+  }
+  
+  assert( error == NULL );
+  
+  for( i = 0; i < count; i++ )
+  {
 #define _WORDMAP_LOAD_BUFSIZE 1024
     char buffer[ _WORDMAP_LOAD_BUFSIZE ];
     char *charPtr1, *charPtr2;
@@ -322,21 +324,21 @@ Error wordMap_load( FILE *file, WordMap *map )
     
     charPtr2 = strsep( &charPtr1, " " );
     
-		/* fscanf( file, "%d %s\n", &number, name ); */
+    /* fscanf( file, "%d %s\n", &number, name ); */
     
-		wordMap_add( *map, charPtr1, atoi( charPtr2 ) );
-	}
-	
-	return NULL;
-}
-/* #endif */ /* ifdef _FILE_IO */
+    wordMap_add( *map, charPtr1, atoi( charPtr2 ) );
+  }
 
-Error wordMap_createFromString(const char *str[], WordMap *map) {
+  return NULL;
+}
+#endif  /* ifdef _FILE_IO */
+
+Error wordMap_createFromString(const char *str[], WordMap *map) 
+{
   Error error = NULL;
   int version, count, i;
-	const char *name;
+  const char *name;
   int type;
-  char *ptr;
   int j = 0;
   
   version = atoi(str[j]);
@@ -346,36 +348,36 @@ Error wordMap_createFromString(const char *str[], WordMap *map) {
   j++;
   
   switch( version )
-	{
-		case 1:
+  {
+    case 1:
       count = atoi(str[j]);
       j++;
-			
-			/* passing count here will result in a fairly large but fast hash table.
-				 We might consider using count / 5 or some such thing here instead
-				 to make a more memory efficient hash table with marginal efficiency 
-				 loss */
-			error = wordMap_create2( name, WORDMAP_BYNAME_NUMBER, map, count );
-			break;
-			
-		case 2:
+      
+      /* passing count here will result in a fairly large but fast hash table.
+         We might consider using count / 5 or some such thing here instead
+         to make a more memory efficient hash table with marginal efficiency 
+         loss */
+      error = wordMap_create2( name, WORDMAP_BYNAME_NUMBER, map, count );
+      break;
+      
+    case 2:
       type = atoi(str[j]);
       j++;
       count = atoi(str[j]);
       j++;
-						
-			error = wordMap_create2( name, type, map, count );
-			break;
-			
-		default:
-			return ErrNew( ERR_APP, 0, NULL, "Unsupported version number (%d) in "
-										 "WordMap.", version );
-	}
-	
-	assert( error == NULL );
-	
-	for( i = 0; i < count; i++ )
-	{
+    
+      error = wordMap_create2( name, type, map, count );
+      break;
+      
+    default:
+      return ErrNew( ERR_APP, 0, NULL, "Unsupported version number (%d) in "
+                     "WordMap.", version );
+  }
+  
+  assert( error == NULL );
+  
+  for( i = 0; i < count; i++ )
+  {
     char *buffer;
     char *charPtr1, *charPtr2;
     
@@ -389,37 +391,37 @@ Error wordMap_createFromString(const char *str[], WordMap *map) {
     
     wordMap_add( *map, charPtr1, atoi( charPtr2 ) );
     free( buffer );
-	}
-	
-	return NULL;
+  }
+  
+  return NULL;
 }
 
 Error wordMap_deleteByNumber( WordMap map, int number )
 {
-	sEntry template;
-	Entry entry;
-	int tempInt;
-	
-	assert( map->type & WORDMAPMASK_BYNUMBER );
-	
-	template.number = number;
-
-	entry = HashFind( map->byNumber, &template );
-	assert( entry != NULL );
-	
-	tempInt = HashDelete( map->byNumber, entry );
-	assert( tempInt == 1 );
-	
-	if( map->type & WORDMAPMASK_BYNAME )
-	{
-		tempInt = HashDelete( map->byName, entry );
-		assert( tempInt == 1 );
-	}
-	
-	free( (char *) entry->name );
-	free( entry );
- 	
-	return NULL;
+  sEntry template;
+  Entry entry;
+  int tempInt;
+  
+  assert( map->type & WORDMAPMASK_BYNUMBER );
+  
+  template.number = number;
+  
+  entry = HashFind( map->byNumber, &template );
+  assert( entry != NULL );
+  
+  tempInt = HashDelete( map->byNumber, entry );
+  assert( tempInt == 1 );
+  
+  if( map->type & WORDMAPMASK_BYNAME )
+  {
+    tempInt = HashDelete( map->byName, entry );
+    assert( tempInt == 1 );
+  }
+  
+  free( (char *) entry->name );
+  free( entry );
+  
+  return NULL;
 }
 
 /*
@@ -520,23 +522,20 @@ Boolean wordMap_cursor_pastLastElement( WordMapCursor cursor )
 
 static int compareEntryNames( Entry pme1, Entry pme2 )
 {
-	return strcmp( pme1->name, pme2->name );
+  return strcmp( pme1->name, pme2->name );
 }
 
 static int compareEntryNumbers( Entry pme1, Entry pme2 )
 {
-	return pme2->number - pme1->number;
+  return pme2->number - pme1->number;
 }
 
 static int hashEntryName( Entry e )
 {
-	return HashString( e->name );
+  return HashString( e->name );
 }
 
 static int hashEntryNumber( Entry e )
 {
-	return e->number;
+  return e->number;
 }
-
-
-
