@@ -10,6 +10,7 @@
 
 // #include <queue>
 #include <pthread.h>
+#include <voxi/util/config.h>
 
 class EXTERN_UTIL ByteQueue
 {
