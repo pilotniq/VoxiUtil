@@ -275,9 +275,18 @@ void vectorRemoveLastElement( Vector vector )
 
 void vectorRemoveAll( Vector vector )
 {
-  assert( vector->destroyFunc == NULL );
+  if( vector->destroyFunc != NULL )
+  {
+    int i;
+    char *ptr;
+
+    for( i = 0, ptr = vector->data; i < vector->elementCount; 
+         i++, ptr += vector->elementSize )
+      vector->destroyFunc( ptr );
+  }
   
   vector->elementCount = 0;
+
   return;
 }
 
