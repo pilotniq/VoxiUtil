@@ -111,6 +111,7 @@ EXTERN_UTIL Bag bagCreate2( int initialCapacity, int capacityIncrement, size_t e
  * in the bag.
  */
 EXTERN_UTIL void bagDestroy( /*@only@*/Bag bag, /*@null@*/DestroyElementFunc destroyFunc );
+EXTERN_UTIL void bagDestroy2( /*@only@*/Bag bag );
 
 /**
  * Copies the specified bag to a new bag. The new bag will
@@ -264,6 +265,7 @@ EXTERN_UTIL void bagForEach( Bag bag, ForEachFunc forEachFunc, void *args );
 
 /**
  * Same as bagForEach, the elements not nesassarily being sizeof (void *). 
+ * Should be modified to return error
  */
 EXTERN_UTIL void bagForEach2( Bag bag, ForEachFunc2 forEachFunc, void *args );
 
@@ -308,6 +310,7 @@ EXTERN_UTIL Boolean bagUntil2NoCopy( Bag bag, FilterFunc2 filterFunc, void *func
  * is > 0, else NULL is returned.
  */
 EXTERN_UTIL void *bagGetRandomElement( const Bag bag );
+
 /**
  * Same as bagGetRandomElement but copies the data into the ptr.
  * @see bagGetRandomElement
