@@ -32,6 +32,7 @@ typedef struct sQueue
  * static functions
  */
 static QueueEntry doPop( Queue queue );
+static void validate( Queue queue );
 
 /*
  * Start of code
@@ -52,6 +53,8 @@ Error queue_create( Queue *result )
   (*result)->oldest = NULL;
   (*result)->newest = NULL;
 
+  validate( *result );
+
   return NULL;
 }
 
@@ -61,6 +64,8 @@ Error queue_destroy( Queue queue )
 
   err = pthread_mutex_lock( &(queue->mutex) );
   assert( err == 0 );
+
+  validate( queue );
 
   if( queue->newest != NULL )
     return ErrNew( ERR_QUEUE, ERR_QUEUE_NOT_EMPTY, NULL, "The queue was not "
@@ -96,10 +101,13 @@ Error queue_push( Queue queue, void *userElement )
   err = pthread_mutex_lock( &(queue->mutex) );
   assert( err == 0 );
 
-  element->newer = NULL;
+  validate( queue );
 
+  element->newer = NULL;
+  
   if( queue->newest == NULL ) {
     assert( queue->oldest == NULL );
+
     queue->oldest = element;
   }
   else {
@@ -107,6 +115,8 @@ Error queue_push( Queue queue, void *userElement )
   }
 
   queue->newest = element;
+
+  validate( queue );
 
   err = pthread_mutex_unlock( &(queue->mutex) );
   assert( err == 0 );
@@ -147,6 +157,8 @@ static QueueEntry doPop( Queue queue )
   err = pthread_mutex_lock( &(queue->mutex) );
   assert( err == 0 );
 
+  validate( queue );
+
   assert( queue->oldest != NULL );
   assert( queue->newest != NULL );
 
@@ -158,6 +170,8 @@ static QueueEntry doPop( Queue queue )
     assert( queue->newest == element );
     queue->newest = NULL;
   }
+
+  validate( queue );
 
   err = pthread_mutex_unlock( &(queue->mutex) );
   assert( err == 0 );
@@ -197,4 +211,21 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
   free( element );
 
   return NULL;
+}
+
+/* Should be called while the queue is locked */
+static void validate( Queue queue )
+{
+  if( queue->oldest == NULL )
+    assert( queue->newest == NULL );
+  else
+  {
+    QueueEntry element;
+
+    for( element = queue->oldest; element->newer != NULL; element = element->newer )
+      ;
+    
+    assert( queue->newest == element );
+    assert( element->newer == NULL );
+  }
 }
