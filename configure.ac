@@ -166,8 +166,8 @@ case $host in
         have_libcrypto=true
         AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
         LIBS_FINAL="$LIBS_FINAL libeay32.lib"
-        LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_openssl}\\lib"
-        CPPFLAGS="$CPPFLAGS -I${with_openssl}\\include"
+        LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_openssl}/lib"
+        CPPFLAGS="$CPPFLAGS -I${with_openssl}/include"
     esac
   ;;
 
@@ -206,8 +206,8 @@ AC_ARG_WITH(
 
           i*86-*-cygwin*)
             LIBS_FINAL="$LIBS_FINAL pthreadVSE.lib"
-            LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}\\DLL"
-            CPPFLAGS="$CPPFLAGS -I${with_pthreads}\\DLL"
+            LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}/DLL"
+            CPPFLAGS="$CPPFLAGS -I${with_pthreads}/DLL"
           ;;
 
           *)
