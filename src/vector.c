@@ -281,7 +281,7 @@ void vectorRemoveAll( Vector vector )
   return;
 }
 
-void vectorGetElementAt( ConstVector vector, int index, void *element )
+void vectorGetElementAt( Vector vector, int index, void *element )
 {
 #ifdef _POSIX_THREADS
   const char *prevLocker;
@@ -334,7 +334,7 @@ void vectorSetElementAt( Vector vector, int index, /*@out@*/void *element )
  
    Returns the old locker, which must be passed to vectorUnlockDebug
 */
-const char *vectorLockDebug( ConstVector vector, const char *where )
+const char *vectorLockDebug( Vector vector, const char *where )
 {
 #ifdef _POSIX_THREADS
   /* cast away the const */
@@ -345,7 +345,7 @@ const char *vectorLockDebug( ConstVector vector, const char *where )
 }
 
 /* Should be modified to throw an error when there is no thread support */
-void vectorLock( ConstVector vector )
+void vectorLock( Vector vector )
 {
 #ifdef _POSIX_THREADS
   threading_mutex_lock( &(vector->lock) );
@@ -354,14 +354,14 @@ void vectorLock( ConstVector vector )
 }
 
 /* Should be modified to throw an error when there is no thread support */
-void vectorUnlock( ConstVector vector )
+void vectorUnlock( Vector vector )
 {
 #ifdef _POSIX_THREADS
   threading_mutex_unlock( (VoxiMutex) &(vector->lock) );
 #endif
 }
 
-void vectorUnlockDebug( ConstVector vector, const char *prevLocker )
+void vectorUnlockDebug( Vector vector, const char *prevLocker )
 {
 #ifdef _POSIX_THREADS
   threading_mutex_unlock_debug( (VoxiMutex) &(vector->lock), prevLocker );
