@@ -114,6 +114,11 @@ EXTERN_UTIL Boolean threading_cond_timedwait( pthread_cond_t *condition,
                                               VoxiMutex mutex, 
                                               unsigned long usec );
 
+EXTERN_UTIL Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition, 
+                                              VoxiMutex mutex, 
+                                              struct timespec *wakeuptime );
+
+
 /* use this instead of pthread_create! */
 EXTERN_UTIL int threading_pthread_create( pthread_t * thread, 
                                           pthread_attr_t * attr,
