@@ -2,7 +2,7 @@
 #	idTable libcCompat license mem memory path shlib sock strbuf textRPC \
 #	threading threadpool time vector
 
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I../include -include ../config.h
 lib_LTLIBRARIES = libvoxiUtil.la
 
 #voxiUtilIncludedir=$(includedir)/voxi/util
