@@ -12,7 +12,9 @@
   $Id$
   */
 
+#include <assert.h>
 #include <stdlib.h>
+
 #include <voxi/alwaysInclude.h>
 #include <voxi/types.h>
 #include <voxi/util/err.h>
@@ -80,7 +82,8 @@ Boolean realloch(Handle h, int size, Boolean ignoreErr)
   if(temp == NULL)
   {
     if(!ignoreErr)
-      ERR ERR_ABORT, "realloch: realloc failed - requested size = %d\n", size	ENDERR;
+      ERR ERR_ABORT, "realloch: realloc failed - requested size = %d\n", size 
+        ENDERR;
 
     return(FALSE);
   }
@@ -101,11 +104,25 @@ Boolean freeh(Handle h)
 
 Error emalloc( void **result, size_t size )
 {
-	*result = malloc( size );
-	if( *result == NULL )
-		return ErrNew( ERR_MEMORY, MEMERR_OUT, NULL, "Out of memory when allocating "
-									 "%d bytes", size );
-	else
-		return NULL;
+  *result = malloc( size );
+  if( *result == NULL )
+    return ErrNew( ERR_MEMORY, MEMERR_OUT, NULL, "Out of memory when "
+                   "allocating %d bytes", size );
+  else
+    return NULL;
 }
 
+Error estrdup( const char *originalString, char **newString )
+{
+  assert( newString != NULL );
+  assert( originalString != NULL );
+
+  *newString = strdup( originalString );
+  
+  if( *newString == NULL )
+    return ErrNew( ERR_MEMORY, MEMERR_OUT, NULL, "Out of memory when "
+                   "allocating copying a string (%d bytes)", 
+                   strlen( originalString ) + 1 );
+  else
+    return NULL;
+}
