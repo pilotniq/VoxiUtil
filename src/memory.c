@@ -74,7 +74,8 @@ typedef struct sBlockHeader
 MemoryManager memManager_create( size_t elementSize, const char *name, 
                                  int capacity )
 {
-  MemoryManager result;
+  Error error = NULL;
+  MemoryManager result = NULL;
   char *ptr;
   int i;
   
@@ -84,16 +85,25 @@ MemoryManager memManager_create( size_t elementSize, const char *name,
   assert( elementSize > 0 );
   
   result = malloc( sizeof( sMemoryManager ) );
+  if (result == NULL) {
+    goto ERR_RETURN1;
+  }
   result->elementSize = elementSize;
   result->blockSize = elementSize + sizeof( sBlockHeader );
   result->name = (name == NULL) ? NULL : strdup( name );
   result->capacity = capacity;
   result->firstFree = 0;
 #ifdef _POSIX_THREADS
-  threading_mutex_init( &(result->mutex) );
+  error = threading_mutex_init( &(result->mutex) );
+  if (error != NULL) {
+    ErrDispose(error, TRUE);
+    goto ERR_RETURN2;
+  }
 #endif
   result->data = malloc( result->blockSize * result->capacity );
-  assert( result->data != NULL );
+  if (result->data == NULL) {
+    goto ERR_RETURN3;
+  }
   
   for( i = 0, ptr = result->data; i < result->capacity; 
        i++, ptr += (elementSize + sizeof( sBlockHeader ) ) )
@@ -107,6 +117,19 @@ MemoryManager memManager_create( size_t elementSize, const char *name,
   DEBUG("leave\n");
 
   return result;
+
+ ERR_RETURN3:
+  threading_mutex_destroy(&(result->mutex));
+  
+ ERR_RETURN2:
+  if (result->name)
+    free(result->name);
+  free(result);
+  result = NULL;
+  
+ ERR_RETURN1:
+  
+  return NULL;
 }
 
 /*

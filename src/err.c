@@ -104,13 +104,17 @@ Boolean ErrInit(void)
 
 #if _REENTRANT && defined(_POSIX_THREADS)
   err = pthread_key_create( &ErrorStackKey, NULL /*  vectorRefcountDecrease */ );
-  assert( err == 0 );
+  if (err != 0)
+    return FALSE;
   
   err = pthread_key_create( &InErrorKey, NULL );
-  assert( err == 0 );
+  if (err != 0)
+    return FALSE;
 
   err = pthread_key_create( &IndentCountKey, NULL );
-  assert( err == 0 );
+  if (err != 0)
+    return FALSE;
+
 #else
   ErrorStack = vectorCreate( "Error Function Trace Stack", sizeof( char * ), 
                              8, 8, NULL );
@@ -402,7 +406,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 
 Error ErrCopy( ConstError originalError, Error *errorCopy )
 {
-  Error error;
+  Error error = NULL;
 
   assert( errorCopy != NULL );
 
@@ -426,9 +430,7 @@ Error ErrCopy( ConstError originalError, Error *errorCopy )
       goto FAIL_3;
   }
 
-  assert( error == NULL );
-
-  return NULL;
+  return error;
 
 FAIL_3:
   free( (void *) (*errorCopy)->description );
@@ -437,7 +439,6 @@ FAIL_2:
   free( *errorCopy );
 
 FAIL_1:
-  assert( error != NULL );
 
   return error;
 }
@@ -449,9 +450,9 @@ void ErrDispose(Error err, Boolean recursive)
   if (recursive && err->reason != NULL)
     ErrDispose(err->reason, TRUE);
 
-  assert( err->description != NULL );
-
-  free( (char *) err->description);
+  if (err->description) {
+    free( (char *) err->description);
+  }
 
   free(err);
 }
@@ -662,8 +663,8 @@ Error ErrToHumanReadableString( ConstError error, char **string )
 
   descriptionLength = strlen( error->description );
 
-  assert( descriptionLength <= stringLength );
-  strcpy( *string, error->description );
+  strncpy( *string, error->description, stringLength + 1 );
+  (*string)[stringLength] = '\0';
   ptr = *string + descriptionLength;
 
   if( error->reason != NULL )

@@ -147,7 +147,10 @@ Error threadPool_create(int initialSize, pthread_attr_t attr, ThreadPool *res) {
   pool->firstAvailableThread = NULL;
 
   /* Init the mutex */
-  threading_mutex_init(&(pool->threadListMutex));
+  error = threading_mutex_init(&(pool->threadListMutex));
+  if (error != NULL) {
+    goto ERR1;
+  }
   
   /* Create the threads */
   for (i = 0; i < initialSize; i++) {
@@ -449,8 +452,14 @@ static Error threadPoolThread_create(ThreadPool pool, ThreadPoolThread *res) {
   resource->threadFuncArgs   = NULL;
   resource->threadFuncResult = NULL;
 
-  threading_mutex_init(&(resource->startConditionMutex));
-  threading_mutex_init(&(resource->joinStateMutex));
+  error = threading_mutex_init(&(resource->startConditionMutex));
+  if (error != NULL) {
+    goto ERR1;
+  }
+  error = threading_mutex_init(&(resource->joinStateMutex));
+  if (error != NULL) {
+    goto ERR1;
+  }
   err1 = pthread_cond_init(&(resource->startCondition), NULL); 
   err2 = pthread_cond_init(&(resource->joinStateCondition), NULL);
   

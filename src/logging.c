@@ -224,9 +224,8 @@ FAIL_2:
   free( (char *) ((*logger)->applicationName) );
 
 FAIL:
+  free((char*)((*logger)->logFileName));
   free( *logger );
-
-  assert( error != NULL );
 
   return error;
 }
@@ -242,9 +241,14 @@ static void fileDestroy( Logger logger )
     fclose( logger->data );
   }
 
-  assert( logger->applicationName != NULL );
+  if (logger->logFileName) {
+    free((char*)(logger->logFileName));
+  }
 
-  free( (char *) (logger->applicationName) );
+  if (logger->applicationName) {
+    free( (char *) (logger->applicationName) );
+  }
+  
   pthread_mutex_destroy(&(logger->mutex));
   free( logger );
 
@@ -256,6 +260,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
                           int sourceLine, const char *format,
                           va_list args )
 {
+  Error error = NULL;
   char buffer[ BUFFER_LENGTH ];
   char stdOutBuffer[ BUFFER_LENGTH ];
   char tmpDate[ 15 ];
@@ -328,10 +333,21 @@ static Error fileLogText( Logger logger, const char *moduleName,
 
   index = strftime( buffer, sizeof( buffer ), "%c",
                     localtime( /*&now*/ &(now.time) ) );
-  if (logger->data != stderr)
+  if (index <= 0) {
+    error = ErrNew(ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, 0, 
+                   "strftime failed.");
+    goto ERR_RETURN;
+  }
+  
+  if (logger->data != stderr) {
     stdOutIndex = strftime( stdOutBuffer, sizeof( stdOutBuffer), "%c ",
                             localTime );
-  assert( index > 0 ); /* Make better handling here */
+    if (index <= 0) {
+      error = ErrNew(ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, 0, 
+                     "strftime failed.");
+      goto ERR_RETURN;
+    }
+  }
 
   tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
                       ".%03ld\t%s\t%s\t%s\t%s:%d\t",
@@ -353,7 +369,11 @@ static Error fileLogText( Logger logger, const char *moduleName,
 /*                format, args ); */
 
   tempInt = fputs( buffer, (FILE *) logger->data );
-  assert( tempInt >= 0 ); /* fix error handling */
+  if (tempInt < 0) {
+    error = ErrNew(ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, 0, 
+                   "fputs failed.");
+    goto ERR_RETURN;
+  }
 
   fputc( '\n', (FILE *) logger->data );
 
@@ -362,9 +382,10 @@ static Error fileLogText( Logger logger, const char *moduleName,
 /*   if (logger->data != stderr) */
 /*     fprintf( stderr, "%s\n", stdOutBuffer ); */
 
+ ERR_RETURN:
   pthread_mutex_unlock(&logger->mutex);
-  
-  return NULL;
+
+  return error;
 }
 
 LogLevel log_LogLevelSet(LogLevel level)

@@ -235,14 +235,20 @@ Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
 
   address.s_addr = INADDR_ANY;
 
-  threading_init(); 
-  /* printf("Calling threading_init()! \n"); */
-  
   assert( server != NULL );
+  *server = NULL;
 
+  error = threading_init(); 
+  if (error != NULL) {
+    goto ERR1;
+  }
+  
 #ifdef DEBUG_TEXTRPC_THREADS
   if (!debugThreadsInited) {
-    threading_mutex_init(&noCallThreadsMutex);
+    error = threading_mutex_init(&noCallThreadsMutex);
+    if (error != NULL) {
+      goto ERR1;
+    }
     debugThreadsInited = TRUE;
   }
 #endif
@@ -311,7 +317,6 @@ static Error connection_create( Socket socket,
   assert( *connection != NULL );
 
   (*connection)->protocolState = PROTOCOL_STATE_INITIALIZING;
-  /* threading_mutex_init( &((*connection)->nextCallIdMutex) ); */
   err = pthread_mutex_init(&((*connection)->nextCallIdMutex), NULL );
   assert(err == 0);
   
@@ -828,11 +833,21 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
   SocketConnection sockConnection;
   int err = 0;
 
-  threading_init(); 
+  error = threading_init();
+  if (error != NULL) {
+    error = ErrNew(ERR_TEXTRPC, 0, error, "Failed to init threading");
+    goto CLIENT_CREATE_FAIL_1;
+  }
 
 #ifdef DEBUG_TEXTRPC_THREADS
   if (!debugThreadsInited) {
-    threading_mutex_init(&noCallThreadsMutex);
+    error = threading_mutex_init(&noCallThreadsMutex);
+    if (error != NULL) {
+      error = ErrNew( ERR_TEXTRPC, 0, error, "Failed to setup mutex for "
+                      "the TextRPC connection." );
+      
+      goto CLIENT_CREATE_FAIL_1;
+    }
     debugThreadsInited = TRUE;
   }
 #endif
@@ -921,7 +936,6 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
   *connection = NULL;
   
  CLIENT_CREATE_FAIL_1:
-  assert( error != NULL );
   
   return error;
 }

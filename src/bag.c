@@ -113,13 +113,16 @@ Bag bagCreate2( int initialCapacity,
     DestroyElementFunc destroyFunc )
 {
   Bag result;
+  Error error = NULL;
 
   DEBUG("enter\n");
   
   assert( capacityIncrement >= 0 );
 
   result = malloc( sizeof( sBag ) );
-  assert( result != NULL );
+  if (result == NULL) {
+    goto ERR_RETURN1;
+  }
 
   result->cookie = bag_isValid;
 
@@ -130,19 +133,35 @@ Bag bagCreate2( int initialCapacity,
   result->elementSize = elementSize;
 
   result->array = malloc( result->elementSize * initialCapacity );
+  if (result->array == NULL) {
+    goto ERR_RETURN2;
+  }
   
   result->destroyFunc = destroyFunc;
  
-  assert( result->array != NULL );
-
 #ifdef _POSIX_THREADS
-  threading_mutex_init( &(result->lock) );
+  error = threading_mutex_init( &(result->lock) );
+  if (error != NULL) {
+    ErrDispose(error, TRUE);
+    goto ERR_RETURN3;
+  }
 #endif
 
   DEBUG("leave\n");
 
   PostCond( bag_isValid( result ) );
   return result;
+
+ ERR_RETURN3:
+  free(result->array);
+  
+ ERR_RETURN2:
+  free(result);
+  result = NULL;
+  
+ ERR_RETURN1:
+
+  return NULL;
 }
 
 /* creates a new bag with the same elements as the original */

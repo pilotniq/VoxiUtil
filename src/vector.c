@@ -94,17 +94,24 @@ Vector vectorCreate( const char *name, size_t elementSize,
                      int initialCapacity, int capacityIncrement,
                      DestroyElementFunc destroyFunc )
 {
-  Vector result;
+  Error error = NULL;
+  Vector result = NULL;
 
   DEBUG("enter\n");
   
   result = malloc( sizeof( sVector ) );
-  assert( result != NULL );
+  if (result == NULL) {
+    goto ERR_RETURN;
+  }
   
   if( name == NULL )
     result->name = NULL;
-  else
+  else {
     result->name = strdup( name );
+    if (result->name == NULL) {
+      goto ERR_RETURN;
+    }
+  }
   
   result->elementSize = elementSize;
   result->capacity = initialCapacity;
@@ -113,10 +120,21 @@ Vector vectorCreate( const char *name, size_t elementSize,
   result->refCount = 1;
   
   result->data = malloc( elementSize * initialCapacity );
+  if (result->data == NULL) {
+    goto ERR_RETURN;
+  }
   result->elementCount = 0;
 #ifdef _POSIX_THREADS
-  threading_mutex_init( &(result->lock) );
-  threading_mutex_init( &(result->refCountLock) );
+  error = threading_mutex_init( &(result->lock) );
+  if (error == NULL) {
+    ErrDispose(error, TRUE);
+    goto ERR_RETURN;
+  }
+  error = threading_mutex_init( &(result->refCountLock) );
+  if (error == NULL) {
+    ErrDispose(error, TRUE);
+    goto ERR_RETURN;
+  }
 #endif
 #ifndef NDEBUG
   result->cookie = vector_isValid;
@@ -125,6 +143,17 @@ Vector vectorCreate( const char *name, size_t elementSize,
   DEBUG("leave\n");
 
   return result;
+  
+ ERR_RETURN:
+  if (result) {
+    if (result->name)
+      free(result->name);
+    if (result->data)
+      free(result->data);
+    free(result);
+    result = NULL;
+  }
+  return NULL;
 }
 
 Vector vectorClone( const char *name, Vector a ) 

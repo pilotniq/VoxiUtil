@@ -66,110 +66,188 @@ static int inits = 0;
   without any problems - it keeps track of how many inits and shutdowns have
   been made.
 */
-void threading_init()
+Error threading_init()
 {
+  Error error = NULL;
+  
   /* The inits variable should really be protected by a semaphore */
   if( inits == 0 )
   {
-    int error;
+    int err;
     struct sched_param sched_param;
     
     /* init the detachedThreadAttr static variable */
-    error = pthread_attr_init( &detachedThreadAttr );
-    assert( error == 0 );
+    err = pthread_attr_init( &detachedThreadAttr );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_init failed." );
+      goto ERR_RETURN;
+    }
 
-    error = pthread_attr_setdetachstate( &detachedThreadAttr, 
-                                         PTHREAD_CREATE_DETACHED );
-    assert( error == 0 );
+    err = pthread_attr_setdetachstate( &detachedThreadAttr, 
+                                       PTHREAD_CREATE_DETACHED );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setdetachstate failed." );
+      goto ERR_RETURN;
+    }
     
     /* init the realtime detachedThreadAttr static variable */
-    error = pthread_attr_init( &realtimeDetachedThreadAttr );
-    assert( error == 0 );
+    err = pthread_attr_init( &realtimeDetachedThreadAttr );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_init failed." );
+      goto ERR_RETURN;
+    }
 
-    error = pthread_attr_setdetachstate( &realtimeDetachedThreadAttr, 
-                                         PTHREAD_CREATE_DETACHED );
-    assert( error == 0 );
+    err = pthread_attr_setdetachstate( &realtimeDetachedThreadAttr, 
+                                       PTHREAD_CREATE_DETACHED );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setdetachstate failed." );
+      goto ERR_RETURN;
+    }
 
 #ifndef PTHREADS_WIN32    
-    error = pthread_attr_setschedpolicy( &realtimeDetachedThreadAttr,
-                                         SCHED_FIFO );
-    assert( error == 0 );
+    err = pthread_attr_setschedpolicy( &realtimeDetachedThreadAttr,
+                                       SCHED_FIFO );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setdetachstate failed." );
+      goto ERR_RETURN;
+    }
     sched_param.sched_priority = 1;
 #else  /* PTHREADS_WIN32 */
     sched_param.sched_priority = 2;   /* Win32: THREAD_PRIORITY_HIGHEST */
 #endif /* PTHREADS_WIN32 */
     
-    error = pthread_attr_setschedparam( &realtimeDetachedThreadAttr, 
-                                        &sched_param );
+    err = pthread_attr_setschedparam( &realtimeDetachedThreadAttr, 
+                                      &sched_param );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setschedparam failed." );
+      goto ERR_RETURN;
+    }
     
     /* init the joinableRealtimeThreadAttr static variable */
-    error = pthread_attr_init( &joinableRealtimeThreadAttr );
-    assert( error == 0 );
+    err = pthread_attr_init( &joinableRealtimeThreadAttr );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_init failed." );
+      goto ERR_RETURN;
+    }
     
-    error = pthread_attr_setdetachstate( &joinableRealtimeThreadAttr, 
-                                         PTHREAD_CREATE_JOINABLE );
-    assert( error == 0 );
+    err = pthread_attr_setdetachstate( &joinableRealtimeThreadAttr, 
+                                       PTHREAD_CREATE_JOINABLE );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setdetachstate failed." );
+      goto ERR_RETURN;
+    }
     
 #ifndef PTHREADS_WIN32    
-    error = pthread_attr_setschedpolicy( &joinableRealtimeThreadAttr,
-                                         SCHED_FIFO );
-    assert( error == 0 );
+    err = pthread_attr_setschedpolicy( &joinableRealtimeThreadAttr,
+                                       SCHED_FIFO );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setschedpolicy failed." );
+      goto ERR_RETURN;
+    }
     sched_param.sched_priority = 1;
 #else  /* PTHREADS_WIN32 */
     sched_param.sched_priority = 2; /* Win32: THREAD_PRIORITY_HIGHEST */
 #endif /* PTHREADS_WIN32 */
     
-    error = pthread_attr_setschedparam( &joinableRealtimeThreadAttr, 
-                                        &sched_param );
-    assert( error == 0 );
+    err = pthread_attr_setschedparam( &joinableRealtimeThreadAttr, 
+                                      &sched_param );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setschedparam failed." );
+      goto ERR_RETURN;
+    }
 
     /* init the detachedLowPrioThreadAttr static variable */
-    error = pthread_attr_init( &detachedLowPrioThreadAttr );
-    assert( error == 0 );
+    err = pthread_attr_init( &detachedLowPrioThreadAttr );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_init failed." );
+      goto ERR_RETURN;
+    }
 
-    error = pthread_attr_setdetachstate( &detachedLowPrioThreadAttr, 
-                                         PTHREAD_CREATE_DETACHED );
-    assert( error == 0 );
+    err = pthread_attr_setdetachstate( &detachedLowPrioThreadAttr, 
+                                       PTHREAD_CREATE_DETACHED );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setdetachstate failed." );
+      goto ERR_RETURN;
+    }
 
 #ifndef PTHREADS_WIN32
-    error = pthread_attr_setschedpolicy( &detachedLowPrioThreadAttr,
-                                         SCHED_OTHER );
-    assert( error == 0 );
+    err = pthread_attr_setschedpolicy( &detachedLowPrioThreadAttr,
+                                       SCHED_OTHER );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setschedpolicy failed." );
+      goto ERR_RETURN;
+    }
 #else  /* PTHREADS_WIN32 */
     sched_param.sched_priority = -2; /* THREAD_PRIORITY_LOWEST */
-    error = pthread_attr_setschedparam( &detachedLowPrioThreadAttr, 
-                                        &sched_param );
+    err = pthread_attr_setschedparam( &detachedLowPrioThreadAttr, 
+                                      &sched_param );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_setschedparam failed." );
+      goto ERR_RETURN;
+    }
 #endif /* PTHREADS_WIN32 */
   }
 
   inits++;
+  
+ ERR_RETURN:
+  return error;
 }
 
-void threading_shutdown()
+Error threading_shutdown()
 {
+  Error error = NULL;
   assert( inits > 0 );
 
   inits--;
 
   if( inits == 0 )
   {
-    int error;
+    int err;
 
     /* Destroy the detachedThreadAttr */
-    error = pthread_attr_destroy( &detachedThreadAttr );
-    assert( error == 0 );
+    err = pthread_attr_destroy( &detachedThreadAttr );
+    if (err != 0) {
+      error = ErrNew(ERR_THREADING, 0, NULL,
+                     "pthread_attr_destroy failed." );
+    }
   }
+
+  return error;
 }
 
-void threading_mutex_init( VoxiMutex mutex )
+Error threading_mutex_init( VoxiMutex mutex )
 {
+  Error error = NULL;
   int err;
   
   err = sem_init( &(mutex->semaphore), 0, 1 );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_init failed." );
+    goto ERR_RETURN;
+  }
   
   err = pthread_mutex_init( &(mutex->mutex), NULL );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "pthread_mutex_init failed." );
+    goto ERR_RETURN;
+  }
 
 #ifndef NDEBUG
   /* I dont set them to 0 since i want to know that I was the one that set 
@@ -184,6 +262,9 @@ void threading_mutex_init( VoxiMutex mutex )
   mutex->lastLockFrom = NULL;
   mutex->count = 0;
   mutex->debug = FALSE;
+
+ ERR_RETURN:
+  return error;
 }
 
 void threading_mutex_lock( VoxiMutex mutex )
@@ -191,6 +272,11 @@ void threading_mutex_lock( VoxiMutex mutex )
   threading_mutex_lock_debug( mutex, NULL );
 }
 
+/* FIXME: Change the API of this function to return Error info, since there
+   are several points in it where runtime errors may occur (now marked as
+   commented-out assertions on return values from various functions.
+   NB: This should of course not affect assertions that document the
+   intended algorithmic flow of the implementation itself. -mst */
 const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
 {
   int err, tempInt;
@@ -204,10 +290,10 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
              mutex, (where == NULL) ? "NULL" : where, getpid() );
   
   err = sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   assert( tempInt == 0 );
 
   if( mutex->debug )
@@ -224,7 +310,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
     mutex->lastLockFrom = where;
     
     err = pthread_mutex_lock( &(mutex->mutex) );
-    assert( err == 0 );
+    /* assert( err == 0 ); */
     
     if( mutex->debug )
       fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: got "
@@ -259,7 +345,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
                  mutex->thread );
 #endif 
       err = sem_post( &(mutex->semaphore) );
-      assert( err == 0 );
+      /* assert( err == 0 ); */
       
 #ifndef PTHREADS_WIN32      
       if( mutex->debug )
@@ -270,7 +356,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
 #endif /* PTHREADS_WIN32 */
       
       err = pthread_mutex_lock( &(mutex->mutex) );
-      assert( err == 0 );
+      /* assert( err == 0 ); */
       /* assert( mutex->mutex.__m_lock.__status > 0 ); */
       
 #ifndef PTHREADS_WIN32      
@@ -287,10 +373,10 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
       DEBUG( "threading_mutex_lock: wait sem_wait" );
 
       err = sem_wait( &(mutex->semaphore) );
-      assert( err == 0 );
+      /* assert( err == 0 ); */
 
       err = sem_getvalue( &(mutex->semaphore), &tempInt );
-      assert( err == 0 );
+      /* assert( err == 0 ); */
       assert( tempInt == 0 );
 
       if( mutex->debug )
@@ -315,7 +401,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
   DEBUG( "threading_mutex_lock: sem_post" );
   
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   
   DEBUG("threading_mutex_lock_debug( %p, %s ) = %s\n", mutex,
         (where == NULL) ? "NULL" : where,
@@ -329,6 +415,11 @@ void threading_mutex_unlock( VoxiMutex mutex )
   threading_mutex_unlock_debug( mutex, NULL );
 }
 
+/* FIXME: Change the API of this function to return Error info, since there
+   are several points in it where runtime errors may occur (now marked as
+   commented-out assertions on runtime return values from various functions).
+   NB: This should of course not affect assertions that document the
+   intended algorithmic flow of the implementation itself. -mst */
 void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
 {
   int err;
@@ -337,7 +428,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   DEBUG( "threading_mutex_unlock: sem_wait" );
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   
   if( mutex->debug )
     fprintf( stderr, "threading_mutex_unlock_debug( %p, %s ), pid %d: "
@@ -347,10 +438,10 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   
   /* wait for the semaphore to have a non-zero value, then decrease it */
   err = sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   assert( tempInt == 0 );
   
   assert( mutex->thread == pthread_self() );
@@ -372,7 +463,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
     mutex->pid = 11;     
 
     err = pthread_mutex_unlock( &(mutex->mutex) );
-    assert( err == 0 );
+    /* assert( err == 0 ); */
     
     if( mutex->debug )
       fprintf( stderr, "threading_mutex_unlock_debug( %p, %s ), pid %d: "
@@ -386,7 +477,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   DEBUG( "threading_mutex_unlock: sem_post" );
   
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
 #ifndef NDEBUG
   if( mutex->debug || debug )
@@ -398,17 +489,26 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
              getpid() );
 }
 
-void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
+Error threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
 {
+  Error error = NULL;
   int oldCount, tempInt;
   int err;
   const char *oldLastLockFrom;
   
   err = sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_wait failed." );
+    goto ERR_RETURN;
+  }
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_getvalue failed." );
+    goto ERR_RETURN;
+  }
   assert( tempInt == 0 );
 
   /* Is the below really a requirement?
@@ -437,10 +537,18 @@ void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
   
   /* Hmm, is it dangerous to sem-post here, before the wait */
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_post failed." );
+    goto ERR_RETURN;
+  }
   
   err = pthread_cond_wait( condition, &(mutex->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "pthread_cond_wait failed." );
+    goto ERR_RETURN;
+  }
 
   if( mutex->debug )
     fprintf( stderr, "threading_cond_wait( %p, %p ), pid %d: after "
@@ -458,10 +566,18 @@ void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
              condition, mutex, getpid() );
 #endif
   err = sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_wait failed." );
+    goto ERR_RETURN;
+  }
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_getvalue failed." );
+    goto ERR_RETURN;
+  }
   assert( tempInt == 0 );
 
   if( mutex->debug )
@@ -479,7 +595,14 @@ void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
              "(count=%d)\n", condition, mutex, getpid(), mutex->count );
   
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_THREADING, 0, NULL,
+                   "sem_post failed." );
+    goto ERR_RETURN;
+  }
+
+ ERR_RETURN:
+  return error;
 }
 
 void threading_mutex_destroy( VoxiMutex mutex )
@@ -514,6 +637,11 @@ Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex,
   return threading_cond_absolute_timedwait(condition, mutex, &wakeuptime);
 }
 
+/* FIXME: Change the API of this function to return Error info, since there
+   are several points in it where runtime errors may occur (now marked as
+   commented-out assertions on runtime return values from various functions).
+   NB: This should of course not affect assertions that document the
+   intended algorithmic flow of the implementation itself. -mst */
 Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition, 
                                            VoxiMutex mutex, 
                                            struct timespec *wakeuptime ) 
@@ -528,7 +656,7 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
   assert( err == 0 );
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   assert( tempInt == 0 );
 
   assert( mutex->thread == pthread_self() );
@@ -553,11 +681,11 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
   
   /* Hmm, is it dangerous to sem-post here, before the wait */
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
   /* Do the wait */
   err = pthread_cond_timedwait( condition, &(mutex->mutex), wakeuptime );
-  assert( (err == 0) || (err == ETIMEDOUT) );
+  /* assert( err == 0 ); */
   timedout = (err == ETIMEDOUT);
 
   if( mutex->debug )
@@ -576,11 +704,11 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
              condition, mutex, getpid() );
 #endif
   err = sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
     
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   assert( tempInt == 0 );
 
   if( mutex->debug )
@@ -598,7 +726,7 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
              "(count=%d)\n", condition, mutex, getpid(), mutex->count );
   
   err = sem_post( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
   return timedout;
 }

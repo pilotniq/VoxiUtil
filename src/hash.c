@@ -375,7 +375,10 @@ int HashAdd(HashTable ht, void *data)
       newInfo->firstCursor = NULL;
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
       error = sem_init( &(newInfo->cursorListSemaphore), 0, 1 );
-      assert( error == 0 );
+      if (error != 0) {
+        retval = 0;
+        goto ERR_RETURN;
+      }
 #endif
       /* I believe this is an atomic action and therefore needs not be 
          protected by a semaphore to be thread-safe.
@@ -388,9 +391,13 @@ int HashAdd(HashTable ht, void *data)
       ht->infoArray[hashval] = newInfo;
       ht->elementCount++;
     }
-    else
+    else {
       retval = 0;
+      goto ERR_RETURN;
+    }
   }
+
+ ERR_RETURN:
   ErrPopFunc();
   return(retval);
 }
@@ -409,14 +416,14 @@ HashTableCursor HashCursorCreate( HashTable ht )
     fprintf( stderr, "hash.c: HashCursorCreate( %p ): entering\n", ht );
 
   result = malloc( sizeof( sHashTableCursor ) );
-  assert( result != NULL );
-
-  result->hashTable = ht;
-  result->prevCursor = NULL;
-  result->nextCursor = NULL;
-  result->element = NULL;
-
-  HashCursorGoFirst( result );
+  if (result != NULL) {
+    result->hashTable = ht;
+    result->prevCursor = NULL;
+    result->nextCursor = NULL;
+    result->element = NULL;
+    
+    HashCursorGoFirst( result );
+  }
 
   if( ht->debugLevel > 0 )
     fprintf( stderr, "hash.c: HashCursorCreate( %p ) = %p\n", ht, result );
@@ -536,8 +543,6 @@ int HashLowercaseString( const char *string )
 
 static void removeCursorFromList( HashTableCursor cursor )
 {
-  int error;
-
   if( cursor->hashTable->debugLevel > 1 )
     fprintf( stderr, "hash.c: removeCursorFromList( %p ): entry\n", cursor );
 
@@ -564,8 +569,7 @@ static void removeCursorFromList( HashTableCursor cursor )
     cursor->nextCursor = NULL;
   }
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
-  error = sem_post( &(cursor->element->cursorListSemaphore) );
-  assert( error == 0 );
+  sem_post( &(cursor->element->cursorListSemaphore) );
 #endif
   
   if( cursor->hashTable->debugLevel > 1 )
@@ -574,8 +578,6 @@ static void removeCursorFromList( HashTableCursor cursor )
 
 static void addCursorToList( HashTableCursor cursor )
 {
-  int error;
-
   assert( cursor->element != NULL );
 
   if( cursor->hashTable->debugLevel > 1 )
@@ -595,8 +597,7 @@ static void addCursorToList( HashTableCursor cursor )
              "prevCursor=%p\n", cursor, cursor->nextCursor, 
              cursor->prevCursor );
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
-  error = sem_post( &(cursor->element->cursorListSemaphore) );
-  assert( error == 0 );
+  sem_post( &(cursor->element->cursorListSemaphore) );
 #endif
   if( cursor->hashTable->debugLevel > 1 )
     fprintf( stderr, "hash.c: addCursorToList( %p ): exit\n", cursor );

@@ -39,7 +39,7 @@ static void validate( Queue queue );
  */
 Error queue_create( Queue *result )
 {
-  Error error;
+  Error error = NULL;
   int err;
 
   error = emalloc( result, sizeof( sQueue ) );
@@ -47,7 +47,9 @@ Error queue_create( Queue *result )
     return error;
 
   err = sem_init( &((*result)->semaphore), 0, 0 );
-  assert( err == 0 );
+  if (err != 0) {
+    return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL, "sem_init failed");
+  }
 
   (*result)->mutex = PTHREAD_MUTEX_INITIALIZER;
   (*result)->oldest = NULL;
@@ -60,10 +62,14 @@ Error queue_create( Queue *result )
 
 Error queue_destroy( Queue queue )
 {
+  Error error = NULL;
   int err;
 
   err = pthread_mutex_lock( &(queue->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                  "queue_destroy: pthread_mutex_lock failed");
+  }
 
   validate( queue );
 
@@ -74,32 +80,57 @@ Error queue_destroy( Queue queue )
   assert( queue->oldest == NULL );
 
   err = sem_destroy( &(queue->semaphore) ) ;
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_destroy: sem_destroy failed");
+    pthread_mutex_unlock( &(queue->mutex) );
+    /* Shouldn't really matter if the unlock fails in this stage...
+       Of course, if the Error API would support it we could add
+       a reason to the Error we are already emitting. */
+    goto ERR_RETURN;
+  }
 
   err = pthread_mutex_unlock( &(queue->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_destroy: pthread_mutex_unlock failed");
+    goto ERR_RETURN;
+  }
 
   err = pthread_mutex_destroy( &(queue->mutex) ) ;
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_destroy: pthread_mutex_destroy failed");
+    goto ERR_RETURN;
+  }
 
   free( queue );
 
-  return NULL;
+ ERR_RETURN:
+  return error;
 }
 
 Error queue_push( Queue queue, void *userElement )
 {
   int err;
-  Error error;
+  Error error = NULL;
   QueueEntry element;
 
   error = emalloc( (void **) &element, sizeof( sQueueEntry ) );
-  assert( error == NULL );
+  if (error != NULL) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, error,
+                   "queue_push: emalloc failed");
+    goto ERR_RETURN;
+  }
 
   element->userData = userElement;
 
   err = pthread_mutex_lock( &(queue->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_push: pthread_mutex_lock failed");
+    goto ERR_RETURN;
+  }
 
   validate( queue );
 
@@ -119,12 +150,21 @@ Error queue_push( Queue queue, void *userElement )
   validate( queue );
 
   err = pthread_mutex_unlock( &(queue->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_push: pthread_mutex_unlock failed");
+    goto ERR_RETURN;
+  }
 
   err = sem_post( &(queue->semaphore) );
-  assert( err == 0 );
+  if (err != 0) {
+    error = ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                   "queue_push: sem_post failed");
+    goto ERR_RETURN;
+  }
 
-  return NULL;
+ ERR_RETURN:
+  return error;
 }
 
 /* Returns TRUE if the queue contains elements */
@@ -145,6 +185,10 @@ Error queue_pop( Queue queue, void **result )
   err = sem_wait( &(queue->semaphore) );
 
   element = doPop( queue );
+  if (element == NULL) {
+    return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                  "queue_pop: doPop failed");
+  }
 
   *result = element->userData;
 
@@ -156,10 +200,12 @@ Error queue_pop( Queue queue, void **result )
 static QueueEntry doPop( Queue queue )
 {
   int err;
-  QueueEntry element;
+  QueueEntry element = NULL;
 
   err = pthread_mutex_lock( &(queue->mutex) );
-  assert( err == 0 );
+  if (err != 0) {
+    goto ERR_RETURN;
+  }
 
   validate( queue );
 
@@ -177,9 +223,9 @@ static QueueEntry doPop( Queue queue )
 
   validate( queue );
 
-  err = pthread_mutex_unlock( &(queue->mutex) );
-  assert( err == 0 );
+  pthread_mutex_unlock( &(queue->mutex) );
 
+ ERR_RETURN:
   return element;
 }
 /*
@@ -196,8 +242,6 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
   {
     Error error;
 
-    assert( err == -1 );
-
     if( errno == ETIMEDOUT )
       error = ErrNew( ERR_QUEUE, ERR_QUEUE_TIMEDOUT, NULL, "Wait timed out" );
     else {
@@ -209,6 +253,10 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
   }
 
   element = doPop( queue );
+  if (element == NULL) {
+    return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
+                  "queue_waitFor: doPop failed");
+  }
 
   assert( result != NULL );
 
