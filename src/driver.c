@@ -76,8 +76,11 @@ Error driverLoadFunctions( SharedLibrary shlib, int functionCount,
 
   for( i = 0; i < functionCount; i++ )
   {
-    error = shlib_findFunc( shlib, driverFunctions[i].name, 
-                            (void **) driverStruct+driverFunctions[i].offset);
+    void **funcAddress;
+
+    funcAddress = (void **) (((char *) driverStruct) + driverFunctions[i].offset);
+
+    error = shlib_findFunc( shlib, driverFunctions[i].name, funcAddress );
     if( error != NULL )
     {
       error = ErrNew( ERR_DRIVER, ERR_DRIVER_UNSPECIFIED, error, 
