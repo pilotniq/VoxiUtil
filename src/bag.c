@@ -780,7 +780,8 @@ Error bagCrossProd( Bag bag1, Bag bag2, Bag *result )
   
   if( bagNoElements( bag1 ) == 0 ) {
     bagAppend( bag, bag2 );
-    return bag;
+    *result = bag;
+    return NULL;
   }
 
   for(bi = bagIteratorCreate2(bag1);  bagIteratorHasNext(bi);)  {
