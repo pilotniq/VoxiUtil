@@ -241,7 +241,7 @@ Error sock_end(void)
 #endif /* 1 or 0 :-) */
 
 /*---------------------------------------------------------------------*/
-Error sock_connect(const char *computer, int port, sock_handler readproc,
+Error sock_connect(const char *computer, unsigned short port, sock_handler readproc,
                    void *data, SocketConnection *connection )
 /*---------------------------------------------------------------------*/
 {
@@ -323,7 +323,7 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
      if we get the EINTR error. */
   if(tempint != 0 && (errno != EINTR))
   {
-    error = ErrNew( ERR_SOCK, 0, ErrErrno(), "Failed to connect to the "
+    error = ErrNew( ERR_SOCK, 0, ErrSock(), "Failed to connect to the "
                     "server." );
   
     goto CONNECT_FAIL_3;
@@ -390,7 +390,21 @@ void sock_disconnect(SocketConnection c)
   free( c );
 }
 
-Error sock_create_server( sock_handler serverproc, int port, 
+/*
+   Changed 2004-08-12: port parameter changed to allow dynamically allocated 
+                       ports and specified IP address.
+
+   address must not be NULL.
+   address must be either INADDR_ANY, or an IP address of the local machine.
+
+   port must not be NULL.
+   if *port is 0 a port will be dynamically assigned, and returned in *port
+   otherwise the port *port will be used.
+
+   BUG: only supports IPv4
+   */
+Error sock_create_server( sock_handler serverproc, struct in_addr *address, 
+                          unsigned short *port,
                           sock_handler connectionHandler, void *userData,
                           Server *server )
 {
@@ -400,9 +414,11 @@ Error sock_create_server( sock_handler serverproc, int port,
   ErrPushFunc("sock_create_server(...,port = %d)", port);
   
   assert( server != NULL );
-  
+  assert( address != NULL );
+  assert( port != NULL );
+
   *server = malloc(sizeof(t_Server));
-  (*server)->port = port;
+  /* (*server)->port = port; */
   (*server)->handler = serverproc;
   /* result->firstConn = NULL; */
   (*server)->typ = ST_SERVER;
@@ -423,7 +439,6 @@ Error sock_create_server( sock_handler serverproc, int port,
 #endif
   
   /* Get socket */
-
   (*server)->socket = sock_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if( (*server)->socket < 0)
     error = ErrNew( ERR_SOCK, 0, ErrSock(), "Couldn't create socket" );
@@ -433,24 +448,48 @@ Error sock_create_server( sock_handler serverproc, int port,
     /* bind socket to address */
     
     (*server)->addr.sin_family = AF_INET;
-    (*server)->addr.sin_addr.s_addr = INADDR_ANY;
-    (*server)->addr.sin_port = htons( port );
+    (*server)->addr.sin_addr = *address; /* was INADDR_ANY; */
+    (*server)->addr.sin_port = htons( *port );
     
     if( bind( (*server)->socket, (struct sockaddr *) &((*server)->addr),
             sizeof(struct sockaddr_in)) < 0)
       error = ErrNew( ERR_SOCK, 0, ErrSock(), "Couldn't bind socket" );
   
     if( error == NULL )
-      if( listen( (*server)->socket, 5) == -1 )
-        error = ErrNew( ERR_SOCK, 0, ErrSock(), "Counldn't listen" );
-    
-    if( error == NULL )
     {
-      err = threading_pthread_create( &( (*server)->thread ), &detachedThreadAttr, 
-                                      (ThreadFunc) server_thread_func, *server );
-      if( err != 0 )
-        error = ErrNew( ERR_SOCK, 0, ErrErrno(), 
-                        "Couldn't create listener thread" );
+      if( ((*port) == 0) || (address->s_addr == INADDR_ANY) )
+      {
+        int namelen;
+
+        namelen = sizeof( (*server)->addr );
+
+        err = getsockname( (*server)->socket, (struct sockaddr *) &((*server)->addr), &namelen );
+        if( err == 0 )
+        {
+          *port = (*server)->addr.sin_port;
+          *address = (*server)->addr.sin_addr;
+        }
+        else
+        {
+          assert( err == -1 ); /* docs say err is -1 on error */
+
+          error = ErrNew( ERR_SOCK, 0, ErrSock(), "getsockname for new socket failed." );
+        }
+
+      }
+
+      if( error == NULL )
+        if( listen( (*server)->socket, 5) == -1 )
+          error = ErrNew( ERR_SOCK, 0, ErrSock(), "Counldn't listen" );
+    
+      if( error == NULL )
+      {
+        err = threading_pthread_create( &( (*server)->thread ), &detachedThreadAttr, 
+                                        (ThreadFunc) server_thread_func, *server );
+        if( err != 0 )
+          error = ErrNew( ERR_SOCK, 0, ErrErrno(), 
+                          "Couldn't create listener thread" );
+      }
     }
     
     if( error != NULL )
