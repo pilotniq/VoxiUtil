@@ -51,7 +51,7 @@ CVSID("$Id$");
 /*
   Thread attributes for threads created in the detached state
   (Who cannot be joined, and whose data is automatically freed when the
-	thread terminates)
+  thread terminates)
  */
 pthread_attr_t detachedThreadAttr, realtimeDetachedThreadAttr, 
   joinableRealtimeThreadAttr, detachedLowPrioThreadAttr;
@@ -62,33 +62,33 @@ pthread_attr_t detachedThreadAttr, realtimeDetachedThreadAttr,
 static int inits = 0;
 
 /*
-	The threading modules can be init'ed by several modules simultaneously 
-	without any problems - it keeps track of how many inits and shutdowns have
-	been made.
+  The threading modules can be init'ed by several modules simultaneously 
+  without any problems - it keeps track of how many inits and shutdowns have
+  been made.
 */
 void threading_init()
 {
-	/* The inits variable should really be protected by a semaphore */
-	if( inits == 0 )
-	{
-		int error;
+  /* The inits variable should really be protected by a semaphore */
+  if( inits == 0 )
+  {
+    int error;
     struct sched_param sched_param;
     
-		/* init the detachedThreadAttr static variable */
-		error = pthread_attr_init( &detachedThreadAttr );
-		assert( error == 0 );
-		
-		error = pthread_attr_setdetachstate( &detachedThreadAttr, 
-                                                     PTHREAD_CREATE_DETACHED );
-		assert( error == 0 );
+    /* init the detachedThreadAttr static variable */
+    error = pthread_attr_init( &detachedThreadAttr );
+    assert( error == 0 );
 
-		/* init the realtime detachedThreadAttr static variable */
-		error = pthread_attr_init( &realtimeDetachedThreadAttr );
-		assert( error == 0 );
-		
-		error = pthread_attr_setdetachstate( &realtimeDetachedThreadAttr, 
-																				 PTHREAD_CREATE_DETACHED );
-		assert( error == 0 );
+    error = pthread_attr_setdetachstate( &detachedThreadAttr, 
+                                         PTHREAD_CREATE_DETACHED );
+    assert( error == 0 );
+    
+    /* init the realtime detachedThreadAttr static variable */
+    error = pthread_attr_init( &realtimeDetachedThreadAttr );
+    assert( error == 0 );
+
+    error = pthread_attr_setdetachstate( &realtimeDetachedThreadAttr, 
+                                         PTHREAD_CREATE_DETACHED );
+    assert( error == 0 );
 
 #ifndef PTHREADS_WIN32    
     error = pthread_attr_setschedpolicy( &realtimeDetachedThreadAttr,
@@ -103,13 +103,13 @@ void threading_init()
                                         &sched_param );
     
     /* init the joinableRealtimeThreadAttr static variable */
-		error = pthread_attr_init( &joinableRealtimeThreadAttr );
-		assert( error == 0 );
-		
-		error = pthread_attr_setdetachstate( &joinableRealtimeThreadAttr, 
-																				 PTHREAD_CREATE_JOINABLE );
-		assert( error == 0 );
-
+    error = pthread_attr_init( &joinableRealtimeThreadAttr );
+    assert( error == 0 );
+    
+    error = pthread_attr_setdetachstate( &joinableRealtimeThreadAttr, 
+                                         PTHREAD_CREATE_JOINABLE );
+    assert( error == 0 );
+    
 #ifndef PTHREADS_WIN32    
     error = pthread_attr_setschedpolicy( &joinableRealtimeThreadAttr,
                                          SCHED_FIFO );
@@ -125,40 +125,40 @@ void threading_init()
 
     /* init the detachedLowPrioThreadAttr static variable */
     error = pthread_attr_init( &detachedLowPrioThreadAttr );
-		assert( error == 0 );
-		
-		error = pthread_attr_setdetachstate( &detachedLowPrioThreadAttr, 
-																				 PTHREAD_CREATE_DETACHED );
-		assert( error == 0 );
+    assert( error == 0 );
+
+    error = pthread_attr_setdetachstate( &detachedLowPrioThreadAttr, 
+                                         PTHREAD_CREATE_DETACHED );
+    assert( error == 0 );
 
 #ifndef PTHREADS_WIN32
-		error = pthread_attr_setschedpolicy( &detachedLowPrioThreadAttr,
+    error = pthread_attr_setschedpolicy( &detachedLowPrioThreadAttr,
                                          SCHED_OTHER );
-		assert( error == 0 );
+    assert( error == 0 );
 #else  /* PTHREADS_WIN32 */
     sched_param.sched_priority = -2; /* THREAD_PRIORITY_LOWEST */
     error = pthread_attr_setschedparam( &detachedLowPrioThreadAttr, 
                                         &sched_param );
 #endif /* PTHREADS_WIN32 */
-	}
-	
-	inits++;
+  }
+
+  inits++;
 }
 
 void threading_shutdown()
 {
-	assert( inits > 0 );
-	
-	inits--;
-	
-	if( inits == 0 )
-	{
-		int error;
-		
-		/* Destroy the detachedThreadAttr */
-		error = pthread_attr_destroy( &detachedThreadAttr );
-		assert( error == 0 );
-	}
+  assert( inits > 0 );
+
+  inits--;
+
+  if( inits == 0 )
+  {
+    int error;
+
+    /* Destroy the detachedThreadAttr */
+    error = pthread_attr_destroy( &detachedThreadAttr );
+    assert( error == 0 );
+  }
 }
 
 void threading_mutex_init( VoxiMutex mutex )
@@ -172,10 +172,12 @@ void threading_mutex_init( VoxiMutex mutex )
   assert( err == 0 );
 
 #ifndef NDEBUG
-  mutex->thread = 46;  // I dont set them to 0 since i want to know that
-  mutex->pid = 10;     // I was the one that set these values (when i'm debugging)
+  /* I dont set them to 0 since i want to know that I was the one that set 
+     these values (when i'm debugging) */
+  mutex->thread = (pthread_t) 46;  
+  mutex->pid = 10;
 #else
-  mutex->thread = (pthread_t)0;
+  mutex->thread = (pthread_t) 0;
   mutex->pid = 0;
 #endif
 
@@ -262,9 +264,9 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
 #ifndef PTHREADS_WIN32      
       if( mutex->debug )
         fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: "
-                 "before second wait, status=%ld\n", mutex, 
-                 (where == NULL) ? "NULL" : where, getpid(), 
-                 mutex->mutex.__m_lock.__status );
+                 "before second wait, status=?\n", mutex, /* status was %ld */
+                 (where == NULL) ? "NULL" : where, getpid()
+                 /* mutex->mutex.__m_lock.__status */);
 #endif /* PTHREADS_WIN32 */
       
       err = pthread_mutex_lock( &(mutex->mutex) );
@@ -273,19 +275,20 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
       
 #ifndef PTHREADS_WIN32      
       if( mutex->debug )
-        fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d, thread %ld: "
-                 "after second wait, locked mutex_t %p, ststus = %ld, "
+        fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d, "
+                 "thread %ld: after second wait, locked mutex_t %p, "
+                 "status = ?, " /* status was %ld */
                  "waiting for semaphore.\n", 
                  mutex, (where == NULL) ? "NULL" : where,
-                 getpid(), (long int) pthread_self(), &(mutex->mutex), 
-                 mutex->mutex.__m_lock.__status );
+                 getpid(), (long int) pthread_self(), &(mutex->mutex)
+                 /* mutex->mutex.__m_lock.__status */);
 #endif /* PTHREADS_WIN32 */
-      
+
       DEBUG( "threading_mutex_lock: wait sem_wait" );
-      
+
       err = sem_wait( &(mutex->semaphore) );
       assert( err == 0 );
-      
+
       err = sem_getvalue( &(mutex->semaphore), &tempInt );
       assert( err == 0 );
       assert( tempInt == 0 );
@@ -294,12 +297,13 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
         fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: "
                  "second gotit.\n", mutex, (where == NULL) ? "NULL" : where,
                  getpid() );
-      
+
       if( mutex->count != 0 )
-        fprintf( stderr, "ERROR: threading_mutex_lock_debug( %p, %s ), pid %d: "
-                 "mutex count was %d!\n", mutex, (where == NULL) ? "NULL" : where,
+        fprintf( stderr, "ERROR: threading_mutex_lock_debug( %p, %s ), "
+                 "pid %d: mutex count was %d!\n", mutex, 
+                 (where == NULL) ? "NULL" : where,
                  getpid(), mutex->count );
-      
+
       assert( mutex->count == 0 );
       mutex->count = 1;
       mutex->thread = pthread_self();
@@ -362,16 +366,19 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   
   if( mutex->count == 0 )
   {
-    mutex->thread = 47;  // I dont set them to 0 since i want to know that
-    mutex->pid = 11;     // I was the one that set these values (when i'm debugging)
+    /* I dont set them to 0 since i want to know that */
+    mutex->thread = (pthread_t) 47;  
+    /* I was the one that set these values (when i'm debugging) */
+    mutex->pid = 11;     
 
     err = pthread_mutex_unlock( &(mutex->mutex) );
     assert( err == 0 );
     
     if( mutex->debug )
       fprintf( stderr, "threading_mutex_unlock_debug( %p, %s ), pid %d: "
-             "pthread_mutex_unlock( %p )\n", mutex, (oldWhere == NULL) ? "NULL" : oldWhere,
-             getpid(), &(mutex->mutex) );
+               "pthread_mutex_unlock( %p )\n", mutex, 
+               (oldWhere == NULL) ? "NULL" : oldWhere,
+               getpid(), &(mutex->mutex) );
 
     assert( oldWhere == NULL );
   }
@@ -413,8 +420,10 @@ void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
   
   /* release the VoxiMutex, saving the old state */
 
-  mutex->thread = 48;  // I dont set them to 0 since i want to know that
-  mutex->pid = 12;     // I was the one that set these values (when i'm debugging)
+  /* I dont set them to 0 since i want to know that I was the one that set 
+     these values (when i'm debugging) */
+  mutex->thread = (pthread_t) 48;  
+  mutex->pid = 12;
   
   oldLastLockFrom = mutex->lastLockFrom;
   mutex->lastLockFrom = NULL;
@@ -492,7 +501,8 @@ void threading_mutex_destroy( VoxiMutex mutex )
     perror( "threading_mutex_destroy - pthread_mutex_destroy" );
 }
 
-Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, unsigned long usec )
+Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, 
+                                  unsigned long usec )
 {
   int oldCount, tempInt;
   int err;
@@ -513,8 +523,10 @@ Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, un
   
   /* release the VoxiMutex, saving the old state */
 
-  mutex->thread = 49;  // I dont set them to 0 since i want to know that
-  mutex->pid = 13;     // I was the one that set these values (when i'm debugging)
+  /* I dont set them to 0 since i want to know that I was the one that 
+     set these values (when i'm debugging) */
+  mutex->thread = (pthread_t) 49;  
+  mutex->pid = 13;
   
   oldLastLockFrom = mutex->lastLockFrom;
   mutex->lastLockFrom = NULL;
@@ -586,9 +598,10 @@ Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, un
 void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug )
 {
   if( debug || (mutex->debug) )
-    fprintf( stderr, "threading_mutex_setDebug( %p, %s ), pid %d, thread %ld.\n",
-             mutex, debug ? "TRUE" : "FALSE", getpid(), pthread_self() );
-    
+    fprintf( stderr, "threading_mutex_setDebug( %p, %s ), pid %d, "
+             "thread %ld.\n", mutex, debug ? "TRUE" : "FALSE", getpid(), 
+             pthread_self() );
+
   mutex->debug = debug;
 }
 
@@ -690,7 +703,3 @@ int threading_pthread_create(pthread_t * thread, pthread_attr_t * attr,
 
   return i_return;
 }
-
-
-
-

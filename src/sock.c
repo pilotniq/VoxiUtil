@@ -8,8 +8,8 @@
 
 /*
   socket-functions
-	
-	The pthreads version.
+
+  The pthreads version.
 */
 
 #include "config.h"
@@ -168,7 +168,7 @@ typedef struct s_ServerConn
 #ifdef SOCK_USE_THREADPOOL
   ThreadPoolThread thread;
 #else
-	pthread_t thread;
+  pthread_t thread;
 #endif
 } t_ServerConn;
 
@@ -190,18 +190,18 @@ Error sock_init(void)
 {
   Error error = NULL;
   
-	ErrPushFunc("sock_init"); 
-	
+  ErrPushFunc("sock_init"); 
+
 #if 0
-	firstServer = NULL;
-	firstConn = NULL;
-	
-	fd_tree = bt_create((CompFuncPtr) socketCompare);
-	FD_ZERO(&fdset);
-	fd_width = -1;
-	
-	signal(SIGIO, sock_sig_handler);
-	signal(SIGPIPE, sock_sig_handler); /* for disconnects */
+  firstServer = NULL;
+  firstConn = NULL;
+
+  fd_tree = bt_create((CompFuncPtr) socketCompare);
+  FD_ZERO(&fdset);
+  fd_width = -1;
+
+  signal(SIGIO, sock_sig_handler);
+  signal(SIGPIPE, sock_sig_handler); /* for disconnects */
 #endif
 
 #ifdef WIN32
@@ -216,7 +216,7 @@ Error sock_init(void)
   }
 #endif
   
-	ErrPopFunc();
+  ErrPopFunc();
 
   return error;
 }
@@ -253,7 +253,6 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
 /*---------------------------------------------------------------------*/
 {
   struct hostent *hostinfo;
-	/*  struct in_addr *in_addr; */
   int tempint;
   Error error;
   
@@ -279,10 +278,11 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
   
   if(hostinfo == NULL) 
   {
-    //Different error handling on windows and linux
+    /* Different error handling on windows and linux */
 #ifdef WIN32
     error = ErrNew( ERR_SOCK, 0, 
-                    ErrNew( ERR_UNKNOWN, 0, NULL, voxi_sock_error(WSAGetLastError())), 
+                    ErrNew( ERR_UNKNOWN, 0, NULL, 
+                    voxi_sock_error(WSAGetLastError())), 
                     "Failed to find the host '%s'.", computer );
 #else
     error = ErrNew( ERR_SOCK, 0, 
@@ -295,7 +295,7 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
   bzero( (char *) &( (*connection)->addr), sizeof( (*connection)->addr ));
 
   (*connection)->addr.sin_family = AF_INET;
-	/* bcopy( hostinfo->h_addr, &c->addr.sin_addr, hostinfo->h_length );*/
+  /* bcopy( hostinfo->h_addr, &c->addr.sin_addr, hostinfo->h_length );*/
   (*connection)->addr.sin_addr = *((struct in_addr *) hostinfo->h_addr_list[0]);
   (*connection)->addr.sin_port = htons( port );
 
@@ -307,7 +307,7 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
     goto CONNECT_FAIL_2;
   }
   
-	
+
   /*
     order of things here is rather critical...
     (things must be done before signals are enabled for the socket
@@ -344,25 +344,25 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
    /* Make socket non-blocking */
 
    if(fcntl(c->socket, F_SETFL, FNDELAY) == -1)
-		 ERR ERR_ABORT, "Could not set group owner" ENDERR;
+     ERR ERR_ABORT, "Could not set group owner" ENDERR;
 
-	 /* Turn signals on for the socket */
+   /* Turn signals on for the socket */
 
 #ifdef hpux
-	 if( ioctl( c->socket, I_SETSIG, S_HANGUP | S_RDNORM ) != 0 )
+   if( ioctl( c->socket, I_SETSIG, S_HANGUP | S_RDNORM ) != 0 )
      ERR ERR_ABORT, "Could not set asyncronous I/O for the stream" ENDERR;
 #else
    if(fcntl(c->socket, F_SETFL, FASYNC) == -1)
      ERR ERR_ABORT, "Could not set FASYNC flag" ENDERR;
 #endif
-	
+
    bt_add(fd_tree, c);
 #endif
-	 /* Start a new thread to read from the socket, and make appropriate 
-			callbacks. */
+   /* Start a new thread to read from the socket, and make appropriate 
+      callbacks. */
 
    DEBUG( "sock.c: Staring ConnectionThread\n");
-   
+
    tempint = threading_pthread_create( &( (*connection)->thread), 
                                        &detachedThreadAttr, 
                                        (ThreadFunc) ConnectionThreadFunc, 
@@ -390,11 +390,11 @@ Error sock_connect(const char *computer, int port, sock_handler readproc,
 
 void sock_disconnect(SocketConnection c)
 {
-	/* The socket's thread will terminate itself when it reads EOF? */
-	/* NO - we should terminate it. */
-	close(c->socket);
+  /* The socket's thread will terminate itself when it reads EOF? */
+  /* NO - we should terminate it. */
+  close(c->socket);
   free( c->computer );
-	free( c );
+  free( c );
 }
 
 Error sock_create_server( sock_handler serverproc, int port, 
@@ -552,15 +552,15 @@ void sock_conn_send(SocketConnection c, char *msg)
 
   if(write(c->socket, msg, strlen(msg)) != strlen(msg))
     ERR ERR_WARN, "write failed." ENDERR;
-	
+
   ErrPopFunc();
 }
 #endif
 #if 0
 void sock_destroy_server(Server s)
 {
-	int flags;
-	
+  int flags;
+
   /* should close all of the server's connections gracefully */
 
   if(s->prev == NULL)
@@ -581,19 +581,19 @@ void sock_destroy_server(Server s)
     ErrDispose(error);
   }
 #endif
-	
+
 #ifdef hpux
-	if( ioctl( s->socket, I_SETSIG, 0 ) != 0 )
-		ERR ERR_ABORT, "Could not turn off async io for socket" ENDERR;
+  if( ioctl( s->socket, I_SETSIG, 0 ) != 0 )
+    ERR ERR_ABORT, "Could not turn off async io for socket" ENDERR;
 #else
-	flags = fcntl( s->socket, F_GETFL );
-	if( flags == -1 )
-		ERR ERR_ABORT, "Could not get socket flags" ENDERR;
-		
-	flags &= ~FASYNC;
-	
-	if(fcntl(s->socket, F_SETFL, flags) == -1)
-		ERR ERR_ABORT, "Could not set socket flags" ENDERR;
+  flags = fcntl( s->socket, F_GETFL );
+  if( flags == -1 )
+    ERR ERR_ABORT, "Could not get socket flags" ENDERR;
+
+  flags &= ~FASYNC;
+
+  if(fcntl(s->socket, F_SETFL, flags) == -1)
+    ERR ERR_ABORT, "Could not set socket flags" ENDERR;
 #endif
   FD_CLR(s->socket, &fdset);
   bt_remove(fd_tree, s, FALSE);
@@ -617,13 +617,13 @@ Error sock_send(Socket c, const char *msg)
 
 Error sock_send_binary(Socket c, const char *msg, size_t length)
 {
-	int count;
-	Error error = NULL;
+  size_t count;
+  Error error = NULL;
   
   /* struct strbuf cntrlbuf, databuf; */
 
   ErrPushFunc("sock_conn_send(...)");
-	
+
   DEBUG( "sock_send_binary( %p, '%s', %d)\n", c, msg, length );
 
 #ifdef WIN32
@@ -645,14 +645,14 @@ Error sock_send_binary(Socket c, const char *msg, size_t length)
 #else  /* WIN32 */
   /* Well, send exists on Unix too - but let's continue to use write
      for now. */
-	count = write(c->socket, msg, length);
+  count = write(c->socket, msg, length);
 #endif /* WIN32 */
   
-	if( count == -1 )
-		error = ErrNew( ERR_SOCK, 0, ErrSock(), 
+  if( count == -1 )
+    error = ErrNew( ERR_SOCK, 0, ErrSock(), 
                     "send_binary(%d, '%s', %d) failed.", c->socket, msg, 
                     length );
-	else if( count != length )
+  else if( count != length )
     ERR ERR_WARN, "Problem writing, count=%d", count ENDERR;
 #if 0
   err = fsync( c->socket );
@@ -664,8 +664,8 @@ Error sock_send_binary(Socket c, const char *msg, size_t length)
     error = NULL;  }
 #endif
   ErrPopFunc();
-	
-	return error;
+
+  return error;
 }
 
 #if 0
@@ -678,17 +678,17 @@ static void *ConnectionThreadFunc( SocketConnection connection )
 {
 #define _BUFSIZE 10000 /*256;*/
 /*    const int bufSize = 2048; */
-	Boolean done = FALSE;
-	char buffer[_BUFSIZE];
+  Boolean done = FALSE;
+  char buffer[_BUFSIZE];
 #ifndef WIN32
-	FILE *stream;
+  FILE *stream;
 #endif
-	int err;
+  int err;
   
-	ErrPushFunc( "sock.c:ConnectionThreadFunc( %p )", connection );
-	
-	/* This is the main function of the thread which reads lines from the socket
-		 and dispatches them to the application-supplied socket handler */
+  ErrPushFunc( "sock.c:ConnectionThreadFunc( %p )", connection );
+
+  /* This is the main function of the thread which reads lines from the socket
+     and dispatches them to the application-supplied socket handler */
 
 #ifndef WIN32
   stream = fdopen( connection->socket, "r" );
@@ -696,20 +696,18 @@ static void *ConnectionThreadFunc( SocketConnection connection )
 #endif /* WIN32 */
 
   DEBUG("sock.c: ConnectionThreadFunc, before loop\n");
-
   
-	while( !done ) {
-
+  while( !done ) 
+  {
 #ifndef WIN32
     err = file_readLine( stream, buffer, _BUFSIZE );    
 #else
     err = sock_readLine( connection->socket, buffer, _BUFSIZE );
 #endif
-    
 
     DEBUG( "sock.c: after file_readline\n" );
     /* if (err != 0)
-      printf("Sock after readline: err %d \n", err); */
+       printf("Sock after readline: err %d \n", err); */
     switch( err )
     {
       case 0:
@@ -729,18 +727,17 @@ static void *ConnectionThreadFunc( SocketConnection connection )
         /* Just try again */
         break;
 
-        //This is what is returned when socket closed on windows
+        /* This is what is returned when socket closed on windows */
       case -1:
         connection->handler( connection, connection->data, SOCK_DISCONNECT );
         done = TRUE;
         break;
         
       default:
-				fprintf( stderr, "Socket error: %s\n", strerror( errno ));
+        fprintf( stderr, "Socket error: %s\n", strerror( errno ));
         connection->handler( connection, connection->data, SOCK_DISCONNECT );
         done = TRUE;
-		}
-
+    }
     
 #ifndef WIN32
     /* If sock end of file socket is closed */
@@ -749,15 +746,15 @@ static void *ConnectionThreadFunc( SocketConnection connection )
       done = TRUE;
     }
 #endif
-    
-	}
+
+  }
   DEBUG( "sock.c:ConnectionThreadFunc:after loop.\n" );
-	
-	/* fclose( stream ); */
-	
-	ErrPopFunc();
-	
-	return NULL;
+
+  /* fclose( stream ); */
+
+  ErrPopFunc();
+
+  return NULL;
 }
 
 void sock_setUserData( Socket c, void *data )
@@ -838,19 +835,19 @@ static const char *voxi_sock_error( int err )
 int sock_readLine( int sock, char *buffer, int bufSize )
 {
   char *tempPtr;
-  
-	do
-	{
+
+  do
+  {
     tempPtr = sock_gets( buffer, bufSize, sock );
-		
+
     if( tempPtr == NULL ) {
       return -1; /* errno; */
     }
-	}
-	while( /* !feof( file ) && */ (buffer[0] == '#') );
-	
-	/* remove any newline characters at the end of line */
-  
+  }
+  while( /* !feof( file ) && */ (buffer[0] == '#') );
+
+  /* remove any newline characters at the end of line */
+
   if( (tempPtr != NULL) && (strlen(buffer) > 0) )
   {
     size_t lastIndex;
@@ -879,9 +876,9 @@ char *sock_gets(char *buf, int size, int sock)
 
     if (rcount <= 0) {
       err = WSAGetLastError();
-      //printf("RECV Error: %d \n", err);
+      /*printf("RECV Error: %d \n", err);*/
       if (err == WSAEINTR)
-        printf("WSA Interrupted system call\n");
+        fprintf( stderr, "WSA Interrupted system call\n");
       /* Something went wrong or the socket was closed. */
       /* fprintf(stderr, "sock_gets: recv failed!\n"); */
       return NULL;
@@ -896,7 +893,4 @@ char *sock_gets(char *buf, int size, int sock)
   /* fprintf(stderr, "sock_gets: '%s'\n", buf); */
   return buf;
 }
-#endif //WIN32
-
-
-
+#endif /* WIN32 */
