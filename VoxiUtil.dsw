@@ -1,0 +1,170 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "VoxiUtil"=".\VoxiUtil.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name pthread
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "compileLex"="..\RECOGNIZER\compileLex\compileLex.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "isipConverter"="..\RECOGNIZER\isipConverter\isipConverter.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name voxiOptRec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name voxiRec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name optRecSignalHelpers
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name optSignal
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "optRecSignalHelpers"="..\RECOGNIZER\optRecSignalHelpers\optRecSignalHelpers.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "optSignal"="..\RECOGNIZER\optSignal\optSignal.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name pthread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name voxiFFT512
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "pthread"="..\..\pthreads\pthread.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "voxiFFT512"="..\RECOGNIZER\voxiFFT512\voxiFFT512.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "voxiOptRec"="..\RECOGNIZER\voxiOptRec\voxiOptRec.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name pthread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "voxiRec"="..\RECOGNIZER\voxiRec\voxiRec.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name VoxiUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name optRecSignalHelpers
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
