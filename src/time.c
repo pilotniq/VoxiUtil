@@ -46,7 +46,7 @@ unsigned long millisec()
   
   gettimeofday( &tempTime, NULL );
   
-  return (tempTime.tv_sec * 1e3 + tempTime.tv_usec / 1000 );
+  return (unsigned long) rint(tempTime.tv_sec * 1e3 + tempTime.tv_usec / 1000 );
 }
 
 unsigned long microsec()

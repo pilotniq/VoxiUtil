@@ -44,7 +44,7 @@ static char *shlib_mangle_filename(const char *filename)
 #ifdef WIN32
   /* Add ".dll" if needed, and remove any "lib" prefix or ".so" suffix. */
   char *fname = (char *)filename;
-  char *tmpPtr, *tmpBuf;
+  char *tmpPtr;
   
   realFilename = (char *)malloc(strlen(filename) + strlen(".dll") + 1);
   
@@ -166,7 +166,7 @@ Error shlib_close( SharedLibrary shlib )
 
 Error shlib_findFunc( void *shlib, const char *name, void **funcPtr )
 {
-	Error error = NULL;
+  Error error = NULL;
 
   DEBUG("shlib_findFunc(%p, \"%s\", ...)\n", shlib, name);
 
@@ -197,7 +197,7 @@ Error shlib_findFunc( void *shlib, const char *name, void **funcPtr )
   }
 #endif /* WIN32 */
 
-	return error;
+  return error;
 }
 
 #else /* LINK_STATIC */

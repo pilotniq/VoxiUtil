@@ -17,6 +17,7 @@
 
 #ifdef WIN32
 
+#include <winsock2.h>
 #include <windows.h>
 #include <io.h>
 
@@ -68,18 +69,18 @@ void *mmap_win32(void *start, size_t length, int prot,
   LPVOID vMapping;
   DWORD flProtect = PAGE_READONLY, mProtect = FILE_MAP_READ;
 
-  if (hFile == -1) {
+  if (hFile == (void *) -1) {
     fprintf(stderr, "win32_glue.c: mmap: Bad file handle\n");
-    return MAP_FAILED;
+    return (void *) MAP_FAILED;
   }
   
   if (prot & PROT_NONE) {
     fprintf(stderr, "win32_glue.c: mmap: PROT_NONE not supported.\n");
-    return MAP_FAILED;
+    return (void *) MAP_FAILED;
   }
   if (flags & MAP_FIXED) {
     fprintf(stderr, "win32_glue.c: mmap: MAP_FIXED not supported.\n");
-    return MAP_FAILED;
+    return (void *) MAP_FAILED;
   }
 
   /* Win32 protection type */
@@ -104,14 +105,14 @@ void *mmap_win32(void *start, size_t length, int prot,
   if (!hMapping) {
     fprintf(stderr, "win32_glue.c: mmap: CreateFileMapping: error %d.\n",
             GetLastError());
-    return MAP_FAILED;
+    return (void *) MAP_FAILED;
   }
 
   vMapping = MapViewOfFile(hMapping, mProtect, 0, 0, 0);
   if (!vMapping) {
     fprintf(stderr, "win32_glue.c: mmap: MapViewOfFile: error %d.\n",
             GetLastError());
-    return MAP_FAILED;
+    return (void *) MAP_FAILED;
   }
   
   return vMapping;
