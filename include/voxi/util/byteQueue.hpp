@@ -11,7 +11,7 @@
 // #include <queue>
 #include <pthread.h>
 
-class ByteQueue
+class EXTERN_UTIL ByteQueue
 {
 private:
 	char *buffer;
