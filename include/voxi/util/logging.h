@@ -25,7 +25,8 @@ extern "C" {
 /*
  * Type definitions
  */
-typedef enum { LOGLEVEL_CRITICAL, LOGLEVEL_ERROR, LOGLEVEL_WARNING,
+typedef enum { LOGLEVEL_NONE, LOGLEVEL_CRITICAL, LOGLEVEL_ERROR, 
+               LOGLEVEL_WARNING,
                LOGLEVEL_INFO, LOGLEVEL_DEBUG, LOGLEVEL_TRACE,
                NUMBER_OF_LOGLEVELS } LogLevel;
 
@@ -48,13 +49,21 @@ typedef struct sLogger *Logger;
 EXTERN_UTIL LoggingDriver LoggingDriverFile;
 
 EXTERN_UTIL const char* LogLevelName[NUMBER_OF_LOGLEVELS];
-
+  
+/* This is the global log level, defined in logging.c
+   The macros need to access it.
+   It should be renamed to GlobalLogLevel to make everything clear.
+*/  
+EXTERN_UTIL LogLevel _voxiUtilGlobalLogLevel;
+  
 /*
  * Public function prototypes
  */
-EXTERN_UTIL Error log_create( const char *applicationName, LoggingDriver driver, 
-                  const char *driverArguments, Boolean setAsDefault, 
-                  Logger *logger );
+EXTERN_UTIL Error log_create( const char *applicationName, 
+                              LoggingDriver driver, 
+                              const char *driverArguments, 
+                              Boolean setAsDefault, 
+                              Logger *logger );
 EXTERN_UTIL void log_destroy( Logger logger );
 
 /* Logger may be NULL, in which case the default logger is used */
@@ -109,70 +118,83 @@ EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName,
  *
  */
   
-EXTERN_UTIL LogLevel _voxiUtilLogLevel;
+EXTERN_UTIL LogLevel log_GlobalLogLevelSet(LogLevel level);
+EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
 
-EXTERN_UTIL LogLevel log_LogLevelSet(LogLevel level);
-EXTERN_UTIL LogLevel log_LogLevelGet();
-
-#define LOG_LEVEL_SET(Level) \
-  log_LogLevelSet(Level)
+#define LOG_GLOBAL_LEVEL_SET( level) \
+  log_LogLevelSet( level );
   
-#define LOG_LEVEL_GET() log_LogLevelGet()
+#define LOG_MODULE_LEVEL_SET( level ) \
+  _voxiUtilModuleLogLevel = (level);
+  
+#define LOG_GLOBAL_LEVEL_GET() log_GlobalLogLevelGet()
+#define LOG_MODULE_LEVEL_GET() (_voxiUtilModuleLogLevel)
 
 #define LOG_MODULE_SET(moduleName) \
   static char *_voxiUtilLogModuleName = (moduleName)
-  
+
 #define LOG_MODULE_DECL(moduleName, defaultLevel) \
-  static LogLevel _voxiUtilLogLevelDummy = log_LogLevelSet(defaultLevel); \
+  static LogLevel _voxiUtilModuleLogLevel = (defaultLevel); \
   static char *_voxiUtilLogModuleName = (moduleName)
 
 #define LOG( condition ) ((condition) ? log_logText : log_noLogText)
 #define LOGERR( condition ) ((condition) ? log_logError : log_noLogError)
 
 #define LOG_CRITICAL \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_CRITICAL )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_CRITICAL) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_CRITICAL))
 #define LOG_CRITICAL_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
 
 #define LOG_ERROR \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_ERROR) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_ERROR) )
 #define LOG_ERROR_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
 
 #define LOG_WARNING \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_WARNING )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_WARNING ) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_WARNING) )
 #define LOG_WARNING_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
 
 #define LOG_INFO \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_INFO )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_INFO ) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_INFO))
 #define LOG_INFO_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
 
 #define LOG_DEBUG \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_DEBUG ) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_DEBUG))
 #define LOG_DEBUG_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 
 #define LOG_TRACE \
-   LOG( _voxiUtilLogLevel >= LOGLEVEL_TRACE )
+   LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_TRACE) || \
+        (_voxiUtilModuleLogLevel >= LOGLEVEL_TRACE))
 #define LOG_TRACE_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
 
 #define LOGERR_INFO \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_INFO )
+   LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_INFO) || \
+           (_voxiUtilModuleLogLevel >= LOGLEVEL_INFO) )
 
 #define LOGERR_DEBUG \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_DEBUG )
+   LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_DEBUG) || \
+           (_voxiUtilModuleLogLevel >= LOGLEVEL_DEBUG) )
 
 #define LOGERR_WARNING \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_WARNING )
+   LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_WARNING) || \
+           (_voxiUtilModuleLogLevel >= LOGLEVEL_WARNING) )
 
 #define LOGERR_ERROR \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
+   LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_ERROR) || \
+           (_voxiUtilModuleLogLevel >= LOGLEVEL_ERROR) )
 
 #define LOGERR_CRITICAL \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_CRITICAL )
+   LOGERR( _voxiUtilGlobalLogLevel >= LOGLEVEL_CRITICAL ) || \
+           (_voxiUtilModuleLogLevel >= LOGLEVEL_CRITICAL) )
 
 
 /*
