@@ -13,16 +13,26 @@
 #include <stdio.h>
 
 #include <voxi/util/err.h>
+#include <voxi/util/libcCompat.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
   Does a fopen, but with Voxi error handling
 */
-Error file_fopen( const char *fileName, const char *mode, FILE **file );
+EXTERN_UTIL Error file_fopen( const char *fileName, const char *mode, FILE **file );
 
 /* reads a line, skipping lines beginning with '#' (comments) 
    returns 0 or an errno 
 */
 
-int file_readLine( FILE *file, char *buffer, int bufSize );
-Error file_readHexAsBinary( FILE *file, unsigned char *buffer, 
+EXTERN_UTIL int file_readLine( FILE *file, char *buffer, int bufSize );
+EXTERN_UTIL Error file_readHexAsBinary( FILE *file, unsigned char *buffer, 
                             size_t byteCount );
+
+#ifdef __cplusplus
+}
+#endif
+

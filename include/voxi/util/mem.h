@@ -25,22 +25,32 @@
 
 #include <voxi/types.h>
 #include <voxi/util/err.h>
+#include <voxi/util/libcCompat.h>
+
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
+#endif
+
 
 typedef void **Handle;
 typedef enum { MEMERR_OUT } MemoryErrorType;
 
-void *malloc2(unsigned int size);
-void free2(void *ptr);
+EXTERN_UTIL void *malloc2(unsigned int size);
+EXTERN_UTIL void free2(void *ptr);
 
-Boolean malloch(unsigned int size, Handle *result);
-Boolean realloch(Handle h, int size, Boolean ignoreErr);
-Boolean freeh(Handle h);
+EXTERN_UTIL Boolean malloch(unsigned int size, Handle *result);
+EXTERN_UTIL Boolean realloch(Handle h, int size, Boolean ignoreErr);
+EXTERN_UTIL Boolean freeh(Handle h);
 
 /**
  * Wrapper around POSIX-malloc.
  * The function returns a voxi-Error if the malloc failed.
  */
-Error emalloc( void **result, size_t size );
+EXTERN_UTIL Error emalloc( void **result, size_t size );
 
 
+#ifdef __cplusplus
+} 
+#endif
 

@@ -37,6 +37,10 @@
 #ifndef ERR_H
 #define ERR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ERR Err(__FILE__, __LINE__,
 #define ENDERR )
 
@@ -72,6 +76,7 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
 #include <string.h> /* Needed for strerror */
 #include <errno.h>
 
+#include <voxi/util/libcCompat.h>
 
 /**
  * struct for errors in the new error handling.
@@ -89,22 +94,22 @@ typedef struct s_Error
 /**
  * Initalize the old error handling
  */
-extern Boolean ErrInit(void);
+EXTERN_UTIL Boolean ErrInit(void);
 
 /**
  * Push an entry on the caller stack in the old error handling.
  */ 
-extern void ErrPushFunc(char *funcname, ...);
+EXTERN_UTIL void ErrPushFunc(char *funcname, ...);
 
 /**
  * Pop an entry from the caller stack in the old error handling.
  */ 
-extern void ErrPopFunc(void);
+EXTERN_UTIL void ErrPopFunc(void);
 
 /**
  * Create an error message in the old error handling.
  */ 
-extern void Err(char *file, unsigned int line, Err_Action action,
+EXTERN_UTIL void Err(char *file, unsigned int line, Err_Action action,
 		char *string, ...);
 
 /** 
@@ -113,7 +118,7 @@ extern void Err(char *file, unsigned int line, Err_Action action,
  * If TRUE, all calls to ErrPushFunc and ErrPopFunc prints
  * out the arguemts they were called with. 
  */
-extern Boolean DisplayTrace(Boolean newState);
+EXTERN_UTIL Boolean DisplayTrace(Boolean newState);
 
 
 /**
@@ -126,7 +131,7 @@ extern Boolean DisplayTrace(Boolean newState);
  *        appropriate arguements. 
  *
  */ 
-extern Error ErrNew( ErrType t, int number, /*@only@*/Error reason, 
+EXTERN_UTIL Error ErrNew( ErrType t, int number, /*@only@*/Error reason, 
                      const char *description, ...);
 
 /**
@@ -135,21 +140,21 @@ extern Error ErrNew( ErrType t, int number, /*@only@*/Error reason,
  * @param err the error object
  * @param recursive whether or not to free all the sub-errors as well-
  */ 
-void ErrDispose(Error err, Boolean recursive);
+EXTERN_UTIL void ErrDispose(Error err, Boolean recursive);
 
 /**
  * Print the error object on stderr (in the new error handling).
  */
-extern void ErrReport(Error err);
+EXTERN_UTIL void ErrReport(Error err);
 
 /**
  * get error-category (in the new error handling)
  */
-extern ErrType Err_getType(Error err);
+EXTERN_UTIL ErrType Err_getType(Error err);
 /**
  * get category specific identifier (in the new error handling)
  */
-extern int Err_getNum(Error err);
+EXTERN_UTIL int Err_getNum(Error err);
 
 /**
  * convenience macro.
@@ -169,15 +174,20 @@ extern int Err_getNum(Error err);
   
   It is intended for marshalling purposes rather than for human consumption.
 */
-Error ErrToString( Error error, StringBuffer strbuf );
+EXTERN_UTIL Error ErrToString( Error error, StringBuffer strbuf );
 
 #ifdef MACOS
 #include <Types.h>
 
-extern const char *ErrOSErrName(OSErr err);
+EXTERN_UTIL const char *ErrOSErrName(OSErr err);
 #define  ErrCheckMacErr( err )  (err == 0) ? NULL : ErrNew( ERR_OSERR, (int) err, ErrOSErrName(err), NULL) 
 
 #define ErrCreateOSErr( /* OSErr */ err, /* Error */ reason) ErrNew(ERR_OSERR, (int) err, ErrOSErrName(err), reason)
-#endif
-#endif
+#endif /* MACOS */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* ifndef ERR_H */
 

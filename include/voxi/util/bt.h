@@ -18,6 +18,11 @@
 #define BT_H
 
 #include <voxi/types.h>
+#include <voxi/util/libcCompat.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* External types */
 
@@ -74,32 +79,36 @@ static void *bt_nodefind(bt_Tree *tree, bt_node *node, void *key);
 
 /* External functions */
 
-BinTree bt_create(CompFuncPtr compare);
-void bt_destroy(bt_Tree *tree);
+EXTERN_UTIL BinTree bt_create(CompFuncPtr compare);
+EXTERN_UTIL void bt_destroy(bt_Tree *tree);
 
-BinTree bt_dup(BinTree, DupFuncPtr);
+EXTERN_UTIL BinTree bt_dup(BinTree, DupFuncPtr);
 
-int bt_add(BinTree tree, void *value);
+EXTERN_UTIL int bt_add(BinTree tree, void *value);
 
 /* Returns TRUE if the value was deleted, FALSE if it was not in the tree */
-int bt_remove(bt_Tree *tree, void *value, Boolean ignoreErr);
+EXTERN_UTIL int bt_remove(bt_Tree *tree, void *value, Boolean ignoreErr);
 
 /* Returns NULL if not found */
-void *bt_find(bt_Tree *tree, void *key);
+EXTERN_UTIL void *bt_find(bt_Tree *tree, void *key);
 
-void bt_GoNext(bt_Tree *tree);
+EXTERN_UTIL void bt_GoNext(bt_Tree *tree);
 
-void bt_GoFirst(bt_Tree *tree);
+EXTERN_UTIL void bt_GoFirst(bt_Tree *tree);
 
 
 #ifdef WIN32
-int bt_getCount( BinTree tree );
-void *bt_GetCur(bt_Tree *tree);
-Boolean bt_EOT(bt_Tree *tree);
+EXTERN_UTIL int bt_getCount( BinTree tree );
+EXTERN_UTIL void *bt_GetCur(bt_Tree *tree);
+EXTERN_UTIL Boolean bt_EOT(bt_Tree *tree);
 #else
 __inline int bt_getCount( BinTree tree );
 __inline void *bt_GetCur(bt_Tree *tree);
 __inline Boolean bt_EOT(bt_Tree *tree);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

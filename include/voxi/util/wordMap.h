@@ -15,6 +15,12 @@
 
 #include <stdio.h>
 #include <voxi/util/err.h>
+#include <voxi/util/libcCompat.h>
+#include <voxi/util/config.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 #define WORDMAPMASK_BYNAME 1
 #define WORDMAPMASK_BYNUMBER 2
@@ -28,25 +34,29 @@ typedef struct sWordMapCursor *WordMapCursor;
 /*
  *  Functions
  */
-Error wordMap_create( const char *name, WordMapType type, WordMap *wordMap );
-Error wordMap_create2( const char *name, WordMapType type, WordMap *phoneMap,
+EXTERN_UTIL Error wordMap_create( const char *name, WordMapType type, WordMap *wordMap );
+EXTERN_UTIL Error wordMap_create2( const char *name, WordMapType type, WordMap *phoneMap,
 											 int hashTableSize );
 
-int wordMap_getNoElements(WordMap map);
+EXTERN_UTIL int wordMap_getNoElements(WordMap map);
 
-Error wordMap_load( FILE *file, WordMap *wordMap );
-Error wordMap_save( WordMap pm, FILE *file );
+#ifdef _FILE_IO
+EXTERN_UTIL Error wordMap_save( WordMap pm, FILE *file );
+EXTERN_UTIL Error wordMap_saveToStringBuffer( WordMap map, StringBuffer *memBlock );
+EXTERN_UTIL Error wordMap_load( FILE *file, WordMap *map );
+#endif
 
-Error wordMap_createFromString(const char *str[], WordMap *wordMap);
+
+EXTERN_UTIL Error wordMap_createFromString(const char *str[], WordMap *wordMap);
   
-Error wordMap_add( WordMap map, const char *name, int hmmNo );
-Error wordMap_deleteByNumber( WordMap map, int number );
+EXTERN_UTIL Error wordMap_add( WordMap map, const char *name, int hmmNo );
+EXTERN_UTIL Error wordMap_deleteByNumber( WordMap map, int number );
 
-int wordMap_findByName( WordMap pm, const char *name );
-/*@observer@*/const char *wordMap_findByNumber( WordMap pm, int number );
+EXTERN_UTIL int wordMap_findByName( WordMap pm, const char *name );
+EXTERN_UTIL /*@observer@*/const char *wordMap_findByNumber( WordMap pm, int number );
 
-WordMapType wordMap_getType( WordMap map );
-const char *wordMap_getName( WordMap map );
+EXTERN_UTIL WordMapType wordMap_getType( WordMap map );
+EXTERN_UTIL const char *wordMap_getName( WordMap map );
 
 
 /*
@@ -64,14 +74,18 @@ const char *wordMap_getName( WordMap map );
     The mask argument must be either WORDMAPMASK_BYNAME or 
     WORDMAPMASK_BYNUMBER.
 */
-Error wordMap_cursor_create( WordMap map, int mask, WordMapCursor *cursor );
-void wordMap_cursor_destroy( WordMapCursor cursor );
+EXTERN_UTIL Error wordMap_cursor_create( WordMap map, int mask, WordMapCursor *cursor );
+EXTERN_UTIL void wordMap_cursor_destroy( WordMapCursor cursor );
 
-int wordMap_cursor_getElementNumber( WordMapCursor cursor );
-const char *wordMap_cursor_getElementName( WordMapCursor cursor );
+EXTERN_UTIL int wordMap_cursor_getElementNumber( WordMapCursor cursor );
+EXTERN_UTIL const char *wordMap_cursor_getElementName( WordMapCursor cursor );
 
-void wordMap_cursor_goFirst( WordMapCursor cursor );
-void wordMap_cursor_goNext( WordMapCursor cursor );
-Boolean wordMap_cursor_pastLastElement( WordMapCursor cursor );
+EXTERN_UTIL void wordMap_cursor_goFirst( WordMapCursor cursor );
+EXTERN_UTIL void wordMap_cursor_goNext( WordMapCursor cursor );
+EXTERN_UTIL Boolean wordMap_cursor_pastLastElement( WordMapCursor cursor );
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

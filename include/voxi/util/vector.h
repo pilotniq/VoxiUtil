@@ -23,6 +23,10 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 /**
  * Definition of the Vector datatype.
  */
@@ -31,11 +35,11 @@ typedef const struct sVector *ConstVector;
 
 #include <voxi/util/collection.h>
 #include <voxi/types.h>
-
+#include <voxi/util/libcCompat.h>
 
 #ifndef NDEBUG
 /* helperfunction for assert */
-Boolean vector_isValid( Vector vector );
+EXTERN_UTIL Boolean vector_isValid( Vector vector );
 #endif
 
 /**
@@ -53,14 +57,14 @@ Boolean vector_isValid( Vector vector );
  *
  * @return A new empty vector.
  */
-Vector vectorCreate( const char *name, size_t elementSize,
+EXTERN_UTIL Vector vectorCreate( const char *name, size_t elementSize,
                      int initialCapacity, int capacityIncrement,
                      /*@null@*/DestroyElementFunc destroyFunc );
 
 /**
  * Turns the debug mode on or off for the specified vector.
  */
-void vectorDebug( ConstVector vector, Boolean state );
+EXTERN_UTIL void vectorDebug( ConstVector vector, Boolean state );
 
 /**
  * If you want to track the number of references to this vector, you
@@ -69,57 +73,57 @@ void vectorDebug( ConstVector vector, Boolean state );
  * The vector is initially created with a reference count of 1.
  * when the reference count is decreased to 0, the vector is destroyed.
  */
-void vectorRefcountIncrease( Vector vector );
+EXTERN_UTIL void vectorRefcountIncrease( Vector vector );
 
 /**
  * See documentation for vectorRefcountIncrease.
  * @see vectorRefcountIncrease
  */
-void vectorRefcountDecrease( Vector vector );
+EXTERN_UTIL void vectorRefcountDecrease( Vector vector );
 
 /**
  * Grabs the lock for the specified vector for the calling thread.
  * This function will block until any other thread that might
  * have grabbed the lock releases it with vectorUnlock.
  */
-void vectorLock( ConstVector vector );
+EXTERN_UTIL void vectorLock( ConstVector vector );
 
 /**
  * Same as vectorLock, but in debug mode.
  * @see vectorLock
  */
-const char *vectorLockDebug( ConstVector vector, const char *where );
+EXTERN_UTIL const char *vectorLockDebug( ConstVector vector, const char *where );
 
 /**
  * Same as vectorLock, but in debug mode.
  * @see vectorLock
  */
-void vectorUnlockDebug( ConstVector vector, const char *oldLocker );
+EXTERN_UTIL void vectorUnlockDebug( ConstVector vector, const char *oldLocker );
 
 /**
  * Releases the lock for the specified vector for the calling thread,
  * thereby making it possible for other threads to grab the lock.
  */
-void vectorUnlock( ConstVector vector );
+EXTERN_UTIL void vectorUnlock( ConstVector vector );
 
 /**
  * Returns the number of element currently in the specified bag.
  */
-int vectorGetElementCount( ConstVector vector );
+EXTERN_UTIL int vectorGetElementCount( ConstVector vector );
 
 /**
  * Copies the element into the end of the vector. If the vector
  * is full, its capacity is incremented.
  * @return The index at which the element was inserted.
  */
-int /*@alt void@*/vectorAppend( Vector vector, const void *element );
+EXTERN_UTIL int /*@alt void@*/vectorAppend( Vector vector, const void *element );
 
 /**
  * The same as for vectorAppend, but it is assumed that the element is a
  * pointer and therefore the element is stored, not copied.
  * @see vectorAppend
  */
-int /*@alt void@*/vectorAppendPtr( Vector vector, /*@only@*/const void *ptr );
+EXTERN_UTIL int /*@alt void@*/vectorAppendPtr( Vector vector, /*@only@*/const void *ptr );
 
 /**
  * Removes the last element from the specified vector.
@@ -129,7 +133,7 @@ int /*@alt void@*/vectorAppendPtr( Vector vector, /*@only@*/const void *ptr );
  * @warning The destory function is not called here.
  * You should free the elements manually.
  */
-void vectorRemoveLastElement( Vector vector );
+EXTERN_UTIL void vectorRemoveLastElement( Vector vector );
 
 /**
  * Removes all the elements from the vector.
@@ -139,14 +143,14 @@ void vectorRemoveLastElement( Vector vector );
  * destroy function, an assert(false) is done. You should manually
  * free the elements.
  */
-void vectorRemoveAll( Vector vector );
+EXTERN_UTIL void vectorRemoveAll( Vector vector );
 
 /**
  * Copies the element at the specified index into the memory pointed at by element.
  * @pre index < vector->elementCount
  * @remarks Caller frees the element.
  */
-void vectorGetElementAt( ConstVector vector, int index, 
+EXTERN_UTIL void vectorGetElementAt( ConstVector vector, int index, 
                          /*@out@*/void *element );
 
 /**
@@ -155,7 +159,7 @@ void vectorGetElementAt( ConstVector vector, int index,
  * @pre index < vector->elementCount
  * @remarks Caller frees the element.
  */
-void vectorSetElementAt( Vector vector, int index, /*@out@*/void *element );
+EXTERN_UTIL void vectorSetElementAt( Vector vector, int index, /*@out@*/void *element );
 
 
 /**
@@ -164,7 +168,11 @@ void vectorSetElementAt( Vector vector, int index, /*@out@*/void *element );
  * @param name The name to give the new vector
  * @param a The source vector to copy from
  */
-Vector vectorClone( const char *name, Vector a );
+EXTERN_UTIL Vector vectorClone( const char *name, Vector a );
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
 
