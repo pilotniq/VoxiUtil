@@ -212,7 +212,11 @@ EXTERN_UTIL int Err_getNum( ConstError err);
  * in the global variable errno and that have a description that can be 
  * obtained by calling the POSIX function strerror.
  */
+#ifndef WIN32
 #define ErrErrno() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
+#else
+#define ErrErrno() ErrNew(ERR_ERRNO, errno, NULL, "errno %d", errno)
+#endif /* WIN32 */
 
 EXTERN_UTIL Error ErrSock();
 
