@@ -54,6 +54,7 @@ EXTERN_UTIL const char* LogLevelName[NUMBER_OF_LOGLEVELS];
 EXTERN_UTIL Error log_create( const char *applicationName, LoggingDriver driver, 
                   const char *driverArguments, Boolean setAsDefault, 
                   Logger *logger );
+EXTERN_UTIL void log_destroy( Logger logger );
 
 /* Logger may be NULL, in which case the default logger is used */
 EXTERN_UTIL Error log_logText( Logger logger, const char *moduleName, 
@@ -148,7 +149,7 @@ EXTERN_UTIL LogLevel log_LogLevelGet();
    LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
 
 #define LOGERR_CRITICAL \
-   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_ERROR )
+   LOGERR( _voxiUtilLogLevel >= LOGLEVEL_CRITICAL )
 
 
 /*
