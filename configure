@@ -465,7 +465,7 @@ ac_includes_default="\
 #endif"
 
 ac_unique_file="src/bag.c"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S ECHO RANLIB ac_ct_RANLIB CPP EGREP LIBTOOL LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S ECHO RANLIB ac_ct_RANLIB CPP EGREP LIBTOOL HAVE_LIBCRYPTO_TRUE HAVE_LIBCRYPTO_FALSE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -7194,6 +7194,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 #AC_COPYRIGHT( "Copyright 2002, Voxi AB" )
 
 
+# AM_CONFIG_HEADER
           ac_config_headers="$ac_config_headers config.h"
 
 
@@ -7918,7 +7919,6 @@ fi
 
 
 # Checks for libraries.
-
 echo "$as_me:$LINENO: checking for OpenSSL_add_all_algorithms in -lcrypto" >&5
 echo $ECHO_N "checking for OpenSSL_add_all_algorithms in -lcrypto... $ECHO_C" >&6
 if test "${ac_cv_lib_crypto_OpenSSL_add_all_algorithms+set}" = set; then
@@ -7969,13 +7969,34 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_crypto_OpenSSL_add_all_algorithms" >&5
 echo "${ECHO_T}$ac_cv_lib_crypto_OpenSSL_add_all_algorithms" >&6
 if test $ac_cv_lib_crypto_OpenSSL_add_all_algorithms = yes; then
-  cat >>confdefs.h <<_ACEOF
+  have_libcrypto=true
+else
+  have_libcrypto=false
+fi
+
+
+
+
+if test "x$have_libcrypto" = "xtrue" ; then
+  cat >>confdefs.h <<\_ACEOF
 #define HAVE_LIBCRYPTO 1
 _ACEOF
 
-  LIBS="-lcrypto $LIBS"
-
 fi
+
+
+
+if $have_crypto; then
+  HAVE_LIBCRYPTO_TRUE=
+  HAVE_LIBCRYPTO_FALSE='#'
+else
+  HAVE_LIBCRYPTO_TRUE='#'
+  HAVE_LIBCRYPTO_FALSE=
+fi
+
+
+#AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
+# AM_CONDITIONAL(HAVE_LIBcrypto, test x$HAVE_LIBCRYPT = xtrue)
 
 
 echo "$as_me:$LINENO: checking for dlopen in -ldl" >&5
@@ -10045,6 +10066,13 @@ echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${HAVE_LIBCRYPTO_TRUE}" && test -z "${HAVE_LIBCRYPTO_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBCRYPTO\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_LIBCRYPTO\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
@@ -10604,6 +10632,8 @@ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
+s,@HAVE_LIBCRYPTO_TRUE@,$HAVE_LIBCRYPTO_TRUE,;t t
+s,@HAVE_LIBCRYPTO_FALSE@,$HAVE_LIBCRYPTO_FALSE,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
