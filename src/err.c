@@ -447,7 +447,11 @@ void ErrDispose(Error err, Boolean recursive)
     return;
   if (recursive && err->reason != NULL)
     ErrDispose(err->reason, TRUE);
-/*    free(err->description); */
+
+  assert( err->description != NULL );
+
+  free(err->description);
+
   free(err);
 }
 
