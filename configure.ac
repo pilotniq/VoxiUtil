@@ -21,10 +21,11 @@ AM_PROG_LIBTOOL
 #AC_COPYRIGHT( "Copyright 2002, Voxi AB" )
 
 AC_CONFIG_SRCDIR([src/bag.c])
+AM_CONFIG_HEADER
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
-AC_PROG_CC
+AC_PROG_CC(cl.exe gcc cc)
 
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
@@ -68,12 +69,22 @@ AC_ARG_ENABLE(
 	[  --enable-compile-debug      enable debug-compiled code],
 	[
 		AC_MSG_RESULT(debugging ENABLED)
-                CFLAGS="$CFLAGS -g"
+    if test "x$CC" = "xgcc" ; then
+      CFLAGS="$CFLAGS -g"
+    fi
+    if test "x$CC" = "xcl" ; then
+      CFLAGS="$CFLAGS -Zi -Yd"
+    fi
 	],
         [
 		AC_MSG_RESULT(debugging disabled)
-                CPPFLAGS="$CPPFLAGS -DNDEBUG"
-                CFLAGS="$CFLAGS -O3"
+    CPPFLAGS="$CPPFLAGS -DNDEBUG"
+    if test "x$CC" = "xgcc" ; then
+      CFLAGS="$CFLAGS -O3"
+    fi
+    if test "x$CC" = "xcl" ; then
+      CFLAGS="$CFLAGS -O2"
+    fi
         ]
 )
 AC_SUBST(CFLAGS)
