@@ -9,11 +9,17 @@
 #ifndef VOXIUTIL_LOGGING_H
 #define VOXIUTIL_LOGGING_H
 
+#include <voxi/util/config.h>
 #include <voxi/util/err.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+ * Macros and constants
+ */
+#define LOG_FILE_LINE __FILE__, __LINE__
 
 /*
  * Type definitions
@@ -51,6 +57,18 @@ EXTERN_UTIL Error log_logText( Logger logger, const char *moduleName,
                                LogLevel logLevel, 
                                const char *sourceFile, int sourceLine,
                                const char *format, ... );
+
+/* 
+  This function does nothing, then returns NULL. Hack to work around
+   C preprocessors that don't support variable argument lists.
+*/
+EXTERN_UTIL Error log_noLogText( Logger logger, const char *moduleName,
+                                 LogLevel logLevel, const char *sourceFile,
+                                 int sourceLine, const char *format, ... );
+
+#define LOG( condition ) ((condition) ? log_logText : log_noLogText)
+
+
 /*
 Error log_logError( const char *moduleName, LogLevel logLevel,
                     const char *sourceFile, int sourceLIne,

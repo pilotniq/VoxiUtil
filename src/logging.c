@@ -109,6 +109,13 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
   return error;
 }
 
+__inline Error log_noLogText( Logger logger, const char *moduleName,
+                              LogLevel logLevel, const char *sourceFile,
+                              int sourceLine, const char *format, ... )
+{
+  return NULL;
+}
+
 /*
  * Implementation of the file logging driver
  */
