@@ -7,7 +7,7 @@
 
 #include <voxi/util/byteQueue.hpp>
 
-#define DEBUG 1
+#define DEBUG 0
 
 static FILE *debugLogFile = NULL;
 //
@@ -80,7 +80,7 @@ bool ByteQueue::WriteData( const char *data, size_t length )
 
 	wasEmpty = this->IsEmpty();
 
-#ifdef DEBUG
+#if DEBUG
 	fprintf( debugLogFile, "Before WriteData( %p, %p, %d ): head=%d, tail=%d, "
 		"isEmpty=%d, isFull=%d.\n", this, data, (int) length, head, tail, 
 		wasEmpty, this->IsFull() );
@@ -189,7 +189,7 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
 	
 	assert( length > 0 );
 
-#ifdef DEBUG
+#if DEBUG
 	fprintf( debugLogFile, "Before ReadData( %p, %p, %d ): head=%d, tail=%d, "
 		"isEmpty=%d, isFull=%d.\n", this, data, (int) length, head, tail, 
 		IsEmpty(), IsFull() );
@@ -240,7 +240,7 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
 		length -= bytesToCopy;
 	}
 
-#ifdef DEBUG
+#if DEBUG
 	fprintf( debugLogFile, "After ReadData( %p, %p, %d ): head=%d, tail=%d, "
 		"isEmpty=%d, isFull=%d.\n", this, data, (int) length, head, tail, 
 		IsEmpty(), IsFull() );
