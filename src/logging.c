@@ -273,10 +273,10 @@ static Error fileLogText( Logger logger, const char *moduleName,
   tempInt = vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
                         format, args );
 
-  if (logger->data != stderr)
-    vsnprintf( &(stdOutBuffer[ stdOutIndex ]),
-               sizeof( stdOutBuffer ) - stdOutIndex, 
-               format, args );
+/*   if (logger->data != stderr) */
+/*     vsnprintf( &(stdOutBuffer[ stdOutIndex ]), */
+/*                sizeof( stdOutBuffer ) - stdOutIndex,  */
+/*                format, args ); */
   
   assert( tempInt >= 0 );
 
@@ -287,8 +287,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
 
   fflush( logger->data );
 
-  if (logger->data != stderr)
-    fprintf( stderr, "%s\n", stdOutBuffer );
+/*   if (logger->data != stderr) */
+/*     fprintf( stderr, "%s\n", stdOutBuffer ); */
 
   pthread_mutex_unlock(&logger->mutex);
   
