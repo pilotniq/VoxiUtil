@@ -60,6 +60,7 @@ __inline static Vector getErrorStack();
 static void writeHumanReadableString( Error error, char *string, 
                                       int remainingLength );
 static size_t calculateHumanReadableStringLength( ConstError error );
+#define ERR_BECAUSE_STR ", because "
 
 /**
  * struct for errors in the new error handling.
@@ -661,7 +662,7 @@ Error ErrToHumanReadableString( ConstError error, char **string )
 
   descriptionLength = strlen( error->description );
 
-  assert( descriptionLength < stringLength );
+  assert( descriptionLength <= stringLength );
   strcpy( *string, error->description );
   ptr = *string + descriptionLength;
 
@@ -678,9 +679,9 @@ static void writeHumanReadableString( Error error, char *string,
   size_t addedLength;
 
   assert( string != NULL );
-  assert( remainingLength >= (strlen( ", because " ) + strlen( error->description )) );
+  assert( remainingLength >= (strlen( ERR_BECAUSE_STR ) + strlen( error->description )) );
 
-  strcpy( string, ", because " );
+  strcpy( string, ERR_BECAUSE_STR );
   strcat( string, error->description );
 
   addedLength = strlen( string );
@@ -697,7 +698,7 @@ static size_t calculateHumanReadableStringLength( ConstError error )
 
   length = strlen( error->description );
   if( error->reason != NULL )
-    length += strlen( ", because " ) + 
+    length += strlen( ERR_BECAUSE_STR ) + 
       calculateHumanReadableStringLength( error->reason );
 
   return length;
