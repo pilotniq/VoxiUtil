@@ -27,7 +27,16 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms])
+AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
+             have_libcrypto=true, have_libcrypto=false )
+
+AH_TEMPLATE( [HAVE_LIBCRYPTO], [If the crypto library exists] )
+if test "x$have_libcrypto" = "xtrue" ; then
+  AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
+fi
+
+AM_CONDITIONAL(HAVE_LIBCRYPTO, $have_crypto)
+
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([m], [rint])
 AC_CHECK_LIB([pthread], [pthread_create])
