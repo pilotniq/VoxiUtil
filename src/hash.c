@@ -27,22 +27,29 @@
       Will the cursor stuff still work properly if we don't have semaphores?
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h> /* for tolower */
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h> /* for perror */
 
-#ifndef WIN32
-#include <unistd.h> /* For POSIX-feature definitions */
-#else
+#if HAVE_UNISTD_H
+#include <unistd.h> /* For POSIX-feature definitions on unix-like systems */
+#endif
+
+#ifdef WIN32
 #include <voxi/util/win32_glue.h>
 #endif /* WIN32 */
 
-#ifdef _POSIX_THREADS
-#include <pthread.h>            /* Needed for semaphores */
+#if HAVE_PTHREAD_H
+/* Needed for semaphores. POSIX-feature defs are here on some platforms. */
+#include <pthread.h>
 #endif
-#if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
+
+#if HAVE_SEMAPHORE_H
+/* POSIX-feature defs are also here on some platforms. */
 #include <semaphore.h>	
 #endif
 

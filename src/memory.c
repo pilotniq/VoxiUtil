@@ -12,21 +12,29 @@
   Voxi Memory Manager
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef WIN32
-#include <unistd.h> /* for POSIX-feature definitions */
-#else  /* WIN32 */
+
+#if HAVE_UNISTD_H
+#include <unistd.h> /* for POSIX-feature definitions on unix-like systems */
+#endif
+
+#ifdef WIN32
 #include <voxi/util/win32_glue.h>
 #endif /* WIN32 */
 
 #include <voxi/alwaysInclude.h>
 #include <voxi/types.h>
-#ifdef _POSIX_THREADS
+
+#if HAVE_PTHREAD_H
+/* Threaing is used if and only if we have pthreads. */
 #include <voxi/util/threading.h>
 #endif
+
 #include <voxi/util/memory.h>
 
 CVSID("$Id$");
