@@ -1,14 +1,39 @@
+
 # Process this file with autoconf to produce a configure script.
 AC_INIT(voxiUtil, 1.4alpha2, bugs@voxi.com, util)
+
 # insert this when things are stable.
 AC_CONFIG_AUX_DIR(config)
+
+#
+# Check what platform we run on.
+#
+AC_CANONICAL_HOST
+
+#
+# Make sure we use the right compiler.
+#
+AC_PROG_CC(cl gcc cc)
+case $host in
+  i*86-*-linux*)
+    ;;
+  i*86-*-cygwin*)
+    # On cygwin, we require direct use of MSVC command-line tools,
+    # since we do not want dependencies on any cygwin DLLs in the
+    # final binaries. I.e. we use cygwin as a "building shell" and
+    # get "the best of two worlds".
+    if test "x$CC" != "xcl" ; then
+      AC_MSG_ERROR(
+        [MSVC command-line tools (cl, link etc.) are required
+         to build this package on Win32 (detected $CC).]
+      )
+    fi
+    ;;
+esac
+
 #
 # Initialize Automake
 #
-
-# Checks for programs.
-AC_PROG_CC(cl gcc cc)
-
 # Requre automake version 1.7 or later, earlier versions give problems with 
 # AM_CONFIG_HEADER
 #
@@ -23,8 +48,10 @@ AC_MSG_RESULT($AUTOMAKE_VERSION)
 # Initialize libtool
 #
 # AC_LIBTOOL_DLOPEN must be before AM_PROG_LIBTOOL
-AC_LIBTOOL_DLOPEN
+AC_ENABLE_SHARED
+AC_DISABLE_STATIC
 AC_LIBTOOL_WIN32_DLL
+AC_LIBTOOL_DLOPEN
 AM_PROG_LIBTOOL
 
 #
@@ -35,6 +62,15 @@ AM_PROG_LIBTOOL
 
 AC_CONFIG_SRCDIR([src/bag.c])
 AC_CONFIG_HEADER([config.h])
+
+#
+# This macro causes export/import definitions in .h files to
+# be configured correctly when compiling.
+#
+# NOTE: If you copy this configure script to another source tree,
+# change the macro name to comply with the module name.
+#
+CFLAGS="$CFLAGS -DLIB_UTIL_INTERNAL"
 
 #
 # Check if the C preprocessor can handle variable argument lists to 
@@ -51,54 +87,160 @@ AC_TRY_CPP([#define VMACRO(x...) printf( ## x)
            [AC_DEFINE( [HAVE_CPP_VARARGS], 1 ) AC_MSG_RESULT([yes])],
            [AC_DEFINE( [HAVE_CPP_VARARGS], 0 ) AC_MSG_RESULT([no])])
 
+
 #
 # Check if the C compiler supports the "long long" datatype.
 #
 AH_TEMPLATE( [HAVE_LONG_LONG], 
-             [True if the C compiler supports the type long long.] )
+             [Define to 1 if the C compiler supports the type long long.] )
 
 AC_MSG_CHECKING([if the C compiler supports long long])
 
-AC_TRY_COMPILE([],
-               [long long int foo;], 
-               [AC_DEFINE( [HAVE_LONG_LONG], 1 ) AC_MSG_RESULT([yes])],
-               [AC_DEFINE( [HAVE_LONG_LONG], 0 ) AC_MSG_RESULT([no])])
+AC_TRY_LINK([],
+            [long long int foo;], 
+            [AC_DEFINE( [HAVE_LONG_LONG], 1 ) AC_MSG_RESULT([yes])],
+            [AC_DEFINE( [HAVE_LONG_LONG], 0 ) AC_MSG_RESULT([no])])
+
 
 #
 # Check if the C compiler supports the "__int64" datatype.
 #
 AH_TEMPLATE( [HAVE___INT64], 
-             [True if the C compiler supports the type __int64.] )
+             [Define to 1 if the C compiler supports the type __int64.] )
 
 AC_MSG_CHECKING([if the C compiler supports __int64])
 
-AC_TRY_COMPILE([],
-               [__int64 foo;], 
-               [AC_DEFINE( [HAVE___INT64], 1 ) AC_MSG_RESULT([yes])],
-               [AC_DEFINE( [HAVE___INT64], 0 ) AC_MSG_RESULT([no])])
+AC_TRY_LINK([],
+            [__int64 foo;], 
+            [AC_DEFINE( [HAVE___INT64], 1 ) AC_MSG_RESULT([yes])],
+            [AC_DEFINE( [HAVE___INT64], 0 ) AC_MSG_RESULT([no])])
 
-# Checks for libraries.
-AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
-             have_libcrypto=true, have_libcrypto=false )
+#
+# Check for openSSL / libcrypto
+#
+AC_ARG_WITH(
+  openssl,
+  [--with-openssl         Use openssl. Default is yes on Linux, no on Win32.
+                          On Win32 you must give the path as argument value.],
+)
 
 AH_TEMPLATE( [HAVE_LIBCRYPTO], [If the crypto library exists] )
-if test "x$have_libcrypto" = "xtrue" ; then
-  AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
-fi
 
-AM_CONDITIONAL(HAVE_LIBCRYPTO, $have_crypto)
+case $host in
 
+  i*86-*-linux*)
+    case $with_openssl in
+      no)
+        have_libcrypto=false
+      ;;
+      *)
+        AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
+                     have_libcrypto=true, have_libcrypto=false )
+        if test "x$have_libcrypto" = "xtrue" ; then
+          AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
+        fi
+      ;;
+    esac
+  ;;
+
+  i*86-*-cygwin*)
+    case $with_openssl in
+      no)
+        have_libcrypto=false
+      ;;
+      yes)
+        AC_MSG_WARN(You have to specify the path with --with-openssl on Win32)
+        have_libcrypto=false
+      ;;
+      *)
+        # TODO: Add checking code here. For now just assume that
+        # the user is not lying.
+        have_libcrypto=true
+        AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
+        LIBS="$LIBS libeay32.dll"
+        LDFLAGS="$LDFLAGS -libpath:${with_openssl}/lib"
+        CPPFLAGS="$CPPFLAGS -I${with_openssl}/include"
+    esac
+  ;;
+
+esac
+
+case $have_libcrypto in
+  false)
+    AC_MSG_RESULT(Will use openssl: NO)
+  ;;
+  true)
+    AC_MSG_RESULT(Will use openssl: $with_openssl)
+  ;;
+esac
+
+AM_CONDITIONAL(HAVE_LIBCRYPTO, $have_libcrypto)
+
+#
+# Give location for pthreads.
+#
+AC_ARG_WITH(
+  pthreads,
+  [--with-pthreads        Speicfy where pthreads is, if not by default
+                          accessible through OS. On Win32, we require
+                          this to be the pthreads-win32 package.],
+  [
+    case $with_pthreads in
+      no)
+        AC_MSG_ERROR([Pthread support is required for this package.])
+      ;;
+
+      yes)
+      ;;
+
+      *)
+        case $host in
+
+          i*86-*-cygwin*)
+            LIBS="$LIBS pthreadVSE.dll"
+            LDFLAGS="$LDFLAGS -libpath:${with_pthreads}"
+            CPPFLAGS="$CPPFLAGS -I${with_pthreads}"
+          ;;
+
+          *)
+            LDFLAGS="$LDFLAGS -libpath:${with_pthreads}/lib"
+            CPPFLAGS="$CPPFLAGS -I${with_pthreads}/include"
+          ;;
+
+        esac
+      ;;
+
+    esac
+  ]
+)
+
+#
+# Checks for system libraries.
+#
 AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([m], [rint])
 AC_CHECK_LIB([pthread], [pthread_create])
 
+
+#
 # Checks for header files.
+#
 AC_HEADER_STDC
+
+# Unix/Linux-related
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
+
+# Threading-related
 AC_CHECK_HEADERS([pthread.h])
 AC_CHECK_HEADERS([semaphore.h], [], [], [#include <pthread.h>])
 
+# Windows-related
+AC_CHECK_HEADERS([windows.h winsock2.h io.h time.h])
+
+
+#
 # Checks for typedefs, structures, and compiler characteristics.
+#
 AC_C_CONST
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
@@ -106,7 +248,10 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
 
+
+#
 # Checks for library functions.
+#
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
@@ -116,20 +261,23 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero floor gethostbyname gettimeofday inet_ntoa memset munmap rint sqrt strcasecmp strchr strdup strerror strpbrk strrchr strstr strtoul])
 
+#
+# Debug build switch
+#
 AC_ARG_ENABLE(
-	compile-debug,
-	[  --enable-compile-debug      enable debug-compiled code],
-	[
-		AC_MSG_RESULT(debugging ENABLED)
+  compile-debug,
+  [  --enable-compile-debug      enable debug-compiled code],
+  [
+    AC_MSG_RESULT(debugging ENABLED)
     if test "x$CC" = "xgcc" ; then
       CFLAGS="$CFLAGS -g"
     fi
     if test "x$CC" = "xcl" ; then
       CFLAGS="$CFLAGS -Zi -Yd"
     fi
-	],
-        [
-		AC_MSG_RESULT(debugging disabled)
+  ],
+  [
+    AC_MSG_RESULT(debugging disabled)
     CPPFLAGS="$CPPFLAGS -DNDEBUG"
     if test "x$CC" = "xgcc" ; then
       CFLAGS="$CFLAGS -O3"
@@ -137,14 +285,51 @@ AC_ARG_ENABLE(
     if test "x$CC" = "xcl" ; then
       CFLAGS="$CFLAGS -O2"
     fi
-        ]
+  ]
 )
-AC_SUBST(CFLAGS)
 
+#
+# File IO in certain places.
+#
 AH_TEMPLATE([_FILE_IO],
             [Whether to use File IO])
 
 AC_DEFINE( [_FILE_IO], 1 )
 
+#
+# If we appear to be on Windows (use MSVC), define WIN32.
+#
+# NOTE:
+#
+# We should strive towards minimizing the use of this macro.  It
+# is, however, needed to be able to produce Win32 DLL correctly since
+# the DLL export/import definitions differ in a way not automatically
+# configured by the libtool macros. Rather, libtool expects us to
+# handle this by ourselves as a pre-requisite to using the
+# AC_LIBTOOL_WIN32_DLL macro above. See libtool docs.
+#
+# Furthermore, we still have the win32_glue.[ch] stuff which of 
+# course gradually should migrate to a generic compatibility layer.
+# 
+if test "x$CC" = "xcl" ; then
+  CFLAGS="$CFLAGS -DWIN32"
+fi
+
+#
+# The pthreads-win32 library we currently use on Win32 has certain
+# "features" we must take care of. Unfortunately.
+#
+if test "x$CC" = "xcl" ; then
+  CFLAGS="$CFLAGS -DPTHREADS_WIN32"
+fi
+
+#
+# Substitution macros in Makefiles etc.
+#
+AC_SUBST(CFLAGS)
+
+#
+# Generate the Makefiles
+#
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile])
 AC_OUTPUT
