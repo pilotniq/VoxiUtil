@@ -1,0 +1,1 @@
+awk --assign arrayName=$1 -f wordMap2h.awk < $2 >$1.h
