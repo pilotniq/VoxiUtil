@@ -130,7 +130,11 @@ Error queue_push( Queue queue, void *userElement )
 /* Returns TRUE if the queue contains elements */
 Boolean queue_poll( const Queue queue )
 {
-  return (queue->newest != NULL);  
+  Boolean retval = FALSE;
+  pthread_mutex_lock(&(queue->mutex));
+  retval = (queue->newest != NULL);
+  pthread_mutex_unlock(&(queue->mutex));
+  return retval;  
 }
 
 Error queue_pop( Queue queue, void **result )
