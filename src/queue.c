@@ -96,13 +96,14 @@ Error queue_push( Queue queue, void *userElement )
   err = pthread_mutex_lock( &(queue->mutex) );
   assert( err == 0 );
 
-  element->newer = queue->newest;
+  element->newer = NULL;
 
-  if( queue->oldest == NULL )
-  {
-    assert( queue->newest == NULL );
-    
+  if( queue->newest == NULL ) {
+    assert( queue->oldest == NULL );
     queue->oldest = element;
+  }
+  else {
+    queue->newest->newer = element;
   }
 
   queue->newest = element;
