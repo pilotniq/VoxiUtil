@@ -28,6 +28,9 @@ typedef struct sStateMachine
   void *userData;
   StateMachineState nextState;
   Boolean immediateExit;
+
+  /* Nuance Semantics means that you can't set the next state more than once */
+  Boolean nuanceSemantics;
 } sStateMachine;
 
 typedef struct sStateClass 
@@ -102,7 +105,8 @@ Error stateMachine_defDestroy( StateMachineDefinition def )
   return NULL;
 }
 
-Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, void *userData )
+Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, 
+                           void *userData, Boolean nuanceSemantics )
 {
   Error error;
 
@@ -115,6 +119,8 @@ Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, vo
   (*machine)->userData = userData;
   (*machine)->nextState = NULL;
   (*machine)->immediateExit = FALSE;
+  (*machine)->nuanceSemantics = nuanceSemantics;
+
   def->machineCount++;
 
   return NULL;
@@ -237,7 +243,13 @@ Error stateMachine_setNextState( StateMachine machine,
 {
   /* should check that the next state actually is a state in the given 
      machine */
-  machine->nextState = nextState;
+  if( machine->nuanceSemantics && (machine->nextState != NULL) )
+    return ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_NEXT_STATE_ALREADY_SET, 
+                   NULL, "stateMachine_setNextState: trying to set next state "
+                   "to '%s', was previously set to '%s' (Illegal with Nuance "
+                   "semantics)", nextState->name, machine->nextState->name );
+  else
+    machine->nextState = nextState;
 
   return NULL;
 }
@@ -272,7 +284,7 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
     /* 
      * Leave the state
      */
-      /* Call the state entry func */
+    /* Call the state entry func */
     if( machine->currentState->exitFunc != NULL )
       machine->currentState->exitFunc( machine->currentState );
 
@@ -291,12 +303,14 @@ Error stateMachine_run( StateMachine machine, StateMachineState initialState )
   return NULL;
 }
 
-Error stateMachine_createAndRun( StateMachineDefinition def, StateMachineState initialState, void *userData )
+Error stateMachine_createAndRun( StateMachineDefinition def, 
+                                 StateMachineState initialState, 
+                                 void *userData, Boolean nuanceSemantics )
 {
   StateMachine machine;
   Error error;
 
-  error = stateMachine_create( def, &machine, userData );
+  error = stateMachine_create( def, &machine, userData, nuanceSemantics );
   if( error != NULL )
   {
     error = ErrNew( ERR_STATE_MACHINE, ERR_STATE_MACHINE_UNSPECIFIED, error, 

@@ -20,12 +20,18 @@ typedef struct sStateMachineState *StateMachineState;
 typedef void (*StateFunction)( StateMachineState );
 
 enum { ERR_STATE_MACHINE_UNSPECIFIED, ERR_STATE_MACHINE_OUT_OF_MEMORY, 
-       ERR_STATE_MACHINE_DEF_HAS_MACHINES };
+       ERR_STATE_MACHINE_DEF_HAS_MACHINES, 
+       ERR_STATE_MACHINE_NEXT_STATE_ALREADY_SET };
 
 EXTERN_UTIL Error stateMachine_defCreate( StateMachineDefinition *machineDef );
 EXTERN_UTIL Error stateMachine_defDestroy( StateMachineDefinition machineDef );
 
-EXTERN_UTIL Error stateMachine_create( StateMachineDefinition def, StateMachine *machine, void *userData );
+/*
+ * nuanceSemantics means that the next state may only be set once
+ */
+EXTERN_UTIL Error stateMachine_create( StateMachineDefinition def, 
+                                       StateMachine *machine, void *userData,
+                                       Boolean nuanceSemantics );
 EXTERN_UTIL Error stateMachine_destroy( StateMachine machine );
 
 EXTERN_UTIL Error stateMachine_createClass( StateMachineDefinition, StateClass *result, 
@@ -55,8 +61,13 @@ EXTERN_UTIL void stateMachine_setImmediateExit( StateMachine machine );
 EXTERN_UTIL StateMachineState stateMachine_getCurrentState( StateMachine machine );
 
 EXTERN_UTIL Error stateMachine_run( StateMachine machine, StateMachineState initialState );
-EXTERN_UTIL Error stateMachine_createAndRun( StateMachineDefinition, StateMachineState initialState,
-                                             void *userData );
+/*
+ * See stateMachine_create for meaning of parameters
+ */
+EXTERN_UTIL Error stateMachine_createAndRun( StateMachineDefinition, 
+                                             StateMachineState initialState,
+                                             void *userData, 
+                                             Boolean nuanceSemantics );
 
 #ifdef __cplusplus
 }
