@@ -118,7 +118,7 @@ typedef struct sTextRPCConnection
 {
   pthread_mutex_t lock;
   /*sVoxiMutex lock; */
-  //int callId;
+  /*int callId; */
 
   ProtocolState protocolState;  
   SocketConnection tcpSocketConnection; /* added this because lazy */
@@ -127,7 +127,7 @@ typedef struct sTextRPCConnection
   int protocolVersion;
   TRPC_FunctionDispatchFunc dispatchFunc;
   
-  //sVoxiMutex nextCallIdMutex;
+  /* sVoxiMutex nextCallIdMutex; */
   pthread_mutex_t nextCallIdMutex;
   unsigned int nextCallId;
   
@@ -138,6 +138,9 @@ typedef struct sTextRPCConnection
   pthread_mutex_t initMutex;
   pthread_cond_t initFinishedCondition;
 
+#ifdef TRPC_USE_THREADPOOL
+  ThreadPool threadPool;
+#endif
 } sTextRPCConnection;
 
 
@@ -225,7 +228,7 @@ Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
   Error error = NULL;
 
   threading_init(); 
-  //printf("Calling threading_init()! \n");
+  /* printf("Calling threading_init()! \n"); */
   
   assert( server != NULL );
 
@@ -300,13 +303,14 @@ static Error connection_create( Socket socket,
   assert( *connection != NULL );
 
   (*connection)->protocolState = PROTOCOL_STATE_INITIALIZING;
-  //threading_mutex_init( &((*connection)->nextCallIdMutex) );
+  /* threading_mutex_init( &((*connection)->nextCallIdMutex) ); */
   err = pthread_mutex_init(&((*connection)->nextCallIdMutex), NULL );
   assert(err == 0);
   
   (*connection)->tcpConnection = socket;
+  (*connection)->tcpSocketConnection = NULL;
   
-  //(*connection)->callId = 1; //Fast hack
+  /* (*connection)->callId = 1; */ /*Fast hack*/
   (*connection)->nextCallId = 0;
   (*connection)->outstandingCalls = 
     HashCreateTable( OUTSTANDING_FUNC_HASH_SIZE, 
@@ -314,6 +318,7 @@ static Error connection_create( Socket socket,
                      (CompFuncPtr) compFunction, NULL );
   (*connection)->server = rpcServer;
   (*connection)->dispatchFunc = dispatchFunc;
+  (*connection)->applicationData = applicationData;
     
   err = pthread_mutex_init( &((*connection)->initMutex), NULL );
   assert( err == 0 );
@@ -332,7 +337,8 @@ static Error connection_create( Socket socket,
   (*connection)->protocolState = PROTOCOL_STATE_NEGOTIATING_PROTOCOL_1;
 
 #ifdef TRPC_USE_THREADPOOL
-  error = threadPool_runThread(rpcServer->threadPool,
+  (*connection)->threadPool = rpcServer->threadPool;
+  error = threadPool_runThread((*connection)->threadPool,
                                (ThreadFunc) negotiate_protocol,
                                *connection, &thread);
 #else
@@ -366,7 +372,8 @@ static void server_sock_handler( SocketConnection connection,
       error = connection_create( (Socket) serverConn, rpcServer->dispatchFunc,
                                  rpcServer->connectionOpenedFunc,
                                  rpcServer->connectionClosedFunc,
-                                 NULL, rpcServer, &client );
+                                 rpcServer->applicationServerData,
+                                 rpcServer, &client );
       assert( error == NULL );
 #if 0
 #endif
@@ -484,7 +491,7 @@ static void connection_sock_handler( SocketConnection connection,
             /* Send event to the handler/dispatch func
              * that a connection has been initialized. */
 #ifdef TRPC_USE_THREADPOOL
-            error = threadPool_runThread(client->server->threadPool,
+            error = threadPool_runThread(client->threadPool,
                                          (ThreadFunc) callConnectionOpened,
                                          client, &connOpenedThread);
             assert(error == NULL);
@@ -498,6 +505,13 @@ static void connection_sock_handler( SocketConnection connection,
           else if( strcasecmp( charPtr, "protocolVersion" ) == 0 )
           {
             int version;
+            int err = 0;
+
+#ifdef TRPC_USE_THREADPOOL
+            ThreadPoolThread connOpenedThread;
+#else
+            pthread_t connOpenedThread;
+#endif
             
             /* assert( client->protocolState == 
                PROTOCOL_STATE_NEGOTIATING_PROTOCOL_2 );
@@ -513,6 +527,26 @@ static void connection_sock_handler( SocketConnection connection,
             
             client->protocolVersion = version;
             client->protocolState = PROTOCOL_STATE_RUNNING;
+            
+            /* Broadcast that the initialization with the server */
+            /* has been completed and that calls can now be made. */
+
+            err = pthread_cond_broadcast( &(client->initFinishedCondition) );
+            assert(err == 0);
+            
+            /* Send event to the handler/dispatch func
+             * that a connection has been initialized. */
+#ifdef TRPC_USE_THREADPOOL
+            error = threadPool_runThread(client->threadPool,
+                                         (ThreadFunc) callConnectionOpened,
+                                         client, &connOpenedThread);
+            assert(error == NULL);
+#else
+            err = threading_pthread_create( &connOpenedThread, &detachedThreadAttr,
+                                            (ThreadFunc) callConnectionOpened,
+                                            client);
+            assert(err == 0);
+#endif
           }
           else
             DIAG("ERROR: textRPC.c: msg='%s'\n", charPtr );
@@ -538,7 +572,7 @@ static void connection_sock_handler( SocketConnection connection,
                                         PTHREAD_CREATE_DETACHED);
 
 #ifdef TRPC_USE_THREADPOOL
-            error = threadPool_runThread(client->server->threadPool,
+            error = threadPool_runThread(client->threadPool,
                                          (ThreadFunc) call_threadFunc,
                                          call, &tempThread);
             assert(error == NULL);
@@ -581,14 +615,14 @@ static void connection_sock_handler( SocketConnection connection,
             DEBUG( "textRPC.c: connection_sock_handler: message: '%s', "
                    "invalid token (must start with 'C', 'R' or 'E').\n", 
                    message );
-	  }
-	  break;
+    }
+    break;
 
       case PROTOCOL_STATE_DISCONNECTED:
-	error = ErrNew( ERR_TEXTRPC, -1, NULL, "Reached bad protocol state "
-			"PROTOCOL_STATE_DISCONNECTED, textRPC.c");
-	assert( FALSE ); 
-	break;
+  error = ErrNew( ERR_TEXTRPC, -1, NULL, "Reached bad protocol state "
+      "PROTOCOL_STATE_DISCONNECTED, textRPC.c");
+  assert( FALSE ); 
+  break;
       }
       break;
 
@@ -604,7 +638,7 @@ static void connection_sock_handler( SocketConnection connection,
          * that a connection has been closed. */
         
 #ifdef TRPC_USE_THREADPOOL
-        error = threadPool_runThread(client->server->threadPool,
+        error = threadPool_runThread(client->threadPool,
                                      (ThreadFunc) callConnectionClosed,
                                      client, &connClosedThread);
         assert(error == NULL);
@@ -634,7 +668,7 @@ static Error handleReturn( Boolean isException, TextRPCConnection client,
   Error error = NULL;
   int err;
   
-  //printf("Handling return %s \n", message);
+  /* printf("Handling return %s \n", message);*/
   charPtr = strsep( &message, " \t" );
   
   callTemplate.id = atoi( charPtr );
@@ -670,7 +704,7 @@ static Error handleReturn( Boolean isException, TextRPCConnection client,
     /*
       Notify the caller that the result is ready 
     */
-    //printf("Releasing return lock\n");
+    /* printf("Releasing return lock\n"); */
     err = pthread_cond_broadcast( &(outstandingCall->finishedCondition) );
     assert(err == 0);
   }
@@ -702,7 +736,7 @@ static void *call_threadFunc( IncomingCall call )
   callId = atoi( charPtr );
   
   error = call->connection->dispatchFunc( 
-                              call->connection->server->applicationServerData,
+                              call->connection->applicationData,
                               message, &result );
   
   error2 = strbuf_create( 256, &outBuffer );
@@ -732,9 +766,14 @@ static void *call_threadFunc( IncomingCall call )
     /* ErrDestroy( error ); */ /* This function doesn't exist yet */
   }
   
-  if( error2 == NULL )
-    error2 = sock_send( call->connection->tcpConnection, 
-                        strbuf_getString( outBuffer ));
+  if( error2 == NULL ) {
+  if (call->connection->tcpSocketConnection == NULL) 
+    error2 = sock_send((Socket)call->connection->tcpConnection,
+                       strbuf_getString( outBuffer ));
+  else
+    error2 = sock_send((Socket)call->connection->tcpSocketConnection, 
+                       strbuf_getString( outBuffer ));
+  }
   
   strbuf_destroy( outBuffer );
   free( call->input );
@@ -799,10 +838,16 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
     goto CLIENT_CREATE_FAIL_1;
   }
   
-  err = pthread_mutex_init(&((*connection)->nextCallIdMutex), NULL );
+  err = pthread_mutex_init(&((*connection)->nextCallIdMutex), NULL);
   assert(err == 0);
   
-  (*connection)->applicationData = applicationClientData; /*dunno! */
+  err = pthread_mutex_init(&((*connection)->initMutex), NULL);
+  assert(err == 0);
+  
+  err = pthread_cond_init( &((*connection)->initFinishedCondition), NULL );
+  assert( err == 0 );
+  
+  (*connection)->applicationData = applicationClientData;
   (*connection)->dispatchFunc = dispatchFunc;
   (*connection)->nextCallId = 1;
   (*connection)->protocolState = PROTOCOL_STATE_NEGOTIATING_PROTOCOL_1;
@@ -813,7 +858,26 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
                                                     (CompFuncPtr)compFunction ,
                                                     (DestroyFuncPtr) NULL
                                                     );
+  (*connection)->server = NULL;
 
+#ifdef TRPC_USE_THREADPOOL
+  {
+    pthread_attr_t attr;
+    int err;
+
+    err = pthread_attr_init(&attr);
+    assert(err == 0);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    /* Create a detached thread pool */
+    error = threadPool_create(TRPC_THREADPOOL_SIZE,
+                              attr,
+                              &((*connection)->threadPool));
+    if (error != NULL)
+     goto CLIENT_CREATE_FAIL_2;
+  }
+#endif
+  
   error = sock_connect( host, port, (sock_handler) connection_sock_handler,
                         *connection, &sockConnection );
   if( error != NULL )
@@ -822,7 +886,8 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
                     "Failed to connect to host '%s', port %d.\n", host, port );
     goto CLIENT_CREATE_FAIL_2;
   }
-  
+
+  (*connection)->tcpConnection = NULL;
   (*connection)->tcpSocketConnection = sockConnection;
     
   err = pthread_mutex_lock(&((*connection)->initMutex));
@@ -835,12 +900,13 @@ Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc,
   err = pthread_mutex_unlock(&((*connection)->initMutex));
   assert(err == 0);
   
-  assert( error != NULL );
-  
   return NULL;
   
  CLIENT_CREATE_FAIL_2:
-  /* Should maybe destroy some mutexes here */
+  pthread_mutex_destroy(&((*connection)->nextCallIdMutex));
+  pthread_mutex_destroy(&((*connection)->initMutex));
+  pthread_cond_destroy(&((*connection)->initFinishedCondition));
+  
   HashDestroyTable( (*connection)->outstandingCalls );
   
   free( *connection );
@@ -915,9 +981,9 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
   assert(err == 0);
   /*threading_mutex_lock(&((*outstandingCall)->mutex)); */
 
-  //printf("TextRPCSend: message %s\n", callText);
+  /* printf("TextRPCSend: message %s\n", callText); */
   
-  //Fall back to the normal connection if we are not sending to a server
+  /* Fall back to the normal connection if we are not sending to a server */
   if (connection->tcpSocketConnection == NULL) 
     error = sock_send((Socket)connection->tcpConnection,
                       callText);
@@ -959,8 +1025,12 @@ Error textRPC_call( TextRPCConnection connection, const char *text, char **resul
 }
 
 static void *callConnectionOpened(TextRPCConnection connection) {
-  return connection->server->connectionOpenedFunc(connection);
+  if (connection->server)
+    return connection->server->connectionOpenedFunc(connection);
+  return NULL;
 }
 static void *callConnectionClosed(TextRPCConnection connection) {
-  return connection->server->connectionClosedFunc(connection);
+  if (connection->server)
+    return connection->server->connectionClosedFunc(connection);
+  return NULL;
 }
