@@ -15,6 +15,10 @@
 #ifndef VOXI_TYPES_H
 #define VOXI_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 /**
  * the boolean value false
  */
@@ -33,14 +37,23 @@
 /* Note: These should be somewhere else, but there is no good place at
    the moment. */
 
+#ifndef MAX
 /** max */
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
 /** min */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
 
 /**
  * The boolean type
  */
 typedef int Boolean;
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
