@@ -7,6 +7,12 @@ AC_CONFIG_AUX_DIR(config)
 #
 AM_INIT_AUTOMAKE
 #
+# Check the automake version
+#
+AC_MSG_CHECKING([automake version])
+AUTOMAKE_VERSION=`automake --version | head -1 | awk '{print $4}'`
+AC_MSG_RESULT($AUTOMAKE_VERSION)
+#
 # Initialize libtool
 #
 # AC_LIBTOOL_DLOPEN must be before AM_PROG_LIBTOOL
@@ -21,7 +27,14 @@ AM_PROG_LIBTOOL
 #AC_COPYRIGHT( "Copyright 2002, Voxi AB" )
 
 AC_CONFIG_SRCDIR([src/bag.c])
-AM_CONFIG_HEADER
+
+#
+# This test is bad - we should be chechking for any version before 1.7, not
+# just the version 1.6.2 which Mårten happens to have on his cygwin
+#
+if test "x$AUTOMAKE_VERSION" = "x1.6.2"; then
+  AM_CONFIG_HEADER
+fi
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
