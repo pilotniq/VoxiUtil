@@ -30,6 +30,7 @@
 
 /* libcCompat defines EXTERN macro */
 #include <voxi/util/libcCompat.h>
+#include <voxi/util/err.h>
 
 #ifdef WIN32
 #include <voxi/util/win32_glue.h>
@@ -81,10 +82,10 @@ EXTERN_UTIL pthread_attr_t detachedThreadAttr, realtimeDetachedThreadAttr,
   without any problems - it keeps track of how many inits and shutdowns have
   been made
 */
-EXTERN_UTIL void threading_init();
-EXTERN_UTIL void threading_shutdown();
+EXTERN_UTIL Error threading_init();
+EXTERN_UTIL Error threading_shutdown();
 
-EXTERN_UTIL void threading_mutex_init( VoxiMutex mutex );
+EXTERN_UTIL Error threading_mutex_init( VoxiMutex mutex );
 EXTERN_UTIL void threading_mutex_lock( VoxiMutex mutex );
 EXTERN_UTIL void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug );
 /*
@@ -105,7 +106,7 @@ EXTERN_UTIL void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldW
 EXTERN_UTIL void threading_mutex_unlock( VoxiMutex mutex );
 EXTERN_UTIL void threading_mutex_destroy( VoxiMutex mutex );
 
-EXTERN_UTIL void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex );
+EXTERN_UTIL Error threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex );
 
 /*
   Returns false when condition is signalled, and a true value if timed out 
