@@ -51,6 +51,8 @@ typedef struct sLogger
   const char *applicationName;
   pthread_mutex_t mutex;
   void *data;
+  const char *logFileName;
+  char date[15];
 } sLogger;
 
 /*
@@ -79,7 +81,9 @@ static sLogger sDefaultLogger = {
   &fileLoggingDriver,
   "unknown",
   PTHREAD_MUTEX_INITIALIZER,
-  NULL
+  NULL,
+  NULL,
+  "2004-12-24"
 };
 
 static Logger DefaultLogger = &sDefaultLogger;
@@ -176,14 +180,22 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
                          const char *args, Logger *logger )
 {
   Error error;
+  struct timeb now;
 
   assert( driver == LoggingDriverFile );
 
   error = emalloc( logger, sizeof( sLogger ) );
-  if( error != NULL )
+  if( error != NULL ) {
     return error;
+  }
 
   (*logger)->driver = driver;
+  (*logger)->logFileName = strdup( args );
+  /* Get the current date string */
+  ftime(&now);
+  strftime( (*logger)->date, sizeof((*logger)->date), "%Y-%m-%d",
+            localtime( &(now.time) ) );
+
   (*logger)->applicationName = strdup( appName );
   if( (*logger)->applicationName == NULL )
   {
@@ -234,7 +246,6 @@ static void fileDestroy( Logger logger )
 
   free( (char *) (logger->applicationName) );
   pthread_mutex_destroy(&(logger->mutex));
-  
   free( logger );
 
   return;
@@ -247,9 +258,14 @@ static Error fileLogText( Logger logger, const char *moduleName,
 {
   char buffer[ BUFFER_LENGTH ];
   char stdOutBuffer[ BUFFER_LENGTH ];
+  char tmpDate[ 15 ];
+  char weekDate[ 15 ];
+  char fileName[ 512 ];
   /*time_t now;*/
   struct timeb now;
-  int index, tempInt, stdOutIndex;
+  struct tm *localTime;
+  time_t aWeekAgo;
+  int err, index, tempInt, stdOutIndex;
 
   pthread_mutex_lock(&logger->mutex);
 
@@ -259,12 +275,62 @@ static Error fileLogText( Logger logger, const char *moduleName,
 
   /*now = time( NULL );*/ /* check error control here */
   ftime(&now);
+  localTime = localtime( &(now.time) );
+
+  /* Get the current date string */
+  strftime( tmpDate, sizeof(tmpDate), "%Y-%m-%d", localTime );
+  if ( strcmp( tmpDate, logger->date ) != 0 ) {
+    /* Close the current log file */
+    if ( (logger->data != NULL) &&
+         (logger->data != stderr) ) {
+      /* Close the current log file */
+      fclose( logger->data );
+      /* Rename the current log file */
+      strcpy( fileName, logger->logFileName );
+      strcat( fileName, "_" );
+      strcat( fileName, logger->date );
+      err = rename( logger->data, fileName );
+      if ( err != 0 ) {
+        Error error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
+                              "Failed to rename logging file '%s' to '%s'",
+                              logger->data, fileName );
+        ErrReport( error);
+        ErrDispose(error, TRUE); error = NULL;
+      }
+      /* Open a new log file */
+      logger->data = fopen( logger->logFileName, "a" ); 
+      if ( logger->data == NULL ) {
+        Error error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
+                              "Failed to open logging file '%s'", logger->logFileName );
+        ErrReport( error);
+        ErrDispose(error, TRUE); error = NULL;
+        /* Use the error output */
+        logger->data = stderr;
+      }
+      /* Remove a log file that is a week old */
+      aWeekAgo = now.time - (7 * 24 * 60 * 60);
+      localTime = localtime( &aWeekAgo );
+      strftime( weekDate, sizeof(tmpDate), "%Y-%m-%d", localTime );
+      strcpy( fileName, logger->logFileName );
+      strcat( fileName, "_" );
+      strcat( fileName, weekDate );
+      err = remove( fileName );
+      if ( err != 0 ) {
+        Error error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
+                              "Failed to remove logging file '%s'", fileName );
+        ErrReport( error);
+        ErrDispose(error, TRUE); error = NULL;
+      }
+    }
+    /* Save the new date */
+    strcpy( logger->date, tmpDate );
+  }
 
   index = strftime( buffer, sizeof( buffer ), "%c",
                     localtime( /*&now*/ &(now.time) ) );
   if (logger->data != stderr)
     stdOutIndex = strftime( stdOutBuffer, sizeof( stdOutBuffer), "%c ",
-                            localtime( /*&now*/ &(now.time) ) );
+                            localTime );
   assert( index > 0 ); /* Make better handling here */
 
   tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
