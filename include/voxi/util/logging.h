@@ -9,6 +9,7 @@
 #ifndef VOXIUTIL_LOGGING_H
 #define VOXIUTIL_LOGGING_H
 
+#include <voxi/util/libcCompat.h>
 #include <voxi/util/config.h>
 #include <voxi/util/err.h>
 
