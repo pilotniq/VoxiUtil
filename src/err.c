@@ -375,7 +375,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 {
   Error result;
   va_list args;
-  static char buf[ERR_BUFF_SIZE];
+  char buf[ERR_BUFF_SIZE];
   char *string;
 
   ErrPushFunc("ErrNew");
