@@ -72,7 +72,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
  */
 
 const char* LogLevelName[NUMBER_OF_LOGLEVELS] = {
-  "Critical", "Error", "Warning", "Info", "Debug", "Trace"
+  "None", "Critical", "Error", "Warning", "Info", "Debug", "Trace"
 };
 
 static sLoggingDriver fileLoggingDriver = { fileCreate, fileDestroy, fileLogText };
@@ -90,7 +90,7 @@ static Logger DefaultLogger = &sDefaultLogger;
 
 LoggingDriver LoggingDriverFile = &fileLoggingDriver;
 
-LogLevel _voxiUtilLogLevel = LOGLEVEL_INFO;
+LogLevel _voxiUtilGlobalLogLevel = LOGLEVEL_NONE;
 
 /*
  *  Code
@@ -181,10 +181,11 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
 {
   Error error;
   struct timeb now;
-
+  int err;
+  
   assert( driver == LoggingDriverFile );
 
-  error = emalloc( logger, sizeof( sLogger ) );
+  error = emalloc( (void **) logger, sizeof( sLogger ) );
   if( error != NULL ) {
     *logger = NULL;
     return error;
@@ -201,11 +202,19 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
   if( (*logger)->applicationName == NULL )
   {
     error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(),
-                    "Failed to allocate memory for application string '%s'", appName );
+                    "Failed to allocate memory for application string '%s'", 
+                    appName );
     goto FAIL;
   }
-  (*logger)->mutex = PTHREAD_MUTEX_INITIALIZER;
-
+  
+  err = pthread_mutex_init( &((*logger)->mutex), NULL );
+  if( err != 0 )
+  {
+    error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(),
+                    "Failed to initialize mutex" );
+    goto FAIL_2;
+  }
+  
   if( (args == NULL) || (strlen( args ) == 0) )
     (*logger)->data = stderr;
   else
@@ -215,11 +224,17 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
     {
       error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
                       "Failed to open logging file '%s'", args );
-      goto FAIL_2;
+      goto FAIL_3;
     }
   }
 
   return NULL;
+  
+FAIL_3:
+  err = pthread_mutex_destroy( &((*logger)->mutex) );
+  /* Not critical if this fails, but it shouldn't, so if it happens, we want
+     to catch it at debug time and investigate */
+  assert( err == 0 ); 
 
 FAIL_2:
   free( (char *) ((*logger)->applicationName) );
@@ -392,12 +407,12 @@ static Error fileLogText( Logger logger, const char *moduleName,
   return error;
 }
 
-LogLevel log_LogLevelSet(LogLevel level)
+LogLevel log_GlobalLogLevelSet(LogLevel level)
 {
-  return (_voxiUtilLogLevel = level);
+  return (_voxiUtilGlobalLogLevel = level);
 }
 
-LogLevel log_LogLevelGet()
+LogLevel log_GlobalLogLevelGet()
 {
-  return _voxiUtilLogLevel;
+  return _voxiUtilGlobalLogLevel;
 }
