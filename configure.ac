@@ -32,12 +32,11 @@ case $host in
 esac
 
 #
-# Collect all CPPFLAGS and LDFLAGS in other variable names to
+# Collect LDFLAGS and LIBS in other variable names to
 # avoid interference with AC macros. Will be collected at
 # the end before generating makefiles etc.
 #
 LIBS_FINAL="$LIBS"
-CPPFLAGS_FINAL="$CPPFLAGS"
 LDLAGS_FINAL="$LDFLAGS"
 
 #
@@ -168,7 +167,7 @@ case $host in
         AC_DEFINE( [HAVE_LIBCRYPTO], 1 )
         LIBS_FINAL="$LIBS_FINAL libeay32.lib"
         LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_openssl}\lib"
-        CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_openssl}\include"
+        CPPFLAGS="$CPPFLAGS -I${with_openssl}\include"
     esac
   ;;
 
@@ -208,12 +207,12 @@ AC_ARG_WITH(
           i*86-*-cygwin*)
             LIBS_FINAL="$LIBS_FINAL pthreadVSE.lib"
             LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}\DLL"
-            CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_pthreads}\DLL"
+            CPPFLAGS="$CPPFLAGS -I${with_pthreads}\DLL"
           ;;
 
           *)
             LDFLAGS_FINAL="$LDFLAGS_FINAL -libpath:${with_pthreads}/lib"
-            CPPFLAGS_FINAL="$CPPFLAGS_FINAL -I${with_pthreads}/include"
+            CPPFLAGS="$CPPFLAGS -I${with_pthreads}/include"
           ;;
 
         esac
@@ -287,7 +286,7 @@ AC_ARG_ENABLE(
   ],
   [
     AC_MSG_RESULT(debugging disabled)
-    CPPFLAGS_FINAL="$CPPFLAGS_FINAL -DNDEBUG"
+    CPPFLAGS="$CPPFLAGS -DNDEBUG"
     if test "x$CC" = "xgcc" ; then
       CFLAGS="$CFLAGS -O3"
     fi
@@ -336,7 +335,6 @@ fi
 # Collect all CPPFLAGS and LDFLAGS.
 #
 LIBS="$LIBS_FINAL"
-CPPFLAGS="$CPPFLAGS_FINAL"
 LDFLAGS="$LDFLAGS_FINAL"
 
 #
