@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/timeb.h>
 #include <pthread.h>
 
 #include <voxi/util/err.h>
@@ -70,7 +70,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
  */
 
 const char* LogLevelName[NUMBER_OF_LOGLEVELS] = {
-  "Critical", "Error", "Info", "Debug"
+  "Critical", "Error", "Warning", "Info", "Debug", "Trace"
 };
 
 static sLoggingDriver fileLoggingDriver = { fileCreate, fileDestroy, fileLogText };
@@ -245,7 +245,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
 {
   char buffer[ BUFFER_LENGTH ];
   char stdOutBuffer[ BUFFER_LENGTH ];
-  time_t now;
+  /*time_t now;*/
+  struct timeb now;
   int index, tempInt, stdOutIndex;
 
   pthread_mutex_lock(&logger->mutex);
@@ -254,16 +255,19 @@ static Error fileLogText( Logger logger, const char *moduleName,
   if( logger->data == NULL )
     logger->data = stderr;
 
-  now = time( NULL ); /* check error control here */
+  /*now = time( NULL );*/ /* check error control here */
+  ftime(&now);
 
-  index = strftime( buffer, sizeof( buffer ), "%c", localtime( &now ) );
+  index = strftime( buffer, sizeof( buffer ), "%c",
+                    localtime( /*&now*/ &(now.time) ) );
   if (logger->data != stderr)
     stdOutIndex = strftime( stdOutBuffer, sizeof( stdOutBuffer), "%c ",
-                            localtime( &now ) );
+                            localtime( /*&now*/ &(now.time) ) );
   assert( index > 0 ); /* Make better handling here */
 
   tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
-                      "\t%s\t%s\t%s\t%s:%d\t",
+                      ".%03ld\t%s\t%s\t%s\t%s:%d\t",
+                      now.millitm,
                       logger->applicationName, moduleName, 
                       LogLevelName[ logLevel ], sourceFile, sourceLine );
   assert( tempInt >= 0 );
