@@ -80,7 +80,7 @@ char *path_concat_path(const char *path, const char *str)
 {
   char *result;
   int resultLen = strlen(path) + 1 + strlen(str) + 1;
-  char sep[2];
+
   result = (char*)malloc(resultLen);
   snprintf(result, resultLen, "%s%c%s", path, PATH_DELIM, str);
   return result;
@@ -90,7 +90,7 @@ char *path_concat_dir(const char *dir, const char *str)
 {
   char *result;
   int resultLen = strlen(dir) + 1 + strlen(str) + 1;
-  char sep[2];
+
   result = (char*)malloc(resultLen);
   snprintf(result, resultLen, "%s%c%s", dir, DIR_DELIM, str);
   return result;
