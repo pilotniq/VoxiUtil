@@ -26,12 +26,14 @@
 #include <string.h>
 #include <assert.h>
 /* I think unistd.h is required to get _POSIX_THREADS definition */
+#if 0
 #ifdef WIN32
 #include <windows.h>
 #include <voxi/util/win32_glue.h>
 #else
 #include <unistd.h>
 #endif
+#endif /* 0 */
 #if _REENTRANT && defined(_POSIX_THREADS)
 #include <pthread.h>
 #endif
