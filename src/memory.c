@@ -12,7 +12,7 @@
   Voxi Memory Manager
 */
 
-#include "config.h"
+#include <voxi/util/config.h>
 
 #include <assert.h>
 #include <stdio.h>
@@ -273,6 +273,3 @@ void memManager_free( void *block )
   
   
 }
-
-
-
