@@ -140,6 +140,10 @@ EXTERN_UTIL void usleep(unsigned long usec);
 /** The __attrbute__((stuff)) on gcc */
 #define __attribute__(X)
 
+/** ftime (3) */
+#define ftime _ftime
+#define timeb _timeb
+
 /**
  * mmap(2). 
  *  A subset of the functionality.
@@ -166,3 +170,4 @@ EXTERN_UTIL int munmap(void *start, size_t length);
 #endif 
 
 #endif /* WIN32_GLUE_H */
+
