@@ -22,35 +22,21 @@
 /*
   Debug functions that print out integers as binary, decimal and hex.
  */
-#ifdef WIN32
-void printbinary(__int64 value) {
-int i;
-
-  for (i=63;i>-1;i-- )
-    printf("%c",(value & (((__int64) 1)<<i)) ? '1' : '0');
-  printf(" %Li %Lx\n",value,value);
-}
-
-#else
-void printbinary(long long int value) {
+void printbinary(VOXI_LONG_LONG value)
+{
   int i;
 
   for (i=63;i>-1;i-- )
-    printf("%c",(value & (((long long) 1)<<i)) ? '1' : '0');
+    printf("%c",(value & (((VOXI_LONG_LONG) 1)<<i)) ? '1' : '0');
   printf(" %Li %Lx\n",value,value);
 }
-#endif  //WIN32
 
 void printbinarylong(long int value)
 {
   int i;
 
   for (i=31;i>-1;i-- )
-#ifdef WIN32
-    printf("%c",(value & (((__int64) 1)<<i)) ? '1' : '0');
-#else
-  printf("%c",(value & (((long long) 1)<<i)) ? '1' : '0');
-#endif
+  printf("%c",(value & (((VOXI_LONG_LONG) 1)<<i)) ? '1' : '0');
   printf(" %li %lx\n",value,value);
 
 }

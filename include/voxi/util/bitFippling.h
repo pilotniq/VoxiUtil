@@ -18,15 +18,21 @@
 #ifndef BITFIPPLING_H
 #define BITFIPPLING_H
 
+#include "config.h"
+
+
+#if HAVE_LONG_LONG
+#define VOXI_LONG_LONG long long
+#elif HAVE___INT64
+#define VOXI_LONG_LONG __int64
+#else
+#error "Need a 'long long' datatype or equivalent."
+#endif
 
 /*
   Debug functions that print out integers as binary, decimal and hex.
  */
-#ifdef WIN32
-void printbinary(_int64 value);
-#else
-void printbinary(long long int value);
-#endif
+void printbinary(VOXI_LONG_LONG value);
 
 void printbinarylong(long int value);
 
