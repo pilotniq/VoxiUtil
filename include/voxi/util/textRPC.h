@@ -12,14 +12,15 @@
   Implements a Remote Procedure Call (RPC) protocol using text-based 
   messages over TCP.
     On top of this protocol may be layered application bindings to functions
-  etcetera. 
+  etcetera.
+
+  Depends on the sock.h layer, which should be properly initialized.
 */
 
 #include <voxi/util/err.h>
 
 #ifdef __cplusplus
-extern "C" {  // only need to export C interface if
-              // used by C++ source code
+extern "C" {  /* only need to export C interface if used by C++ source code */
 #endif
 
 
@@ -34,29 +35,33 @@ typedef Error (*TRPC_FunctionDispatchFunc)( void *applicationServerData,
 typedef Error (*TRPC_FunctionConnectionOpenedFunc)( TextRPCConnection connection );
 typedef Error (*TRPC_FunctionConnectionClosedFunc)( TextRPCConnection connection );
                                            
+EXTERN_UTIL
 Error textRPC_server_create( TRPC_FunctionDispatchFunc dispatchFunc,
                              TRPC_FunctionConnectionOpenedFunc connectionOpenedFunc,
                              TRPC_FunctionConnectionClosedFunc connectionClosedFunc,
                              void *applicationServerData, int port, 
                              TextRPCServer *server );
 
+EXTERN_UTIL
 Error textRPC_client_create( TRPC_FunctionDispatchFunc dispatchFunc, 
                              const char *host, int port, 
                              void *applicationClientData,
                              TextRPCConnection *connection );
 
+EXTERN_UTIL
 void textRPC_server_destroy( TextRPCServer server );
 
 /**
  * Destroys a text rpc connection and frees it
  */
+EXTERN_UTIL
 Error textRPCConnection_destroy( TextRPCConnection connection );
 
+EXTERN_UTIL
 Error textRPC_call( TextRPCConnection connection, const char *text, char **result );
 
 #ifdef __cplusplus
-}  // only need to export C interface if
-              // used by C++ source code
+}  /* only need to export C interface if used by C++ source code */
 #endif
 
 
