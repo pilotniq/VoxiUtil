@@ -16,6 +16,7 @@
 #include <voxi/util/err.h>
 #include <voxi/util/logging.h>
 #include <voxi/util/mem.h>
+#include <voxi/util/path.h>
 
 /*
  * Constants
@@ -95,13 +96,16 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
 {
   Error error;
   va_list args;
+  char *filename;
 
   if( logger == NULL )
     logger = DefaultLogger;
 
   va_start( args, format );
 
-  error = logger->driver->logText( logger, moduleName, logLevel, sourceFile, 
+  filename = strrchr( sourceFile, DIR_DELIM ) + 1;
+
+  error = logger->driver->logText( logger, moduleName, logLevel, filename, 
                                    sourceLine, format, args );
 
   va_end( args );
@@ -109,7 +113,7 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
   return error;
 }
 
-__inline Error log_noLogText( Logger logger, const char *moduleName,
+Error log_noLogText( Logger logger, const char *moduleName,
                               LogLevel logLevel, const char *sourceFile,
                               int sourceLine, const char *format, ... )
 {
@@ -162,8 +166,9 @@ static Error fileLogText( Logger logger, const char *moduleName,
                           va_list args )
 {
   char buffer[ BUFFER_LENGTH ];
+  char stdOutBuffer[ BUFFER_LENGTH ];
   time_t now;
-  int index, tempInt;
+  int index, tempInt, stdOutIndex;
 
   /* Special case for the default logger */
   if( logger->data == NULL )
@@ -172,6 +177,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
   now = time( NULL ); /* check error control here */
 
   index = strftime( buffer, sizeof( buffer ), "%c", localtime( &now ) );
+  stdOutIndex = strftime( stdOutBuffer, sizeof( stdOutBuffer), "%c ", localtime( &now ) );
   assert( index > 0 ); /* Make better handling here */
 
   /* This is windows specific! is snprintf under Linux */
@@ -186,6 +192,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
   /* Warning - no underscore on Linux */
   tempInt = _vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
                         format, args );
+  _vsnprintf(  &(stdOutBuffer[ stdOutIndex ]), sizeof( stdOutBuffer ) - stdOutIndex, 
+                        format, args );
   
   assert( tempInt >= 0 );
 
@@ -195,6 +203,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
   fputc( '\n', (FILE *) logger->data );
 
   fflush( logger->data );
+
+  fprintf( stderr, "%s\n", stdOutBuffer );
 
   return NULL;
 }
