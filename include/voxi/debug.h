@@ -84,7 +84,7 @@ static int debug = DEBUG_MESSAGES;
 /* non-debug build with a c preprocessor *not* supporting variable argument 
    lists */
 __inline static void DEBUG(char *str, ...) {}
-#    endif
+#    endif /* HAVE_CPP_VARARGS */
 #  else /* a debug build */
 #    include <stdio.h> /* all debug configurations needs stdio */
 /** @def DEBUG(x...) printf-like output that can be turned of via the static 
@@ -112,9 +112,10 @@ __inline static void DEBUG(char *str, ...) {}
              __LINE__);\
      fprintf(stderr, ## x);\
  } while(0)
-#      endif
+#      endif /* _POSIX_THREADS */
 #    else 
 /* C preprocess without varargs. Apparently don't care about threads here  */
+#      include <stdio.h>
 #      include <stdarg.h>
 
 static void DEBUG(char *str, ...)
@@ -163,6 +164,8 @@ static void DEBUG(char *str, ...)
 #    include <stdarg.h>
 #    include <stdio.h>
 /* regardless of _POSIX_THREADS or not */
+#      include <stdio.h>
+#      include <stdarg.h>
 static void DIAG(char *str, ...)
 {
     va_list args;
