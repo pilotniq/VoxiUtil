@@ -79,7 +79,7 @@ typedef struct sBagIterator *BagIterator;
  * Checks whether the specified bag is valid according to the semantics.
  * A valid bag can be used for all the functions that take a bag as an argument.
  */
-Boolean bag_isValid( Bag bag );
+EXTERN_UTIL Boolean bag_isValid( Bag bag );
 
 /**
  * Create a new bag of pointers with specified initial size.
@@ -91,13 +91,13 @@ Boolean bag_isValid( Bag bag );
  * @param capacityIncrement When maximum number of elements reached,
  * grow the bag by this no of elements.
  */
-Bag bagCreate( int initialCapacity, int capacityIncrement, DestroyElementFunc destroyFunc);
+EXTERN_UTIL Bag bagCreate( int initialCapacity, int capacityIncrement, DestroyElementFunc destroyFunc);
 
 /**
  * The same as for bagCreate, but each element in the bag being
  * of size elementSize.
  */
-Bag bagCreate2( int initialCapacity, int capacityIncrement, size_t elementSize, DestroyElementFunc destroyFunc);
+EXTERN_UTIL Bag bagCreate2( int initialCapacity, int capacityIncrement, size_t elementSize, DestroyElementFunc destroyFunc);
 
 /**
  * Destroys and frees the bag. If destroyFunc is not NULL, the function is called
@@ -110,7 +110,7 @@ Bag bagCreate2( int initialCapacity, int capacityIncrement, size_t elementSize, 
  * @param destroyFunc Could be NULL. If not NULL, this function is called for each element
  * in the bag.
  */
-void bagDestroy( /*@only@*/Bag bag, /*@null@*/DestroyElementFunc destroyFunc );
+EXTERN_UTIL void bagDestroy( /*@only@*/Bag bag, /*@null@*/DestroyElementFunc destroyFunc );
 
 /**
  * Copies the specified bag to a new bag. The new bag will
@@ -118,46 +118,46 @@ void bagDestroy( /*@only@*/Bag bag, /*@null@*/DestroyElementFunc destroyFunc );
  *
  * @return A new bag containing the same elements as the original bag.
  */
-Bag bagDuplicate( const Bag original );
+EXTERN_UTIL Bag bagDuplicate( const Bag original );
 
 /**
  * Get the element size of the specified bag.
  */
-size_t bagGetElementSize( const Bag bag );
+EXTERN_UTIL size_t bagGetElementSize( const Bag bag );
 
 /**
  * Get the size by which the bag will grow each time it is full.
  */
-int bagGetCapacityIncrement( const Bag bag );
+EXTERN_UTIL int bagGetCapacityIncrement( const Bag bag );
 
 /**
  * This function is not implemented.
  * @warning This function doesn't do anything.
  */
-void bagLock( Bag bag );
+EXTERN_UTIL void bagLock( Bag bag );
 
 /**
  * This function is not implemented.
  * @warning This function doesn't do anything.
  */
-void bagUnlock( Bag bag );
+EXTERN_UTIL void bagUnlock( Bag bag );
 
 /**
  * Adds the pointer to the bag.
  **/
-void bagAdd( Bag bag, void *obj );
+EXTERN_UTIL void bagAdd( Bag bag, void *obj );
 
 /**
  * Copies the data that data points to into the bag.
  */
-void bagAdd2( Bag bag, void *data );
+EXTERN_UTIL void bagAdd2( Bag bag, void *data );
 
 /* bagAdd3 REMOVED AS OF 1.2 */ 
 
 /**
  * Adds all elements of the source bag to the result bag.
  */
-void bagAppend( Bag result, Bag source );
+EXTERN_UTIL void bagAppend( Bag result, Bag source );
 
 /**
  * Removes the element obj from the bag if it is found.
@@ -167,19 +167,19 @@ void bagAppend( Bag result, Bag source );
  *
  * @return True if something was removed, else false.
  */
-int bagRemoveMaybe( Bag bag, void *obj );
+EXTERN_UTIL int bagRemoveMaybe( Bag bag, void *obj );
 
 /**
  * Same as bagRemove but takes a pointer to the data.
  */
-int bagRemoveMaybe2( Bag bag, void *data );
+EXTERN_UTIL int bagRemoveMaybe2( Bag bag, void *data );
 
 /**
  * Does a bagRemoveMaybe, followed by an assert that
  * something really was removed. Thus the program will
  * quit if assertion is enabled.
  */
-void bagRemove( Bag bag, void *obj );
+EXTERN_UTIL void bagRemove( Bag bag, void *obj );
 
 
 /**
@@ -187,12 +187,12 @@ void bagRemove( Bag bag, void *obj );
  * something really was removed. Thus the program will
  * quit if assertion is enabled.
  */
-void bagRemove2( Bag bag, void *data );
+EXTERN_UTIL void bagRemove2( Bag bag, void *data );
 
 /**
  * Get the number of elements currently in the specified bag.
  */
-int bagNoElements( const Bag bag );
+EXTERN_UTIL int bagNoElements( const Bag bag );
 
 /**
  * Get the internal array containing the data.
@@ -201,7 +201,7 @@ int bagNoElements( const Bag bag );
  * @remarks This is not the recommended way of accessing the data.
  * You should use the iterator or the for each functions if possible.
  */
-void **bagElements( Bag bag );
+EXTERN_UTIL void **bagElements( Bag bag );
 
 /**
  * Get the internal array containing the data.
@@ -209,12 +209,12 @@ void **bagElements( Bag bag );
  * @remarks This is not the recommended way of accessing the data.
  * You should use the iterator or the for each functions if possible.
  */ 
-void *bagElements2( Bag bag );
+EXTERN_UTIL void *bagElements2( Bag bag );
 
 /**
  * Checks whether the specified element is in the bag.
  */ 
-Boolean bagContains( Bag bag, void *element );
+EXTERN_UTIL Boolean bagContains( Bag bag, void *element );
 
 /**
  * Checks whether the specified element is in the bag,
@@ -223,14 +223,14 @@ Boolean bagContains( Bag bag, void *element );
 /**
  * Checks whether the specified element is in the bag.
  */ 
-Boolean bagContainsCompare( Bag bag, void *element,
+EXTERN_UTIL Boolean bagContainsCompare( Bag bag, void *element,
                             CompareFunc compareFunction);
 
 /**
  * Same as bagContains but the element should be a pointer to
  * the data, rather than the data itself.
  */
-Boolean bagContains2( Bag bag, void *element );
+EXTERN_UTIL Boolean bagContains2( Bag bag, void *element );
 
 /**
  * Keeps bag contents for which the filterFunc returns TRUE.
@@ -241,7 +241,7 @@ Boolean bagContains2( Bag bag, void *element );
  *
  * @return The bag with the elements removed.
  */
-Bag bagFilter( Bag bag, FilterFunc filterFunc, /*@null@*/void *filterArgs );
+EXTERN_UTIL Bag bagFilter( Bag bag, FilterFunc filterFunc, /*@null@*/void *filterArgs );
 
 /**
  * The same as bagFilter, but takes a FilterFunc2 for a filter function.
@@ -250,7 +250,7 @@ Bag bagFilter( Bag bag, FilterFunc filterFunc, /*@null@*/void *filterArgs );
  * @warning The use of this function is currently not recommended, since
  * there is no destory function for the elements being removed.
  */
-void bagFilter2( Bag bag, FilterFunc2 filterFunc, void *filterArgs );
+EXTERN_UTIL void bagFilter2( Bag bag, FilterFunc2 filterFunc, void *filterArgs );
 
 /**
  * Steps through the elements of the bag, calling the specified ForEachFunc for every
@@ -260,18 +260,18 @@ void bagFilter2( Bag bag, FilterFunc2 filterFunc, void *filterArgs );
  * @param forEachFunc The function to call for every element in the bag.
  * @param args An argument to pass to the ForEachFunc.
  */
-void bagForEach( Bag bag, ForEachFunc forEachFunc, void *args );
+EXTERN_UTIL void bagForEach( Bag bag, ForEachFunc forEachFunc, void *args );
 
 /**
  * Same as bagForEach, the elements not nesassarily being sizeof (void *). 
  */
-void bagForEach2( Bag bag, ForEachFunc2 forEachFunc, void *args );
+EXTERN_UTIL void bagForEach2( Bag bag, ForEachFunc2 forEachFunc, void *args );
 
 /**
  * Calls the for each function with the elements for
  * which the filter function returns true.
  */
-void bagFilterForEach( Bag bag, FilterFunc filterFunc, void *filterArgs, ForEachFunc forEachFunc, void *args );
+EXTERN_UTIL void bagFilterForEach( Bag bag, FilterFunc filterFunc, void *filterArgs, ForEachFunc forEachFunc, void *args );
 
 /**
  * calls the filterfunc for the instances of the bag until it returns TRUE,
@@ -286,33 +286,33 @@ void bagFilterForEach( Bag bag, FilterFunc filterFunc, void *filterArgs, ForEach
  *
  * @warning The use of these functions should be avoided. Use the iterator instead.
  */
-Boolean bagUntil( Bag bag, FilterFunc filterFunc, void *filterArgs, 
+EXTERN_UTIL Boolean bagUntil( Bag bag, FilterFunc filterFunc, void *filterArgs, 
                   void **element );
 
 /**
  * See documentation for bagUntil.
  * @see bagUntil
  */
-Boolean bagUntil2( Bag bag, FilterFunc2 filterFunc, void *filterArgs,
+EXTERN_UTIL Boolean bagUntil2( Bag bag, FilterFunc2 filterFunc, void *filterArgs,
                    void *element );
 
 /**
  * See documentation for bagUntil.
  * @see bagUntil
  */
-Boolean bagUntil2NoCopy( Bag bag, FilterFunc2 filterFunc, void *funcArgs, void **element );
+EXTERN_UTIL Boolean bagUntil2NoCopy( Bag bag, FilterFunc2 filterFunc, void *funcArgs, void **element );
 
 /**
  * Get a random element from the specified bag.
  * @return A random element if the size of the bag
  * is > 0, else NULL is returned.
  */
-void *bagGetRandomElement( const Bag bag );
+EXTERN_UTIL void *bagGetRandomElement( const Bag bag );
 /**
  * Same as bagGetRandomElement but copies the data into the ptr.
  * @see bagGetRandomElement
  */
-void bagGetRandomElement2( const Bag bag, void *ptr );
+EXTERN_UTIL void bagGetRandomElement2( const Bag bag, void *ptr );
 
 /* 
    What are the sematics for a bagIterator? What happens if elements are 
@@ -328,13 +328,13 @@ void bagGetRandomElement2( const Bag bag, void *ptr );
  * @return A newly alocated bag iterator with position
  * on the first element of the bag.
  */
-BagIterator bagIteratorCreate2(const Bag bag);
+EXTERN_UTIL BagIterator bagIteratorCreate2(const Bag bag);
 
 /**
  * Same as bagIteratorCreate2 but this functions returns an error.
  * @see bagGetTheIterator
  */
-Error bagIteratorCreate(const Bag bag, BagIterator *bi);
+EXTERN_UTIL Error bagIteratorCreate(const Bag bag, BagIterator *bi);
 
 /**
  * Get the next element of the iterator.
@@ -343,7 +343,7 @@ Error bagIteratorCreate(const Bag bag, BagIterator *bi);
  *
  * @see bagIteratorHasNext
  */
-void *bagIteratorNext(BagIterator bi);
+EXTERN_UTIL void *bagIteratorNext(BagIterator bi);
 
 /**
  * Same as bagIteratorNext, but relies on caller to have allocated space for the ptr,
@@ -351,7 +351,7 @@ void *bagIteratorNext(BagIterator bi);
  *
  * @see bagIteratorNext
  */
-Error bagIteratorGetNext(BagIterator bi, /*@out@*/void *ptr);
+EXTERN_UTIL Error bagIteratorGetNext(BagIterator bi, /*@out@*/void *ptr);
 
 /**
  * Checks whether there are more elements available for
@@ -359,13 +359,13 @@ Error bagIteratorGetNext(BagIterator bi, /*@out@*/void *ptr);
  * This function should always be called before the bagIteratorNext or
  * bagIteratorGetNext is called.
  */
-Boolean bagIteratorHasNext(BagIterator bi);
+EXTERN_UTIL Boolean bagIteratorHasNext(BagIterator bi);
 
 /**
  * Destorys the bagIterator
  * @see bagIteratorCreate
  */
-Error bagIteratorDestroy(BagIterator bi);
+EXTERN_UTIL Error bagIteratorDestroy(BagIterator bi);
 
 /**
  * Create a new bag that is the "cross product" of bag1 and bag2,
@@ -376,7 +376,7 @@ Error bagIteratorDestroy(BagIterator bi);
  * concatenating each element from bag1 wich each element from bag2
  * once, putting a space in between.
  */
-Error bagCrossProd(Bag bag1, Bag bag2, Bag *result);
+EXTERN_UTIL Error bagCrossProd(Bag bag1, Bag bag2, Bag *result);
 
 #ifdef __cplusplus
 }
