@@ -6,6 +6,10 @@
 #include <pthread.h>
 
 #include <voxi/util/byteQueue.hpp>
+//#include <voxi/util/logging.h>
+
+// LOG_MODULE_DECL( "ByteQueue", LOGLEVEL_INFO);
+//static char *_voxiUtilLogModuleName = "ByteQueue";
 
 #define DEBUG 0
 
@@ -146,6 +150,12 @@ void ByteQueue::WriteEndOfStream()
   err = pthread_mutex_lock( &mutex );
   assert( err == 0 );
 
+  if( endOfStream )
+  {
+    // LOG_ERROR( LOG_ERROR_ARG, "ByteQueue: WriteEndOfStream when already at end of stream." );
+
+    goto ALREADY_AT_END;
+  }
   assert( !endOfStream );
 
   endOfStreamReported = false;
@@ -154,6 +164,7 @@ void ByteQueue::WriteEndOfStream()
 	err = pthread_cond_broadcast( &condition ); // the readthread may be waiting for more data
   assert( err == 0 );
 
+ALREADY_AT_END:
   err = pthread_mutex_unlock( &mutex );
   assert( err == 0 );
 }
