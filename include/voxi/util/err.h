@@ -96,7 +96,8 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
     error = (func); \
     if( error != NULL ) \
     { \
-      error = ErrNew( ERR_APP, 0, error, wrapMessage ); \
+      error = ErrNew( ERR_APP, 0, error, "%s:%d: %s", __FILE__, __LINE__, \
+                      (const char *) (wrapMessage) ); \
       \
       ErrReport( error ); \
       ErrDispose( error, TRUE ); \
