@@ -117,6 +117,9 @@ EXTERN_UTIL LogLevel log_LogLevelGet();
   log_LogLevelSet(Level)
   
 #define LOG_LEVEL_GET() log_LogLevelGet()
+
+#define LOG_MODULE_SET(moduleName) \
+  static char *_voxiUtilLogModuleName = (moduleName)
   
 #define LOG_MODULE_DECL(moduleName, defaultLevel) \
   static LogLevel _voxiUtilLogLevelDummy = log_LogLevelSet(defaultLevel); \
