@@ -27,6 +27,21 @@ AC_CONFIG_HEADER([config.h])
 # Checks for programs.
 AC_PROG_CC(cl.exe gcc cc)
 
+#
+# Check if the C preprocessor can handle variable argument lists to 
+# preprocessor macros
+#
+AH_TEMPLATE( [HAVE_CPP_VARARGS], 
+             [True if the C preprocessor can handle variable length argument \
+              lists to macros.] )
+
+AC_MSG_CHECKING([if the preprocessor handles variable argument lists])
+
+AC_TRY_CPP([#define VMACRO(x...) printf( ## x)
+            VMACRO( "1", "2" );], 
+           [AC_DEFINE( [HAVE_CPP_VARARGS], 1 ) AC_MSG_RESULT([yes])],
+           [AC_DEFINE( [HAVE_CPP_VARARGS], 0 ) AC_MSG_RESULT([no])])
+
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [OpenSSL_add_all_algorithms], 
              have_libcrypto=true, have_libcrypto=false )
