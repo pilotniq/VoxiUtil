@@ -193,7 +193,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
            (_voxiUtilModuleLogLevel >= LOGLEVEL_ERROR) )
 
 #define LOGERR_CRITICAL \
-   LOGERR( _voxiUtilGlobalLogLevel >= LOGLEVEL_CRITICAL ) || \
+   LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_CRITICAL) || \
            (_voxiUtilModuleLogLevel >= LOGLEVEL_CRITICAL) )
 
 
