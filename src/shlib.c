@@ -120,9 +120,8 @@ Error shlib_open( const char *filename, SharedLibrary *shlib )
   {
     HINSTANCE dllhandle;
     if (!(dllhandle = LoadLibrary(realFilename))) {
-      error = ErrNew( ERR_SHLIB, 0, NULL,
-                      "Win32 error %d in LoadLibrary( \"%s\" )",
-                      GetLastError(), realFilename );
+      error = ErrNew( ERR_SHLIB, 0, ErrWin32(), 
+                      "Win32 LoadLibrary (\"%s\") failed.", realFilename );
       *shlib = NULL;
     }
     else
@@ -145,6 +144,7 @@ Error shlib_close( SharedLibrary shlib )
   int err;
 #else  /* WIN32 */
   BOOL err;
+  Error error;
 #endif
   
   DEBUG("shlib_close(%p)\n", shlib);
@@ -153,14 +153,15 @@ Error shlib_close( SharedLibrary shlib )
   err = dlclose( shlib );
   assert( err == 0 );
   
+  return NULL;
+  
 #else  /* WIN32 */
   err = FreeLibrary((HINSTANCE)shlib);
   if (err)
-    return ErrNew( ERR_SHLIB, 0, NULL,
-                   "Win32 error %d in FreeLibrary", GetLastError() );
+    error = ErrNew( ERR_SHLIB, 0, ErrWin32(), "Win32 FreeLibrary failed." );
+
+  return error;
 #endif /* WIN32 */
-  
-  return NULL;
 }
 #include <stdio.h>
 
@@ -187,9 +188,8 @@ Error shlib_findFunc( void *shlib, const char *name, void **funcPtr )
     FARPROC func = GetProcAddress((HINSTANCE)shlib, name);
     if (func == NULL) {
       DEBUG("shlib_findFunc: Error looking up %s\n", name);
-      error = ErrNew( ERR_SHLIB, 0, NULL,
-                      "Win32 error %d in GetProcAddress( \"%s\" )",
-                      GetLastError(), name );
+      error = ErrNew( ERR_SHLIB, 0, ErrWin32(), 
+                      "Win32 GetProcAddress(\"%s\") failed.", name );
     }
     else
       DEBUG("shlib_findFunc: Found %s\n", name);
@@ -350,8 +350,8 @@ static void  loadCoreLib(HashTable ht)
   LOAD(bo_beliefs_object_setParent);
   LOAD(bo_beliefs_object_transfer);
   LOAD(bo_beliefs_realizeHypotheticalObject);
-  //  LOAD(compareBeliefs);
-  //  LOAD(compareBoURI);
+  /*  LOAD(compareBeliefs); */
+  /*  LOAD(compareBoURI); */
   LOAD(coowaObject_beliefObject_createHypothetical);
   LOAD(coowaObject_belief_object_isInstanceOf);
   LOAD(coowaObject_beliefs_believeObject);
