@@ -660,7 +660,7 @@ Error ErrToHumanReadableString( ConstError error, char **string )
 
   stringLength = calculateHumanReadableStringLength( error );
 
-  error2 = emalloc( string, stringLength + 1 );
+  error2 = emalloc( (void **) string, stringLength + 1 );
   if( error2 != NULL )
     return error2;
 
@@ -787,6 +787,6 @@ Error ErrSock()
 
 Error ErrSock()
 {
-  return ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
+  return ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) );
 }
 #endif
