@@ -86,25 +86,25 @@ EXTERN_UTIL void vectorRefcountDecrease( Vector vector );
  * This function will block until any other thread that might
  * have grabbed the lock releases it with vectorUnlock.
  */
-EXTERN_UTIL void vectorLock( ConstVector vector );
+EXTERN_UTIL void vectorLock( Vector vector );
 
 /**
  * Same as vectorLock, but in debug mode.
  * @see vectorLock
  */
-EXTERN_UTIL const char *vectorLockDebug( ConstVector vector, const char *where );
+EXTERN_UTIL const char *vectorLockDebug( Vector vector, const char *where );
 
 /**
  * Same as vectorLock, but in debug mode.
  * @see vectorLock
  */
-EXTERN_UTIL void vectorUnlockDebug( ConstVector vector, const char *oldLocker );
+EXTERN_UTIL void vectorUnlockDebug( Vector vector, const char *oldLocker );
 
 /**
  * Releases the lock for the specified vector for the calling thread,
  * thereby making it possible for other threads to grab the lock.
  */
-EXTERN_UTIL void vectorUnlock( ConstVector vector );
+EXTERN_UTIL void vectorUnlock( Vector vector );
 
 /**
  * Returns the number of element currently in the specified bag.
@@ -116,14 +116,15 @@ EXTERN_UTIL int vectorGetElementCount( ConstVector vector );
  * is full, its capacity is incremented.
  * @return The index at which the element was inserted.
  */
-EXTERN_UTIL int /*@alt void@*/vectorAppend( Vector vector, const void *element );
+EXTERN_UTIL int /*@alt void@*/vectorAppend(Vector vector, const void *element);
 
 /**
  * The same as for vectorAppend, but it is assumed that the element is a
  * pointer and therefore the element is stored, not copied.
  * @see vectorAppend
  */
-EXTERN_UTIL int /*@alt void@*/vectorAppendPtr( Vector vector, /*@only@*/const void *ptr );
+EXTERN_UTIL int /*@alt void@*/vectorAppendPtr( Vector vector, 
+                                               /*@only@*/const void *ptr );
 
 /**
  * Removes the last element from the specified vector.
@@ -146,12 +147,16 @@ EXTERN_UTIL void vectorRemoveLastElement( Vector vector );
 EXTERN_UTIL void vectorRemoveAll( Vector vector );
 
 /**
- * Copies the element at the specified index into the memory pointed at by element.
+ * Copies the element at the specified index into the memory pointed at by 
+ * element.
+ *
  * @pre index < vector->elementCount
  * @remarks Caller frees the element.
+ * @remarks vector is not const, because the vector is locked, which modifies 
+ *          the vector.
  */
-EXTERN_UTIL void vectorGetElementAt( ConstVector vector, int index, 
-                         /*@out@*/void *element );
+EXTERN_UTIL void vectorGetElementAt( Vector vector, int index, 
+                                     /*@out@*/void *element );
 
 /**
  * Copies the element from memory to the specified index.
@@ -159,8 +164,8 @@ EXTERN_UTIL void vectorGetElementAt( ConstVector vector, int index,
  * @pre index < vector->elementCount
  * @remarks Caller frees the element.
  */
-EXTERN_UTIL void vectorSetElementAt( Vector vector, int index, /*@out@*/void *element );
-
+EXTERN_UTIL void vectorSetElementAt( Vector vector, int index, 
+                                     /*@out@*/void *element );
 
 /**
  * Creates a new vector with the same elements as in the supplied vector.
