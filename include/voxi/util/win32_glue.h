@@ -30,6 +30,8 @@
 #ifndef WIN32_GLUE_H
 #define WIN32_GLUE_H
 
+#include <voxi/util/config.h>
+
 #if defined(WIN32) || defined(DOXYGEN)
 
 /*
@@ -63,7 +65,17 @@
 
 /*  typedef int pid_t; */
 
-#include "libcCompat.h" /* to get strsep */
+/* Apparently winsock2.h must be included before windows.h or all hell breaks loose */
+#include <winsock2.h> 
+#include <windows.h> /* for HANDLE */
+#include <process.h> /* defines getpid */
+#include <io.h> /* defines close */
+#include <voxi/util/libcCompat.h> /* to get strsep */
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 /*
  * Name translation of certain string comparison functions
  */
@@ -81,22 +93,24 @@
 
 
 /** rint(3) */
-double rint(double x);
+EXTERN_UTIL double rint(double x);
 
 /** 
  * gettimeofday(2) 
  * @note tz (timezone) is ignored. 
  */
 struct timeval;
-int gettimeofday(struct timeval *tv, void *tz);
+EXTERN_UTIL int gettimeofday(struct timeval *tv, void *tz);
 
 /** sleep(3) */
-void sleep(unsigned int sec);
-
+/* Nuance defines sleep as Sleep( x * 1000 ) */
+#ifndef sleep
+EXTERN_UTIL void sleep(unsigned int sec);
+#endif
 /** usleep(3).
  * Has worse resolution: Mapped to Win32 Sleep(usec/1000). 
  */
-void usleep(unsigned long usec);
+EXTERN_UTIL void usleep(unsigned long usec);
 
 /* mmap(2), munmap(2)
    A subset of their functionality.
@@ -131,18 +145,24 @@ void usleep(unsigned long usec);
  *  A subset of the functionality.
  */ 
 #define mmap(start, length, prot, flags, fd, offset) \
-  mmap_win32(start, length, prot, flags, _get_osfhandle(fd), offset)
+  mmap_win32(start, length, prot, flags, (HANDLE) _get_osfhandle(fd), offset)
 
-#include <windows.h>
-void *mmap_win32(void *start, size_t length, int prot,
+// including <windows.h> cause all sorts of problems for erl on MSVC++ 6.0
+// #include <windows.h>
+// #include <windef.h>
+EXTERN_UTIL void *mmap_win32(void *start, size_t length, int prot,
                  int flags, HANDLE hFile, off_t offset);
 
 /**
  * munmap(2). 
  *  A subset of the functionality.
  */ 
-int munmap(void *start, size_t length);
+EXTERN_UTIL int munmap(void *start, size_t length);
 
 #endif /* WIN32 */
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif /* WIN32_GLUE_H */
