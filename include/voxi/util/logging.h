@@ -104,6 +104,8 @@ EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName,
  *   ErrDispose(error, ...);
  *
  */
+#define LOG_LEVEL_SET(Level) \
+  _voxiUtilLogLevel = (Level);
   
 #define LOG_MODULE_DECL(moduleName, defaultLevel) \
   static LogLevel _voxiUtilLogLevel = (defaultLevel); \
