@@ -56,7 +56,7 @@ typedef struct sWordMap
 typedef struct sEntry
 {
   const char *name;
-  unsigned short number;
+  unsigned int number;
 } sEntry, *Entry;
 
 typedef struct sWordMapCursor
