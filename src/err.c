@@ -451,7 +451,7 @@ void ErrDispose(Error err, Boolean recursive)
 
   assert( err->description != NULL );
 
-  free(err->description);
+  free( (char *) err->description);
 
   free(err);
 }
@@ -706,6 +706,19 @@ static size_t calculateHumanReadableStringLength( ConstError error )
 
 #endif
 
+/**
+ * Convenience macro.
+ *
+ * For portability, use of this macro is encouraged when processing error
+ * codes from socket routines (connect, accept, socket, etc), since on
+ * "certain architectures" errno is not used with these routines.
+ */
+#ifndef WIN32
+/* Most sensible architectures use errno, as the standard prescribes. */
+#else
+#endif /* WIN32 */
+
+
 #ifdef WIN32
 
 #include <voxi/util/win32_glue.h>
@@ -732,5 +745,44 @@ Error ErrWin32()
   LocalFree( lpMsgBuf );
 
   return error;
+}
+
+/**
+ * Convenience macro.
+ *
+ * For portability, use of this macro is encouraged when processing error
+ * codes from socket routines (connect, accept, socket, etc), since on
+ * "certain architectures" errno is not used with these routines.
+ */
+Error ErrSock()
+{
+  int theError;
+
+  theError = WSAGetLastError();
+  switch( theError )
+  {
+    case WSAECONNREFUSED:
+      return ErrNew( ERR_WINSOCK, theError, NULL, "Connection Refused: No "
+                     "connection could be made because the target machine "
+                     "actively refused it." );
+
+    default:
+      return ErrNew( ERR_WINSOCK, theError, NULL, "WinSock error %d", 
+                     theError );
+  }
+}
+#else
+
+/**
+ * Convenience macro.
+ *
+ * For portability, use of this macro is encouraged when processing error
+ * codes from socket routines (connect, accept, socket, etc), since on
+ * "certain architectures" errno is not used with these routines.
+ */
+
+Error ErrSock()
+{
+  return ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
 }
 #endif
