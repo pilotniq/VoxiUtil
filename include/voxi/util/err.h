@@ -68,7 +68,8 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
                ERR_THREADING, 
                ERR_TEXTRPC, ERR_STRBUF, ERR_LOOP, ERR_ISI_IDE, ERR_OOW,
                ERR_PARSER, ERR_JAVA_GENERIC, ERR_COOWA, ERR_WINSOCK,
-               ERR_SPEECH_RECOGNITION, ERR_HTTP } ErrType;
+               ERR_SPEECH_RECOGNITION, ERR_HTTP, ERR_IVR, ERR_WIN32, 
+               ERR_DRIVER } ErrType;
 
 #include <voxi/types.h>
 #include <voxi/util/strbuf.h>
@@ -85,10 +86,10 @@ typedef enum { ERR_UNKNOWN, ERR_ERRNO, ERR_OSERR, ERR_SOCK, ERR_APP, ERR_SND,
  */
 typedef struct s_Error
 {
-	ErrType type;
-	int	number;
-	const char *description;
-	Error reason;
+  ErrType type;
+  int  number;
+  const char *description;
+  Error reason;
 } sError;
 
 /**
@@ -110,7 +111,7 @@ EXTERN_UTIL void ErrPopFunc(void);
  * Create an error message in the old error handling.
  */ 
 EXTERN_UTIL void Err(char *file, unsigned int line, Err_Action action,
-		char *string, ...);
+                     char *string, ...);
 
 /** 
  * Toggle trace-printouts
@@ -160,8 +161,8 @@ EXTERN_UTIL int Err_getNum(Error err);
  * convenience macro.
  * 
  * Create a new voxi-error from errors in libraries that are returned
- * in the global variable errno and that have a description that can be obtained
- * by calling the POSIX function strerror.
+ * in the global variable errno and that have a description that can be 
+ * obtained by calling the POSIX function strerror.
  */
 #define ErrErrno() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
 
@@ -176,13 +177,23 @@ EXTERN_UTIL int Err_getNum(Error err);
 */
 EXTERN_UTIL Error ErrToString( Error error, StringBuffer strbuf );
 
+#ifdef WIN32
+/*
+   ErrWin32() - calls Window's GetLastError() and then FormatMessage, 
+   to return a cleartext error.
+   */
+EXTERN_UTIL Error ErrWin32();
+#endif
+
 #ifdef MACOS
 #include <Types.h>
 
 EXTERN_UTIL const char *ErrOSErrName(OSErr err);
-#define  ErrCheckMacErr( err )  (err == 0) ? NULL : ErrNew( ERR_OSERR, (int) err, ErrOSErrName(err), NULL) 
+#define  ErrCheckMacErr( err )  \
+     (err == 0) ? NULL : ErrNew( ERR_OSERR, (int) err, ErrOSErrName(err), NULL)
 
-#define ErrCreateOSErr( /* OSErr */ err, /* Error */ reason) ErrNew(ERR_OSERR, (int) err, ErrOSErrName(err), reason)
+#define ErrCreateOSErr( /* OSErr */ err, /* Error */ reason) \
+                        ErrNew(ERR_OSERR, (int) err, ErrOSErrName(err), reason)
 #endif /* MACOS */
 
 #ifdef __cplusplus
