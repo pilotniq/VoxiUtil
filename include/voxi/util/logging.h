@@ -26,7 +26,7 @@ extern "C" {
  * Type definitions
  */
 typedef enum { LOGLEVEL_CRITICAL, LOGLEVEL_ERROR, LOGLEVEL_INFO, 
-               LOGLEVEL_DEBUG } LogLevel;
+               LOGLEVEL_DEBUG, NUMBER_OF_LOGLEVELS } LogLevel;
 
 /* The possible error codes */
 enum { ERR_LOGGING_UNSPECIFIED };
@@ -45,6 +45,8 @@ typedef struct sLogger *Logger;
 
    */
 EXTERN_UTIL LoggingDriver LoggingDriverFile;
+
+EXTERN_UTIL const char* LogLevelName[NUMBER_OF_LOGLEVELS];
 
 /*
  * Public function prototypes
@@ -104,14 +106,19 @@ EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName,
  *   ErrDispose(error, ...);
  *
  */
+  
+EXTERN_UTIL LogLevel _voxiUtilLogLevel;
+
+EXTERN_UTIL LogLevel log_LogLevelSet(LogLevel level);
+EXTERN_UTIL LogLevel log_LogLevelGet();
 
 #define LOG_LEVEL_SET(Level) \
-  _voxiUtilLogLevel = (Level);
+  log_LogLevelSet(Level)
   
-#define LOG_LEVEL_GET() _voxiUtilLogLevel
+#define LOG_LEVEL_GET() log_LogLevelGet()
   
 #define LOG_MODULE_DECL(moduleName, defaultLevel) \
-  static LogLevel _voxiUtilLogLevel = (defaultLevel); \
+  static LogLevel _voxiUtilLogLevelDummy = log_LogLevelSet(defaultLevel); \
   static char *_voxiUtilLogModuleName = (moduleName)
 
 #define LOG( condition ) ((condition) ? log_logText : log_noLogText)
