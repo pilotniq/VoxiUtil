@@ -31,7 +31,7 @@
 typedef Error (*CreateFuncPtr)( LoggingDriver driver,
                                 const char *applicationName, 
                                 const char *parameters, Logger *logger );
-
+typedef void (*DestroyFuncPtr)( Logger logger );
 typedef Error (*LogTextFuncPtr)( Logger logger, const char *moduleName, 
                                  LogLevel logLevel,
                                  const char *sourceFile, int sourceLine,
@@ -40,6 +40,7 @@ typedef Error (*LogTextFuncPtr)( Logger logger, const char *moduleName,
 typedef struct sLoggingDriver
 {
   CreateFuncPtr create;
+  DestroyFuncPtr destroy;
   LogTextFuncPtr logText;
 } sLoggingDriver;
 
@@ -56,6 +57,8 @@ typedef struct sLogger
 static Error fileCreate( LoggingDriver driver, const char *appName, 
                          const char *args, Logger *logger );
 
+static void fileDestroy( Logger logger );
+
 static Error fileLogText( Logger logger, const char *moduleName, 
                           LogLevel logLevel, const char *sourceFile, 
                           int sourceLine, const char *format,
@@ -66,7 +69,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
 
 static const char* LogLevelName[] = { "Critical", "Error", "Info", "Debug" };
 
-static sLoggingDriver fileLoggingDriver = { fileCreate, fileLogText };
+static sLoggingDriver fileLoggingDriver = { fileCreate, fileDestroy, fileLogText };
 static sLogger sDefaultLogger = { &fileLoggingDriver, "unknown", NULL };
 static Logger DefaultLogger = &sDefaultLogger;
 
@@ -91,13 +94,18 @@ Error log_create( const char *applicationName, LoggingDriver driver,
   return error;
 }
 
+void log_destroy( Logger logger )
+{
+  logger->driver->destroy( logger );
+}
+
 Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel, 
                    const char *sourceFile, int sourceLine,
                    const char *format, ... )
 {
   Error error;
   va_list args;
-  char *filename;
+  const char *filename;
 
   if( logger == NULL )
     logger = DefaultLogger;
@@ -164,6 +172,12 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
 
   (*logger)->driver = driver;
   (*logger)->applicationName = strdup( appName );
+  if( (*logger)->applicationName == NULL )
+  {
+    error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(),
+                    "Failed to allocate memory for application string '%s'", appName );
+    goto FAIL;
+  }
 
   if( (args == NULL) || (strlen( args ) == 0) )
     (*logger)->data = stderr;
@@ -174,11 +188,14 @@ static Error fileCreate( LoggingDriver driver, const char *appName,
     {
       error = ErrNew( ERR_LOGGING, ERR_LOGGING_UNSPECIFIED, ErrErrno(), 
                       "Failed to open logging file '%s'", args );
-      goto FAIL;
+      goto FAIL_2;
     }
   }
 
   return NULL;
+
+FAIL_2:
+  free( (char *) ((*logger)->applicationName) );
 
 FAIL:
   free( *logger );
@@ -186,6 +203,25 @@ FAIL:
   assert( error != NULL );
 
   return error;
+}
+
+static void fileDestroy( Logger logger )
+{
+  assert( logger != NULL );
+
+  if( logger->data != stderr )
+  {
+    assert( logger->data != NULL );
+
+    fclose( logger->data );
+  }
+
+  assert( logger->applicationName != NULL );
+
+  free( (char *) (logger->applicationName) );
+  free( logger );
+
+  return;
 }
 
 static Error fileLogText( Logger logger, const char *moduleName, 
