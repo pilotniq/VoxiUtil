@@ -70,6 +70,8 @@ EXTERN_UTIL /*@observer@*/void *HashFind(HashTable ht, void *data);
    it returns 0. On success 1 is returned. */
 EXTERN_UTIL int HashDelete(HashTable ht, void *data);
 
+EXTERN_UTIL void *HashGetArbitraryElement( HashTable hashTable );
+
 /* Removes the record containing 'data' from ht and destroys data.
    If no such record exists, it returns 0. On success 1 is returned. */
 EXTERN_UTIL int HashDestroy(HashTable ht, void *data);
