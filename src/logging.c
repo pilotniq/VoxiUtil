@@ -233,6 +233,8 @@ static void fileDestroy( Logger logger )
   assert( logger->applicationName != NULL );
 
   free( (char *) (logger->applicationName) );
+  pthread_mutex_destroy(&(logger->mutex));
+  
   free( logger );
 
   return;
