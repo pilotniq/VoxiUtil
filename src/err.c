@@ -69,8 +69,10 @@ static Boolean Initialized = FALSE;
 
 Boolean ErrInit(void)
 {
+#if _REENTRANT && defined(_POSIX_THREADS)
 	int err;
-	
+#endif
+
   DEBUG("enter\n");
 
 	if(Initialized)
