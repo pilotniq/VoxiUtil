@@ -95,13 +95,6 @@ CVSID("$Id$");
 #define bzero(s, n) memset(s, 0, n)
 #endif
 
-#ifndef WIN32
-#define ErrSock() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
-#else
-#define ErrSock() ErrNew( ERR_WINSOCK, -1, NULL, "WinSock error %d", \
-                          WSAGetLastError())
-#endif /* WIN32 */
-
 #define SOCK_BUF_SIZE 10000
 #define SOCK_USE_THREADPOOL
 #define SOCK_THREADPOOL_SIZE 5

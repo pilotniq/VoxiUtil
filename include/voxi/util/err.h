@@ -215,6 +215,21 @@ EXTERN_UTIL int Err_getNum( ConstError err);
 #define ErrErrno() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
 
 /**
+ * Convenience macro.
+ *
+ * For portability, use of this macro is encouraged when processing error
+ * codes from socket routines (connect, accept, socket, etc), since on
+ * "certain architectures" errno is not used with these routines.
+ */
+#ifndef WIN32
+/* Most sensible architectures use errno, as the standard prescribes. */
+#define ErrSock() ErrNew( ERR_ERRNO, errno, NULL, "%s", strerror( errno ) )
+#else
+#define ErrSock() ErrNew( ERR_WINSOCK, -1, NULL, "WinSock error %d", \
+                          WSAGetLastError())
+#endif /* WIN32 */
+
+/**
   Converts an error to a string representation. 
 
   The representation is:
