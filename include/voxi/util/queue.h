@@ -13,8 +13,14 @@
 #ifndef VOXI_UTIL_QUEUE_H
 #define VOXI_UTIL_QUEUE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <pthread.h> /* the struct timespec is defined here methinks. */
 
+#include <voxi/util/libcCompat.h>
+#include <voxi/util/config.h>
 #include <voxi/util/err.h>
 
 typedef struct sQueue *Queue;
@@ -38,5 +44,9 @@ EXTERN_UTIL Error queue_pop( Queue, void **result );
   forever.
   */
 EXTERN_UTIL Error queue_waitFor( Queue, const struct timespec *timeoutTime, void **result );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
