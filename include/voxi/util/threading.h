@@ -13,6 +13,8 @@
 #ifndef THREADING_H
 #define THREADING_H
 
+#include <voxi/util/config.h>
+
 #ifdef HAVE_UNISTD_H
 /* The POSIX-feature definitions are here on unix-like systems. */
 #include <unistd.h>
@@ -26,29 +28,20 @@
 #include <semaphore.h>
 #endif
 
+/* libcCompat defines EXTERN macro */
+#include <voxi/util/libcCompat.h>
+
 #ifdef WIN32
 #include <voxi/util/win32_glue.h>
 #endif /* WIN32 */
 
 #include <voxi/types.h>
 
-/* This is because on Windows, when somebody else uses this as a DLL,
-   we must declare external variables with a special directive.
-   Note: Since the EXTERN macro may be redefined in other .h files, the
-   following macro sequence must occur after any other inclusion
-   made in this .h file. */
-#ifdef EXTERN
-#  undef EXTERN
+#ifdef __cplusplus
+extern "C" {  // only need to export C interface if
+              // used by C++ source code
 #endif
-#ifdef WIN32
-#  ifdef LIB_UTIL_INTERNAL
-#    define EXTERN __declspec(dllexport)
-#  else
-#    define EXTERN __declspec(dllimport)
-#  endif /* LIB_UTIL_INTERNAL */
-#else
-#  define EXTERN extern
-#endif /* WIN32 */
+
 
 /* This type is defined as the type passed as the thirt parameter to 
    pthread_crete. */
@@ -76,24 +69,24 @@ typedef struct
 } sVoxiMutex, *VoxiMutex;
 
 /* 
-	 The detachedThreadAttr variable must not be accessed until the 
-	 threading_init call has been made.
+   The detachedThreadAttr variable must not be accessed until the 
+   threading_init call has been made.
 */
 
-EXTERN pthread_attr_t detachedThreadAttr, realtimeDetachedThreadAttr,
+EXTERN_UTIL pthread_attr_t detachedThreadAttr, realtimeDetachedThreadAttr,
   joinableRealtimeThreadAttr, detachedLowPrioThreadAttr;
 
 /*
-	The threading modules can be init'ed by several modules simultaneously 
-	without any problems - it keeps track of how many inits and shutdowns have
-	been made
+  The threading modules can be init'ed by several modules simultaneously 
+  without any problems - it keeps track of how many inits and shutdowns have
+  been made
 */
-void threading_init();
-void threading_shutdown();
+EXTERN_UTIL void threading_init();
+EXTERN_UTIL void threading_shutdown();
 
-void threading_mutex_init( VoxiMutex mutex );
-void threading_mutex_lock( VoxiMutex mutex );
-void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug );
+EXTERN_UTIL void threading_mutex_init( VoxiMutex mutex );
+EXTERN_UTIL void threading_mutex_lock( VoxiMutex mutex );
+EXTERN_UTIL void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug );
 /*
   Debugging version of mutex_lock.
   
@@ -101,22 +94,30 @@ void threading_mutex_setDebug( VoxiMutex mutex, Boolean debug );
   
   The function will return the description of the previous locker of the lock.
 */
-const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where );
+EXTERN_UTIL const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where );
 /*
   Debugging version of mutex_unlock.
   
   Pass the string returned by threading_mutex_lock_debug as the oldWhere 
   parameter.
 */
-void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere );
-void threading_mutex_unlock( VoxiMutex mutex );
-void threading_mutex_destroy( VoxiMutex mutex );
+EXTERN_UTIL void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere );
+EXTERN_UTIL void threading_mutex_unlock( VoxiMutex mutex );
+EXTERN_UTIL void threading_mutex_destroy( VoxiMutex mutex );
 
-void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex );
-Boolean threading_cond_timedwait( pthread_cond_t *condition, VoxiMutex mutex, unsigned long usec );
+EXTERN_UTIL void threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex );
+EXTERN_UTIL Boolean threading_cond_timedwait( pthread_cond_t *condition, 
+                                              VoxiMutex mutex, 
+                                              unsigned long usec );
 
 /* use this instead of pthread_create! */
-int threading_pthread_create( pthread_t * thread, pthread_attr_t * attr,
-                              ThreadFunc start_routine, void * arg);
+EXTERN_UTIL int threading_pthread_create( pthread_t * thread, 
+                                          pthread_attr_t * attr,
+                                          ThreadFunc start_routine, 
+                                          void * arg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
