@@ -71,8 +71,15 @@ EXTERN_UTIL Error log_logError( Logger logger, const char *moduleName,
 EXTERN_UTIL Error log_noLogText( Logger logger, const char *moduleName,
                                  LogLevel logLevel, const char *sourceFile,
                                  int sourceLine, const char *format, ... );
+  
+EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName, 
+                                  LogLevel logLevel, 
+                                  const char *sourceFile, int sourceLine,
+                                  Error error );
+
 
 #define LOG( condition ) ((condition) ? log_logText : log_noLogText)
+#define LOGERR( condition ) ((condition) ? log_logError : log_noLogError)
 
 
 /*
