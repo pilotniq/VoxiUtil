@@ -54,4 +54,10 @@ Error strbuf_appendBinary( StringBuffer strbuf, size_t length,
 const char *strbuf_getString( StringBuffer strbuf );
 char *strbuf_getStringCopy( StringBuffer strbuf );
 
+Error strbuf_stringList_popString( StringBuffer strbuf, int *cursor, 
+                                   const char **string );
+Error strbuf_stringList_append( StringBuffer strbuf, const char *string );
+Error strbuf_stringList_append2( StringBuffer strbuf, const char *format,
+                                 ... );
+
 #endif
