@@ -51,7 +51,7 @@ typedef void * (*ThreadFunc)(void *);
 typedef struct
 {
   pthread_mutex_t mutex;
-  pthread_t thread;
+  pthread_t thread; /* The thread which has the mutex locked */
   pid_t pid;  /* the number used by gdb to identify threads */
   /* 
      this semaphore has value 1 when no-one is accessing the mutex data,
@@ -60,7 +60,7 @@ typedef struct
      rules:
      
      one may only try to lock the lock while holding the semaphore if the 
-     count is 0.
+     count is non zero.
      
   */
   sem_t semaphore;
