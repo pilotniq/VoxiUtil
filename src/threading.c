@@ -300,32 +300,10 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
     fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: "
              "got semaphore, count=%d.\n",
              mutex, (where == NULL) ? "NULL" : where, getpid(), mutex->count );
-#if 0  
-  if( mutex->count == 0 )
-  {
-    assert( mutex->lastLockFrom == NULL );
-    
-    mutex->count = 1;
-    oldWhere = mutex->lastLockFrom;
-    mutex->lastLockFrom = where;
-    
-    err = pthread_mutex_lock( &(mutex->mutex) );
-    /* assert( err == 0 ); */
-    
-    if( mutex->debug )
-      fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: got "
-               "first lock.\n", mutex, (where == NULL) ? "NULL" : where,
-               getpid() );
-  
-    mutex->thread = pthread_self();
-    mutex->pid = getpid();
-  }
-  else
-#endif
   {
     pthread_t mythread = pthread_self();
     
-    if( (mutex->count > 0) && (mutex->thread == mythread) )
+    if( (mutex->count > 0) && pthread_equal( mutex->thread, mythread) )
     {
       if( mutex->debug )
         fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: got "
@@ -337,13 +315,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
     else
     {
       DEBUG( "threading_mutex_lock: wait sem_post" );
-#if 0
-      if( mutex->debug )
-        fprintf( stderr, "threading_mutex_lock_debug( %p, %s ), pid %d: "
-                 "thread %ld had lock, releasing semaphore.\n", mutex, 
-                 (where == NULL) ? "NULL" : where, getpid(), 
-                 mutex->thread );
-#endif 
+
       err = sem_post( &(mutex->semaphore) );
       /* assert( err == 0 ); */
       
@@ -444,7 +416,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   /* assert( err == 0 ); */
   assert( tempInt == 0 );
   
-  assert( mutex->thread == pthread_self() );
+  assert( pthread_equal( mutex->thread, pthread_self() ) );
   assert( mutex->count > 0 );
   
   mutex->lastLockFrom = oldWhere;
@@ -659,7 +631,7 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
   /* assert( err == 0 ); */
   assert( tempInt == 0 );
 
-  assert( mutex->thread == pthread_self() );
+  assert( pthread_equal( mutex->thread == pthread_self() ) );
   assert( mutex->count > 0 );
   
   /* release the VoxiMutex, saving the old state */
