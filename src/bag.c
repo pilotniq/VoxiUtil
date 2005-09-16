@@ -10,7 +10,7 @@
   bag.
 */
 
-#include "config.h"
+#include <voxi/util/config.h>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -152,9 +152,11 @@ Bag bagCreate2( int initialCapacity,
   PostCond( bag_isValid( result ) );
   return result;
 
+#ifdef _POSIX_THREADS
  ERR_RETURN3:
   free(result->array);
-  
+#endif
+
  ERR_RETURN2:
   free(result);
   result = NULL;
