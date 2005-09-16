@@ -250,12 +250,10 @@ Error threading_mutex_init( VoxiMutex mutex )
   }
 
 #ifndef NDEBUG
-  /* I dont set them to 0 since i want to know that I was the one that set 
+  /* I dont set it to 0 since i want to know that I was the one that set 
      these values (when i'm debugging) */
-  mutex->thread = (pthread_t) 46;  
   mutex->pid = 10;
 #else
-  mutex->thread = (pthread_t) 0;
   mutex->pid = 0;
 #endif
 
@@ -429,8 +427,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   
   if( mutex->count == 0 )
   {
-    /* I dont set them to 0 since i want to know that */
-    mutex->thread = (pthread_t) 47;  
+    /* I dont set it to 0 since i want to know that */
     /* I was the one that set these values (when i'm debugging) */
     mutex->pid = 11;     
 
@@ -492,9 +489,8 @@ Error threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
   
   /* release the VoxiMutex, saving the old state */
 
-  /* I dont set them to 0 since i want to know that I was the one that set 
+  /* I dont set it to 0 since i want to know that I was the one that set 
      these values (when i'm debugging) */
-  mutex->thread = (pthread_t) 48;  
   mutex->pid = 12;
   
   oldLastLockFrom = mutex->lastLockFrom;
@@ -631,14 +627,13 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
   /* assert( err == 0 ); */
   assert( tempInt == 0 );
 
-  assert( pthread_equal( mutex->thread == pthread_self() ) );
+  assert( pthread_equal( mutex->thread, pthread_self() ) );
   assert( mutex->count > 0 );
   
   /* release the VoxiMutex, saving the old state */
 
-  /* I dont set them to 0 since i want to know that I was the one that 
+  /* I dont set it to 0 since i want to know that I was the one that 
      set these values (when i'm debugging) */
-  mutex->thread = (pthread_t) 49;  
   mutex->pid = 13;
   
   oldLastLockFrom = mutex->lastLockFrom;
