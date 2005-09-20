@@ -175,6 +175,8 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
         (_voxiUtilModuleLogLevel >= LOGLEVEL_TRACE))
 #define LOG_TRACE_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
+#define LOGGER_TRACE_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
 
 #define LOGERR_INFO \
    LOGERR( (_voxiUtilGlobalLogLevel >= LOGLEVEL_INFO) || \
