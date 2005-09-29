@@ -30,6 +30,7 @@
 
 #include <voxi/util/hash.h>
 #include <voxi/util/err.h>
+#include <voxi/util/logging.h>
 #include <voxi/util/mem.h>
 #ifdef WIN32
 #include <sys/types.h>
@@ -42,6 +43,8 @@ CVSID("$Id$");
 
 #define FILE_FORMAT_VERSION 2
 #define DEFAULT_HASHTABLE_SIZE 1024
+
+LOG_MODULE_DECL( "WordMap", LOGLEVEL_NONE );
 
 typedef struct sWordMap
 {
@@ -116,6 +119,9 @@ const char *wordMap_getName( WordMap map )
 Error wordMap_add( WordMap map, const char *name, int number )
 {
   Entry newEntry;
+
+  LOG_TRACE( LOG_TRACE_ARG, "wordMap_add( map %s, '%s', %d )", map->name, 
+             name, number );
 
   newEntry = malloc( sizeof( sEntry ));
   assert( newEntry != NULL );
