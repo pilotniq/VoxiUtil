@@ -288,6 +288,8 @@ static Error fileLogText( Logger logger, const char *moduleName,
   struct tm *localTime;
   time_t aWeekAgo;
   int err, index, tempInt, stdOutIndex;
+  pthread_t self;
+  unsigned long threadID;
 
   pthread_mutex_lock(&logger->mutex);
 
@@ -366,13 +368,50 @@ static Error fileLogText( Logger logger, const char *moduleName,
     }
   }
 
+  /*
+   * In Pthreads win32 versions 2 or greater. pthread_t is a struct, and not
+   * an int. 
+   *
+   * If pthread_t is a struct larger than unsigned long, then:
+   *   If we are using pthreads win32
+   *     use pthread_getw32threadhandle_np to get a printable thread handle
+   *   Else
+   *     don't print a thread ID
+   * Else
+   *   Print the pthread_t value as an unsigned long
+   *
+   */
+  self = pthread_self();
+  if( sizeof( self ) > sizeof( unsigned long ) )
+#if defined(PTW32_VERSION) && (PTW32_LEVEL >= PTW32_LEVEL_MAX)
+  {
+    threadID = (unsigned long) pthread_getw32threadhandle_np( self );
+
+    tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
+                        ".%03ld\t%s\t%s\t%s\t[%lu]\t%s:%d\t",
+                        now.millitm,
+                        logger->applicationName, moduleName, 
+                        LogLevelName[ logLevel ],
+                        threadID,
+                        sourceFile, sourceLine );
+  }
+#else /* don't print any thread identifier */
   tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
-                      ".%03ld\t%s\t%s\t%s\t[%ld]\t%s:%d\t",
-                      now.millitm,
-                      logger->applicationName, moduleName, 
-                      LogLevelName[ logLevel ],
-                      pthread_self(),
-                      sourceFile, sourceLine );
+                        ".%03ld\t%s\t%s\t%s\t%s:%d\t",
+                        now.millitm,
+                        logger->applicationName, moduleName, 
+                        LogLevelName[ logLevel ],
+                        sourceFile, sourceLine );
+#endif
+  else
+    tempInt = snprintf( &(buffer[ index ]), sizeof( buffer ) - index, 
+                        ".%03ld\t%s\t%s\t%s\t[%lu]\t%s:%d\t",
+                        now.millitm,
+                        logger->applicationName, moduleName, 
+                        LogLevelName[ logLevel ],
+                        *((unsigned long *) &self),
+                        sourceFile, sourceLine );
+
   if (tempInt >= 0) {
     
     index += tempInt;
