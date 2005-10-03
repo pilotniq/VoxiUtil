@@ -85,6 +85,7 @@
 #include <voxi/util/err.h>
 #include <voxi/util/file.h>
 #include <voxi/util/bt.h>
+#include <voxi/util/logging.h>
 #include <voxi/util/mem.h>
 #include <voxi/util/threadpool.h>
 #include <voxi/util/sock.h>
@@ -175,6 +176,7 @@ static void *ConnectionThreadFunc( SocketConnection connection );
 static void *server_thread_func( Server server );
 static const char *voxi_sock_error( int err );
 
+LOG_MODULE_DECL( "voxiUtil/sock", LOGLEVEL_TRACE );
 
 /*
  *  The Code.
@@ -656,7 +658,7 @@ Error sock_send_binary(Socket c, const char *msg, size_t length)
 
   ErrPushFunc("sock_conn_send(...)");
 
-  DEBUG( "sock_send_binary( %p, '%s', %d)\n", c, msg, length );
+  LOG_DEBUG( LOG_DEBUG_ARG, "sock_send_binary( %p, '%s', %d)\n", c, msg, length );
 
 #ifdef WIN32
 #if 1
@@ -674,16 +676,18 @@ Error sock_send_binary(Socket c, const char *msg, size_t length)
     count = write(handle, msg, strlen(msg));
   }
 #endif
-#else  /* WIN32 */
+#else  /* not WIN32 */
   /* Well, send exists on Unix too - but let's continue to use write
      for now. */
   count = write(c->socket, msg, length);
-#endif /* WIN32 */
+#endif /* if WIN32 ... else ... */
   
   if( count == -1 )
+  {
     error = ErrNew( ERR_SOCK, 0, ErrSock(), 
                     "send_binary(%d, '%s', %d) failed.", c->socket, msg, 
                     length );
+  }
   else if( count != length )
     ERR ERR_WARN, "Problem writing, count=%d", count ENDERR;
 #if 0
@@ -737,12 +741,17 @@ static void *ConnectionThreadFunc( SocketConnection connection )
     err = sock_readLine( connection->socket, buffer, _BUFSIZE );
 #endif
 
+    LOG_TRACE( LOG_TRACE_ARG, "ConnectionThreadFunc: after readLine, err=%d", 
+                               err );
+
     DEBUG( "sock.c: after file_readline\n" );
     /* if (err != 0)
        printf("Sock after readline: err %d \n", err); */
     switch( err )
     {
       case 0:
+        LOG_TRACE( LOG_TRACE_ARG, "ConnectionThreadFunc: calling "
+                   "connection->handler with SOCK_MESSAGE" );
         connection->handler( connection, connection->data, SOCK_MESSAGE, 
                              buffer );
         break;
@@ -754,19 +763,21 @@ static void *ConnectionThreadFunc( SocketConnection connection )
         break;
         
       case EINTR:
-        fprintf( stderr, "WARNING: sock.c: ConnectionThreadFunc: read "
-                 "interrupted.\n" );
+        LOG_WARNING( LOG_WARNING_ARG, "ConnectionThreadFunc: read interrupted." );
         /* Just try again */
         break;
 
         /* This is what is returned when socket closed on windows */
       case -1:
+        LOG_TRACE( LOG_TRACE_ARG, "ConnectionThreadFunc: calling handler with "
+                                  "SOCK_DISCONNECT=%d.\n", SOCK_DISCONNECT );
         connection->handler( connection, connection->data, SOCK_DISCONNECT );
         done = TRUE;
         break;
         
       default:
-        fprintf( stderr, "Socket error: %s\n", strerror( errno ));
+        LOG_ERROR( LOG_ERROR_ARG, "ConnectionThreadFunc: Socket error: %s", 
+                   strerror( errno ) );
         connection->handler( connection, connection->data, SOCK_DISCONNECT );
         done = TRUE;
     }
@@ -902,15 +913,23 @@ int sock_readLine( int sock, char *buffer, int bufSize )
 char *sock_gets(char *buf, int size, int sock)
 {
   int count, rcount, err;
-  for (count = 0; count < size-1; count++) {
 
+  for (count = 0; count < size-1; count++) 
+  {
     rcount = recv(sock, &(buf[count]), 1, 0);
 
-    if (rcount <= 0) {
+    if (rcount <= 0) 
+    {
       err = WSAGetLastError();
+
+      LOG_DEBUG( LOG_DEBUG_ARG, "sock_gets: rcount = %d < 0, err = %d, "
+                                "WSAEINTR=%d", rcount, err, WSAEINTR );
       /*printf("RECV Error: %d \n", err);*/
       if (err == WSAEINTR)
-        fprintf( stderr, "WSA Interrupted system call\n");
+      {
+        LOG_DEBUG( LOG_DEBUG_ARG, "sock_gets: WSA Interrupted system call" );
+        continue; /* I think we should try again if this happens? */
+      }
       /* Something went wrong or the socket was closed. */
       /* fprintf(stderr, "sock_gets: recv failed!\n"); */
       return NULL;
