@@ -770,6 +770,10 @@ Error ErrSock()
                      "connection could be made because the target machine "
                      "actively refused it." );
 
+    case WSAECONNRESET:
+      return ErrNew( ERR_WINSOCK, theError, NULL, 
+                     "WSAECONNRESET: The connect was reset" );
+      
     default:
       return ErrNew( ERR_WINSOCK, theError, NULL, "WinSock error %d", 
                      theError );
