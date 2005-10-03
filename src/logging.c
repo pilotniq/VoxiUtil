@@ -67,6 +67,9 @@ static Error fileLogText( Logger logger, const char *moduleName,
                           LogLevel logLevel, const char *sourceFile, 
                           int sourceLine, const char *format,
                           va_list args );
+
+LOG_MODULE_DECL( "VoxiLogging", LOGLEVEL_NONE );
+
 /*
  * Global variables
  */
@@ -448,7 +451,20 @@ static Error fileLogText( Logger logger, const char *moduleName,
 
 LogLevel log_GlobalLogLevelSet(LogLevel level)
 {
-  return (_voxiUtilGlobalLogLevel = level);
+  LogLevel oldLevel;
+
+  oldLevel = _voxiUtilGlobalLogLevel;
+  if( level < oldLevel )
+    LOG_INFO( LOG_INFO_ARG, "Global logging level changed from %d to %d", 
+              _voxiUtilGlobalLogLevel, level );
+
+  _voxiUtilGlobalLogLevel = level;
+
+  if( level >= oldLevel )
+    LOG_INFO( LOG_INFO_ARG, "Global logging level changed from %d to %d", 
+              oldLevel, level );
+
+  return oldLevel;
 }
 
 LogLevel log_GlobalLogLevelGet()
