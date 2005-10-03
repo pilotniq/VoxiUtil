@@ -17,7 +17,13 @@
 #endif
 
 #define HAVE___INT64 1
+
+/*
+   HAVE_PTHREAD_H is if the system has pthreads.
+   _POSIX_THREADS is if we want to configure voxiUtil to use posix threads
+   */
 #define HAVE_PTHREAD_H 1
+#define _POSIX_THREADS 1
 #define HAVE_SEMAPHORE_H 1
 
 #endif
