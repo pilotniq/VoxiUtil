@@ -38,12 +38,12 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\Libs"
+# PROP Output_Dir "..\..\Libs\Release"
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /I "include" /I "..\..\pthreads" /I "..\..\external\pthreads_win32\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\pthreads.2" /I "include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x41d /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib pthreadVCE.lib /nologo /dll /machine:I386 /libpath:"..\..\Libs"
+# ADD LINK32 ws2_32.lib pthreadVC2.lib /nologo /dll /machine:I386 /libpath:"..\..\Libs\Release"
 
 !ELSEIF  "$(CFG)" == "VoxiUtil - Win32 Debug"
 
@@ -65,11 +65,11 @@ LINK32=link.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "..\..\Libs\Debug"
-# PROP Intermediate_Dir ""
+# PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "..\..\pthreads" /I "..\..\external\pthreads_win32\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\pthreads.2" /I "include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VOXIUTIL_EXPORTS" /D "LIB_UTIL_INTERNAL" /D "PTHREADS_WIN32" /FR /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x41d /d "_DEBUG"
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib pthreadVCE_debug.lib /nologo /dll /debug /machine:I386 /out:"..\..\Libs\debug\VoxiUtil_debug.dll" /pdbtype:sept /libpath:"..\..\Libs"
+# ADD LINK32 ws2_32.lib pthreadVC2d.lib /nologo /dll /debug /machine:I386 /out:"..\..\Libs\Debug\VoxiUtil_debug.dll" /pdbtype:sept /libpath:"..\..\Libs\Debug"
 
 !ENDIF 
 
@@ -210,25 +210,29 @@ SOURCE=src\wordMap.c
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Group "voxi"
+
+# PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\include\voxi\alwaysInclude.h
+SOURCE=.\util\include\voxi\alwaysInclude.h
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\include\voxi\util\bag.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\bag.h
+SOURCE=.\include\voxi\util\bitFippling.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\bitFippling.h
+SOURCE=.\include\voxi\util\bt.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\bt.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\IcepeakUtil\byteQueue.hpp
+SOURCE=.\include\voxi\util\byteQueue.hpp
 # End Source File
 # Begin Source File
 
@@ -236,11 +240,15 @@ SOURCE=.\include\voxi\util\checksums.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\circularBuffer.h
+SOURCE=.\include\voxi\util\circularBuffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\collection.h
+SOURCE=.\include\voxi\util\collection.h
+# End Source File
+# Begin Source File
+
+SOURCE=".\include\voxi\util\config-msvc.h"
 # End Source File
 # Begin Source File
 
@@ -248,7 +256,7 @@ SOURCE=.\include\voxi\util\config.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\cvsid.h
+SOURCE=.\include\voxi\cvsid.h
 # End Source File
 # Begin Source File
 
@@ -256,7 +264,7 @@ SOURCE=.\util\include\voxi\debug.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\driver.h
+SOURCE=.\include\voxi\util\driver.h
 # End Source File
 # Begin Source File
 
@@ -264,19 +272,23 @@ SOURCE=.\include\voxi\util\err.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\file.h
+SOURCE=.\include\voxi\util\err.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\geometry.h
+SOURCE=.\include\voxi\util\file.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\hash.h
+SOURCE=.\include\voxi\util\geometry.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\idTable.h
+SOURCE=.\include\voxi\util\hash.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\voxi\util\idTable.h
 # End Source File
 # Begin Source File
 
@@ -284,7 +296,7 @@ SOURCE=.\include\voxi\util\libcCompat.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\license.h
+SOURCE=.\include\voxi\util\license.h
 # End Source File
 # Begin Source File
 
@@ -292,15 +304,15 @@ SOURCE=.\include\voxi\util\logging.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\mem.h
+SOURCE=.\include\voxi\util\mem.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\memory.h
+SOURCE=.\include\voxi\util\memory.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\path.h
+SOURCE=.\include\voxi\util\path.h
 # End Source File
 # Begin Source File
 
@@ -308,19 +320,27 @@ SOURCE=.\include\voxi\util\queue.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\shlib.h
+SOURCE=.\include\voxi\util\shlib.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\sock.h
+SOURCE=.\include\voxi\util\sock.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\strbuf.h
+SOURCE=.\include\voxi\util\stateMachine.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\textRPC.h
+SOURCE=.\include\voxi\util\stdint.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\voxi\util\strbuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\voxi\util\textRPC.h
 # End Source File
 # Begin Source File
 
@@ -328,7 +348,7 @@ SOURCE=.\include\voxi\util\threading.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\util\threadpool.h
+SOURCE=.\include\voxi\util\threadpool.h
 # End Source File
 # Begin Source File
 
@@ -336,7 +356,7 @@ SOURCE=.\include\voxi\util\time.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\util\include\voxi\types.h
+SOURCE=.\include\voxi\types.h
 # End Source File
 # Begin Source File
 
