@@ -220,7 +220,11 @@ void bagDestroy( Bag bag, DestroyElementFunc destroyFunc )
   if( destroyFunc != NULL )
     for( i = 0; i < bag->noElements; i++ )
       destroyFunc( ( (void **) bag->array)[ i ] );
-  
+
+#ifdef _POSIX_THREADS
+  threading_mutex_destroy( &(bag->lock) );
+#endif
+    
   free( bag->array );
   
   free( bag );
