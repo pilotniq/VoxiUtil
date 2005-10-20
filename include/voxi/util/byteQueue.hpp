@@ -16,11 +16,11 @@
 class EXTERN_UTIL ByteQueue
 {
 private:
-	char *buffer;
-	int head;
-	int tail;
-	bool isFull;
-	size_t size;
+  char *buffer;
+  int head;
+  int tail;
+  bool isFull;
+  size_t size;
   bool endOfStream;
   bool endOfStreamReported;
 
@@ -28,9 +28,10 @@ private:
 	pthread_cond_t condition;
 
 public:
-	ByteQueue( size_t size );
+  ByteQueue( size_t size );
+  ByteQueue::~ByteQueue();
 
-	bool IsFull();
+  bool IsFull();
 	bool IsEmpty();
   bool IsEndOfStream();
 	//
