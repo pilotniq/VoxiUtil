@@ -54,6 +54,13 @@ ByteQueue::ByteQueue( size_t size ): isFull( false ), head( 0 ), tail( 0 ),
 #endif
 }
 
+ByteQueue::~ByteQueue()
+{
+  free( buffer );
+  pthread_mutex_destroy( &mutex );
+  pthread_cond_destroy( &condition );
+}
+
 bool ByteQueue::IsFull()
 {
 	return isFull && (head == tail); //((tail + 1) == head) || ((tail == (size - 1)) && head == 0);
