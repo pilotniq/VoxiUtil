@@ -14,6 +14,16 @@
 #include <sys/timeb.h>
 #include <pthread.h>
 
+#ifdef WIN32
+/* #include <crtdbg.h> */ /* include this for memory debugging */
+#endif
+
+/* LIB_UTIL_LOGGING_INTERNAL is required to prevent DLL symbol strudel on WIN32.
+   It modifies the LOGGING_EXTERN macro defined in libCCompat.h, and used in
+   logging.h
+   */
+#define LIB_UTIL_LOGGING_INTERNAL
+
 #include <voxi/util/err.h>
 #include <voxi/util/logging.h>
 #include <voxi/util/mem.h>
@@ -131,7 +141,7 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
     logger = DefaultLogger;
 
   va_start( args, format );
-
+  
   filename = strrchr( sourceFile, DIR_DELIM );
   filename = (filename == NULL) ? sourceFile : (filename + 1);
 
@@ -421,6 +431,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
     
     tempInt = vsnprintf(  &(buffer[ index ]), sizeof( buffer ) - index, 
                           format, args );
+
     buffer[BUFFER_LENGTH-1] = '\0';
   }
 
@@ -435,7 +446,6 @@ static Error fileLogText( Logger logger, const char *moduleName,
                    "fputs failed.");
     goto ERR_RETURN;
   }
-
   fputc( '\n', (FILE *) logger->data );
 
   fflush( logger->data );
