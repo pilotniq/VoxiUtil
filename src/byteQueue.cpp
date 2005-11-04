@@ -5,10 +5,10 @@
 #include <queue>
 #include <pthread.h>
 
-#include <voxi/util/byteQueue.hpp>
 #include <voxi/util/logging.h>
+#include <voxi/util/byteQueue.hpp>
 
-LOG_MODULE_DECL( "ByteQueue", LOGLEVEL_INFO);
+LOG_MODULE_DECL( "ByteQueue", LOGLEVEL_WARNING);
 
 #define DEBUG 0
 
@@ -47,6 +47,8 @@ ByteQueue::ByteQueue( size_t size ): isFull( false ), head( 0 ), tail( 0 ),
 	err = pthread_cond_init( &condition, NULL );
 	assert( err == 0 );
 
+  LOG_DEBUG( LOG_DEBUG_ARG, "Created byteQueue %p", this );
+
 	// create mutex & cond
 #if DEBUG
 	debugLogFile = fopen( "c:\\temp\\byteQueue.log", "w" );
@@ -82,6 +84,8 @@ bool ByteQueue::WriteData( const char *data, size_t length )
 	size_t bytesToCopy;
 	bool noDrop = true, wasEmpty;
 	int err;
+
+  LOG_DEBUG( LOG_DEBUG_ARG, "%p->WriteData( %p, %d )", this, data, length );
 
   assert( !IsEndOfStream() );
 
@@ -153,6 +157,8 @@ void ByteQueue::WriteEndOfStream()
 {
   int err;
 
+  LOG_DEBUG( LOG_DEBUG_ARG, "%p->WriteEndOfStream()", (void *) this );
+
   err = pthread_mutex_lock( &mutex );
   assert( err == 0 );
 
@@ -179,12 +185,20 @@ void ByteQueue::WriteStartOfStream()
 {
   int err;
 
+  LOG_DEBUG( LOG_DEBUG_ARG, "%p->WriteStartOfStream()", (void *) this );
+
   err = pthread_mutex_lock( &mutex );
   assert( err == 0 );
 
   assert( endOfStream );
-  assert( endOfStreamReported ); // actually, we should wait until it is reported
 
+  // If the end of stream has not been reported, block until it has
+  while( !endOfStreamReported )
+  {
+    err = pthread_cond_wait( &condition, &mutex );
+    assert( err == 0 );
+  }
+  
   endOfStream = false;
 
   err = pthread_mutex_unlock( &mutex );
@@ -198,6 +212,9 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
 	int err;
   size_t result;
   size_t length;
+
+  LOG_DEBUG( LOG_DEBUG_ARG, "%p->ReadData( %p, %d )", (void *) this, data, 
+             readRequest );
 
   length = readRequest;
 
@@ -218,11 +235,19 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
 	{
 		if( IsEmpty() )
     {
+      LOG_TRACE( LOG_TRACE_ARG, "%p->ReadData: IsEmpty, eos=%d, "
+                                "eosReported=%d", this, IsEndOfStream(), 
+                                endOfStreamReported );
+
       if( IsEndOfStream() && !endOfStreamReported )
         break;
       else
       {
+        LOG_TRACE( LOG_TRACE_ARG, "%p->ReadData: waiting for data", this );
+
 			  pthread_cond_wait( &condition, &mutex );
+
+        LOG_TRACE( LOG_TRACE_ARG, "%p->ReadData: got condition change", this );
 
         // the condition may have been signalled from the end of stream 
         // function, in which case we should do the IsEmpty check again
@@ -268,6 +293,9 @@ size_t ByteQueue::ReadData( char *data, size_t readRequest )
   {
     assert( IsEndOfStream() );
     endOfStreamReported = true;
+
+    // broadcast because eos is now reported
+    pthread_cond_broadcast( &condition );
   }
 
 	pthread_mutex_unlock( &mutex );
