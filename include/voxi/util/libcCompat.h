@@ -22,8 +22,14 @@ extern "C" {
 #ifdef WIN32
 #  ifdef LIB_UTIL_INTERNAL
 #    define EXTERN_UTIL __declspec(dllexport)
+#    ifdef LIB_UTIL_LOGGING_INTERNAL
+#      define LOGGING_EXTERN __declspec(dllexport)
+#    else
+#      define LOGGING_EXTERN extern
+#    endif
 #  else
 #    define EXTERN_UTIL __declspec(dllimport)
+#    define LOGGING_EXTERN __declspec(dllimport)
 #  endif /* LIB_UTIL_INTERNAL */
 #else
 #  define EXTERN_UTIL extern
