@@ -45,16 +45,20 @@ typedef struct sLogger *Logger;
    NULL or the empty string, errors will be written to stderr instead of to a 
    file.
 
-   */
-EXTERN_UTIL LoggingDriver LoggingDriverFile;
+  The LOGGING_EXTERN macro is defined in libcCompat.h, and modified by 
+  LIB_UTIL_LOGGING_INTERNAL which is defined before the Voxi includes in logging.c
 
-EXTERN_UTIL const char* LogLevelName[NUMBER_OF_LOGLEVELS];
+  LOGGIGN_EXTERN must be used before global variables defined in this file.
+   */
+LOGGING_EXTERN LoggingDriver LoggingDriverFile;
+
+LOGGING_EXTERN const char* LogLevelName[NUMBER_OF_LOGLEVELS];
   
 /* This is the global log level, defined in logging.c
    The macros need to access it.
    It should be renamed to GlobalLogLevel to make everything clear.
 */  
-EXTERN_UTIL LogLevel _voxiUtilGlobalLogLevel;
+LOGGING_EXTERN LogLevel _voxiUtilGlobalLogLevel;
   
 /*
  * Public function prototypes
@@ -145,30 +149,40 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
         (_voxiUtilModuleLogLevel >= LOGLEVEL_CRITICAL))
 #define LOG_CRITICAL_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
+#define LOGGER_CRITICAL_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
 
 #define LOG_ERROR \
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_ERROR) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_ERROR) )
 #define LOG_ERROR_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
+#define LOGGER_ERROR_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
 
 #define LOG_WARNING \
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_WARNING ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_WARNING) )
 #define LOG_WARNING_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
+#define LOGGER_WARNING_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
 
 #define LOG_INFO \
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_INFO ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_INFO))
 #define LOG_INFO_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
+#define LOGGER_INFO_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
 
 #define LOG_DEBUG \
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_DEBUG ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_DEBUG))
 #define LOG_DEBUG_ARG \
    NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
+#define LOGGER_DEBUG_ARG \
+   _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 
 #define LOG_TRACE \
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_TRACE) || \
