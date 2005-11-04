@@ -154,7 +154,7 @@ Error log_logText( Logger logger, const char *moduleName, LogLevel logLevel,
 }
 
 Error log_logError( Logger logger, const char *moduleName, LogLevel logLevel, 
-                    const char *sourceFile, int sourceLine, Error error )
+                    const char *sourceFile, int sourceLine, ConstError error )
 {
   char *errorMessage;
   Error internalError;
@@ -181,7 +181,7 @@ Error log_noLogText( Logger logger, const char *moduleName,
 Error log_noLogError( Logger logger, const char *moduleName, 
                       LogLevel logLevel, 
                       const char *sourceFile, int sourceLine,
-                      Error error )
+                      ConstError error )
 {
   return NULL;
 }
@@ -453,7 +453,7 @@ static Error fileLogText( Logger logger, const char *moduleName,
 /*   if (logger->data != stderr) */
 /*     fprintf( stderr, "%s\n", stdOutBuffer ); */
 
- ERR_RETURN:
+ERR_RETURN:
   pthread_mutex_unlock(&logger->mutex);
 
   return error;
