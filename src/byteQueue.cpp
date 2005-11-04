@@ -6,10 +6,9 @@
 #include <pthread.h>
 
 #include <voxi/util/byteQueue.hpp>
-//#include <voxi/util/logging.h>
+#include <voxi/util/logging.h>
 
-// LOG_MODULE_DECL( "ByteQueue", LOGLEVEL_INFO);
-//static char *_voxiUtilLogModuleName = "ByteQueue";
+LOG_MODULE_DECL( "ByteQueue", LOGLEVEL_INFO);
 
 #define DEBUG 0
 
