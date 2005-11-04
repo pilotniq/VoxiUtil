@@ -79,7 +79,7 @@ EXTERN_UTIL Error log_logText( Logger logger, const char *moduleName,
 EXTERN_UTIL Error log_logError( Logger logger, const char *moduleName, 
                                LogLevel logLevel, 
                                const char *sourceFile, int sourceLine,
-                               Error error );
+                               ConstError error );
 
 /* 
   This function does nothing, then returns NULL. Hack to work around
@@ -92,7 +92,7 @@ EXTERN_UTIL Error log_noLogText( Logger logger, const char *moduleName,
 EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName, 
                                   LogLevel logLevel, 
                                   const char *sourceFile, int sourceLine,
-                                  Error error );
+                                  ConstError error );
 
 /*
  * Convenience macros.
