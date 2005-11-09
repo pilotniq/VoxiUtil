@@ -27,6 +27,9 @@
 #include <string.h>
 #include <assert.h>
 /* I think unistd.h is required to get _POSIX_THREADS definition */
+#ifdef WIN32
+/* #include <crtdbg.h> */ /* Include this to debug memory problems */
+#endif
 #if 0
 #ifdef WIN32
 #include <windows.h>
