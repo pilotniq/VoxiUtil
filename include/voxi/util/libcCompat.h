@@ -33,6 +33,7 @@ extern "C" {
 #  endif /* LIB_UTIL_INTERNAL */
 #else
 #  define EXTERN_UTIL extern
+#  define LOGGING_EXTERN extern
 #endif /* WIN32 */
 
 /*
