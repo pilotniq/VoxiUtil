@@ -17,6 +17,8 @@ nobase_include_HEADERS = voxi/alwaysInclude.h voxi/debug.h voxi/cvsid.h \
                          voxi/util/shlib.h \
                          voxi/util/sock.h \
                          voxi/util/strbuf.h \
+                         voxi/util/tanClient.h \
+                         voxi/util/tcpip.h \
                          voxi/util/textRPC.h \
                          voxi/util/threading.h \
                          voxi/util/threadpool.h \
