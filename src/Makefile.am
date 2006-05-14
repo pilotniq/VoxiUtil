@@ -7,26 +7,26 @@ if HAVE_LIBCRYPTO
 LIB_OBJS = bag bitFippling bt circularBuffer err \
            file geometry hash idTable \
            libcCompat logging mem memory path shlib sock \
-           strbuf textRPC threading threadpool time \
+           strbuf tanClient tcpip textRPC threading threadpool time \
            vector wordMap libcCompat license
 # Hack for automake bug, can't handle src as makefile macro?
 LIB_SRC = bag.c bitFippling.c bt.c circularBuffer.c err.c \
            file.c geometry.c hash.c idTable.c \
            libcCompat.c logging.c mem.c memory.c path.c shlib.c sock.c \
-           strbuf.c textRPC.c threading.c threadpool.c time.c \
-           vector.c wordMap.c license.c
+           strbuf.c tanClient.c tcpip.c textRPC.c threading.c threadpool.c \
+           time.c vector.c wordMap.c license.c
 else
 LIB_OBJS = bag bitFippling bt circularBuffer err \
            file geometry hash idTable \
            libcCompat logging mem memory path shlib sock \
-           strbuf textRPC threading threadpool time \
+           strbuf tanClient tcpip textRPC threading threadpool time \
            vector wordMap libcCompat
 # Hack for automake bug, can't handle src as makefile macro?
 LIB_SRC = bag.c bitFippling.c bt.c circularBuffer.c err.c \
            file.c geometry.c hash.c idTable.c \
            libcCompat.c logging.c mem.c memory.c path.c shlib.c sock.c \
-           strbuf.c textRPC.c threading.c threadpool.c time.c \
-           vector.c wordMap.c
+           strbuf.c tanClient.c tcpip.c textRPC.c threading.c threadpool.c \
+           time.c vector.c wordMap.c
 endif
 
 #LIB_SRC = $(addsuffix .c, $(LIB_OBJS))
