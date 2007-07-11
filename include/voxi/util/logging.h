@@ -120,6 +120,21 @@ EXTERN_UTIL Error log_noLogError( Logger logger, const char *moduleName,
  *   ...
  *   ErrDispose(error, ...);
  *
+ *
+ * The LOG_MODULE_LOGGER_SET macro may be called to use a different logger
+ * than the default logger within a module. Example:
+ *
+ *   Logger myLogger;
+ *   err = log_create(..., &myLogger);
+ *   if (err == NULL) {
+ *     LOG_MODULE_LOGGER_SET(myLogger);
+ *   }
+ *   else { ... }
+ *
+ * To use the default logger again, use:
+ *
+ *   LOG_MODULE_LOGGER_SET(NULL);
+ *
  */
   
 EXTERN_UTIL LogLevel log_GlobalLogLevelSet(LogLevel level);
@@ -130,6 +145,9 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
   
 #define LOG_MODULE_LEVEL_SET( level ) \
   _voxiUtilModuleLogLevel = (level);
+
+#define LOG_MODULE_LOGGER_SET(logger) \
+  _voxiUtilModuleLogger = logger;
   
 #define LOG_GLOBAL_LEVEL_GET() log_GlobalLogLevelGet()
 #define LOG_MODULE_LEVEL_GET() (_voxiUtilModuleLogLevel)
@@ -138,6 +156,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
   static char *_voxiUtilLogModuleName = (moduleName)
 
 #define LOG_MODULE_DECL(moduleName, defaultLevel) \
+  static Logger _voxiUtilModuleLogger = NULL; \
   static LogLevel _voxiUtilModuleLogLevel = (defaultLevel); \
   static char *_voxiUtilLogModuleName = (moduleName)
 
@@ -148,7 +167,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_CRITICAL) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_CRITICAL))
 #define LOG_CRITICAL_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
 #define LOGGER_CRITICAL_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_CRITICAL, __FILE__, __LINE__
 
@@ -156,7 +175,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_ERROR) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_ERROR) )
 #define LOG_ERROR_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
 #define LOGGER_ERROR_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_ERROR, __FILE__, __LINE__
 
@@ -164,7 +183,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_WARNING ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_WARNING) )
 #define LOG_WARNING_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
 #define LOGGER_WARNING_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_WARNING, __FILE__, __LINE__
 
@@ -172,7 +191,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_INFO ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_INFO))
 #define LOG_INFO_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
 #define LOGGER_INFO_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_INFO, __FILE__, __LINE__
 
@@ -180,7 +199,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_DEBUG ) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_DEBUG))
 #define LOG_DEBUG_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 #define LOGGER_DEBUG_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_DEBUG, __FILE__, __LINE__
 
@@ -188,7 +207,7 @@ EXTERN_UTIL LogLevel log_GlobalLogLevelGet();
    LOG( (_voxiUtilGlobalLogLevel >= LOGLEVEL_TRACE) || \
         (_voxiUtilModuleLogLevel >= LOGLEVEL_TRACE))
 #define LOG_TRACE_ARG \
-   NULL, _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
+   _voxiUtilModuleLogger, _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
 #define LOGGER_TRACE_ARG \
    _voxiUtilLogModuleName, LOGLEVEL_TRACE, __FILE__, __LINE__
 
