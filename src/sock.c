@@ -640,7 +640,7 @@ void sock_destroy_server(Server s)
 #endif
 char *sock_serv_conn_adrs_c(ServerConn sc)
 {
-  return(inet_ntoa(sc->addr.sin_addr));
+  return( inet_ntoa(sc->addr.sin_addr) );
 }
 
 Error sock_send(Socket c, const char *msg)
@@ -871,6 +871,18 @@ static const char *voxi_sock_error( int err )
 #endif
 }
 
+Boolean sock_ip_is_private( struct in_addr address )
+{
+  uint32_t hip;
+  uint16_t topTwo;
+  
+  hip = ntohl( (uint32_t) address.s_addr );
+  topTwo = hip >> 16;
+    
+  return( (topTwo & 0xff00 == 0x0a00) || 
+          (topTwo >= 0xac10 && topTwo < 0xac20) ||
+          (topTwo == 0xc0a8) );
+}
 
 #ifdef WIN32 
 /* reads a line from a socket, skipping lines beginning with '#' (comments) */

@@ -17,6 +17,9 @@
 extern "C" {
 #endif
   
+  /* For struct in_addr */
+#include <netinet/in.h>
+  
 #include <voxi/util/err.h>
 #include <voxi/types.h>
 
@@ -42,7 +45,9 @@ typedef void (*sock_handler)(SocketConnection connection, void *id,
 
 EXTERN_UTIL Error sock_init();
 EXTERN_UTIL Error sock_end();
-
+  
+EXTERN_UTIL Boolean sock_ip_is_private( struct in_addr address );
+    
 EXTERN_UTIL Error sock_connect( const char *computer, unsigned short port, 
                                 sock_handler handler, void *id, 
                                 SocketConnection *connection );
@@ -78,7 +83,8 @@ EXTERN_UTIL int sock_readLine( int sock, char *buffer, int bufSize );
 
 /* Functionality similar to fgets(3) but reads from a socket instead. */
 EXTERN_UTIL char *sock_gets(char *buf, int size, int sock);
-
+  
+  
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
