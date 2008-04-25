@@ -12,6 +12,8 @@ AC_CANONICAL_HOST
 case $host in
   i*86-*-linux*)
     ;;
+  x86_64-*-linux*)
+    ;;
   i*86-*-cygwin*)
     ;;
   *)
