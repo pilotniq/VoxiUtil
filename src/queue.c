@@ -42,7 +42,7 @@ Error queue_create( Queue *result )
   Error error = NULL;
   int err;
 
-  error = emalloc( result, sizeof( sQueue ) );
+  error = emalloc( (void **) result, sizeof( sQueue ) );
   if( error != NULL )
     return error;
 
@@ -51,7 +51,12 @@ Error queue_create( Queue *result )
     return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL, "sem_init failed");
   }
 
-  (*result)->mutex = PTHREAD_MUTEX_INITIALIZER;
+  /* (*result)->mutex = PTHREAD_MUTEX_INITIALIZER; */
+  err = pthread_mutex_init( &( (*result)->mutex), NULL );
+  if (err != 0) {
+    return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL, "pthread_mutex_init failed");
+  }
+  
   (*result)->oldest = NULL;
   (*result)->newest = NULL;
 
@@ -182,8 +187,9 @@ Error queue_pop( Queue queue, void **result )
   int err;
   QueueEntry element;
 
-  err = sem_wait( &(queue->semaphore) );
-
+  err = threading_sem_wait( &(queue->semaphore) );
+  assert( err == 0 );
+  
   element = doPop( queue );
   if (element == NULL) {
     return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
