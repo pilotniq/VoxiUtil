@@ -1,6 +1,6 @@
 
 # Process this file with autoconf to produce a configure script.
-AC_INIT(voxiUtil, 1.4alpha2, bugs@voxi.com, util)
+AC_INIT([voxiUtil],[1.4alpha2],[bugs@voxi.com],[util])
 
 # insert this when things are stable.
 AC_CONFIG_AUX_DIR(config)
@@ -24,6 +24,7 @@ esac
 #
 AC_PROG_CC(cl gcc cc)
 AC_PROG_CPP
+
 case $host in
   i*86-*-linux*)
     ;;
@@ -75,6 +76,7 @@ case $host in
     AC_DISABLE_STATIC
     AC_LIBTOOL_WIN32_DLL
     AC_LIBTOOL_DLOPEN
+    AC_PROG_LIBTOOL
     AM_PROG_LIBTOOL
 
     ;;
@@ -117,10 +119,8 @@ AH_TEMPLATE( [HAVE_CPP_VARARGS],
 
 AC_MSG_CHECKING([if the preprocessor handles variable argument lists])
 
-AC_TRY_CPP([#define VMACRO(x...) printf( ## x)
-            VMACRO( "1", "2" );], 
-           [AC_DEFINE( [HAVE_CPP_VARARGS], 1 ) AC_MSG_RESULT([yes])],
-           [AC_DEFINE( [HAVE_CPP_VARARGS], 0 ) AC_MSG_RESULT([no])])
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#define VMACRO(x...) printf( ## x)
+            VMACRO( "1", "2" );]])],[AC_DEFINE( [HAVE_CPP_VARARGS], 1 ) AC_MSG_RESULT([yes])],[AC_DEFINE( [HAVE_CPP_VARARGS], 0 ) AC_MSG_RESULT([no])])
 
 
 #
@@ -131,10 +131,7 @@ AH_TEMPLATE( [HAVE_LONG_LONG],
 
 AC_MSG_CHECKING([if the C compiler supports long long])
 
-AC_TRY_LINK([],
-            [long long int foo;], 
-            [AC_DEFINE( [HAVE_LONG_LONG], 1 ) AC_MSG_RESULT([yes])],
-            [AC_DEFINE( [HAVE_LONG_LONG], 0 ) AC_MSG_RESULT([no])])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[long long int foo;]])],[AC_DEFINE( [HAVE_LONG_LONG], 1 ) AC_MSG_RESULT([yes])],[AC_DEFINE( [HAVE_LONG_LONG], 0 ) AC_MSG_RESULT([no])])
 
 
 #
@@ -145,10 +142,7 @@ AH_TEMPLATE( [HAVE___INT64],
 
 AC_MSG_CHECKING([if the C compiler supports __int64])
 
-AC_TRY_LINK([],
-            [__int64 foo;], 
-            [AC_DEFINE( [HAVE___INT64], 1 ) AC_MSG_RESULT([yes])],
-            [AC_DEFINE( [HAVE___INT64], 0 ) AC_MSG_RESULT([no])])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[__int64 foo;]])],[AC_DEFINE( [HAVE___INT64], 1 ) AC_MSG_RESULT([yes])],[AC_DEFINE( [HAVE___INT64], 0 ) AC_MSG_RESULT([no])])
 
 #
 # Check for openSSL / libcrypto
