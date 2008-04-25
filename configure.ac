@@ -72,7 +72,7 @@ AC_MSG_RESULT($AUTOMAKE_VERSION)
 # AC_LIBTOOL_DLOPEN must be before AM_PROG_LIBTOOL
 case $host in
 
-  i*86-*-linux*)
+  *-*-linux*)
     AM_CONDITIONAL([USE_LIBTOOL], 1)
     AC_ENABLE_SHARED
     AC_DISABLE_STATIC
