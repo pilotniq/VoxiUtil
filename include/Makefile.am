@@ -5,6 +5,7 @@ nobase_include_HEADERS = voxi/alwaysInclude.h voxi/debug.h voxi/cvsid.h \
 	                 voxi/util/byteQueue.h \
                          voxi/util/circularBuffer.h \
                          voxi/util/collection.h \
+                         voxi/util/config.h \
                          voxi/util/driver.h \
                          voxi/util/err.h \
                          voxi/util/event.h \
