@@ -4,27 +4,29 @@
 
 
 if HAVE_LIBCRYPTO
-LIB_OBJS = bag bitFippling bt circularBuffer err \
+LIB_OBJS = bag bitFippling bt byteQueueC circularBuffer driver err event \
            file geometry hash idTable \
-           libcCompat logging mem memory path shlib sock \
+           libcCompat logging mem memory path queue shlib sock \
            strbuf tanClient tcpip textRPC threading threadpool time \
            vector wordMap libcCompat license
 # Hack for automake bug, can't handle src as makefile macro?
-LIB_SRC = bag.c bitFippling.c bt.c circularBuffer.c err.c \
-           file.c geometry.c hash.c idTable.c \
-           libcCompat.c logging.c mem.c memory.c path.c shlib.c sock.c \
+LIB_SRC = bag.c bitFippling.c bt.c byteQueueC.c circularBuffer.c driver.c \
+           err.c event.c file.c geometry.c hash.c idTable.c \
+           libcCompat.c logging.c mem.c memory.c path.c queue.c shlib.c \
+           sock.c \
            strbuf.c tanClient.c tcpip.c textRPC.c threading.c threadpool.c \
            time.c vector.c wordMap.c license.c
 else
-LIB_OBJS = bag bitFippling bt circularBuffer err \
+LIB_OBJS = bag bitFippling bt byteQueueC circularBuffer driver err event \
            file geometry hash idTable \
-           libcCompat logging mem memory path shlib sock \
+           libcCompat logging mem memory path queue shlib sock \
            strbuf tanClient tcpip textRPC threading threadpool time \
            vector wordMap libcCompat
 # Hack for automake bug, can't handle src as makefile macro?
-LIB_SRC = bag.c bitFippling.c bt.c circularBuffer.c err.c \
-           file.c geometry.c hash.c idTable.c \
-           libcCompat.c logging.c mem.c memory.c path.c shlib.c sock.c \
+LIB_SRC = bag.c bitFippling.c bt.c byteQueueC.c circularBuffer.c driver.c \
+           err.c event.c file.c geometry.c hash.c idTable.c \
+           libcCompat.c logging.c mem.c memory.c path.c queue.c shlib.c \
+	   sock.c \
            strbuf.c tanClient.c tcpip.c textRPC.c threading.c threadpool.c \
            time.c vector.c wordMap.c
 endif
