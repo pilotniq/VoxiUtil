@@ -125,7 +125,13 @@ EXTERN_UTIL int threading_pthread_create( pthread_t * thread,
                                           pthread_attr_t * attr,
                                           ThreadFunc start_routine, 
                                           void * arg);
-
+  /* 
+     sem_wait can return non-zero, and set errno to EINTR if the process
+     receives a signal. This function repeats the sem_wait until it returns
+     successfully
+  */
+EXTERN_UTIL int threading_sem_wait( sem_t *semaphore );
+  
 #ifdef __cplusplus
 }
 #endif

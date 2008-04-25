@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1999-2002 Voxi AB. All rights reserved.
+  Copyright (C) 1999-2007 Voxi AB. All rights reserved.
 
   This software is the proprietary information of Voxi AB, Stockholm, Sweden.
   Use of this software is subject to license terms.
@@ -287,8 +287,8 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
              "waiting.\n",
              mutex, (where == NULL) ? "NULL" : where, getpid() );
   
-  err = sem_wait( &(mutex->semaphore) );
-  /* assert( err == 0 ); */
+  err = threading_sem_wait( &(mutex->semaphore) );
+  assert( err == 0 );
 
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
   /* assert( err == 0 ); */
@@ -342,8 +342,8 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
 
       DEBUG( "threading_mutex_lock: wait sem_wait" );
 
-      err = sem_wait( &(mutex->semaphore) );
-      /* assert( err == 0 ); */
+      err = threading_sem_wait( &(mutex->semaphore) );
+      assert( err == 0 );
 
       err = sem_getvalue( &(mutex->semaphore), &tempInt );
       /* assert( err == 0 ); */
@@ -407,8 +407,8 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
              &(mutex->semaphore), tempInt );
   
   /* wait for the semaphore to have a non-zero value, then decrease it */
-  err = sem_wait( &(mutex->semaphore) );
-  /* assert( err == 0 ); */
+  err = threading_sem_wait( &(mutex->semaphore) );
+  assert( err == 0 );
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
   /* assert( err == 0 ); */
@@ -465,7 +465,7 @@ Error threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
   int err;
   const char *oldLastLockFrom;
   
-  err = sem_wait( &(mutex->semaphore) );
+  err = threading_sem_wait( &(mutex->semaphore) );
   if (err != 0) {
     error = ErrNew(ERR_THREADING, 0, NULL,
                    "sem_wait failed." );
@@ -533,7 +533,7 @@ Error threading_cond_wait( pthread_cond_t *condition, VoxiMutex mutex )
     fprintf( stderr, "threading_cond_wait( %p, %p ), pid %d: reaquiring\n",
              condition, mutex, getpid() );
 #endif
-  err = sem_wait( &(mutex->semaphore) );
+  err = threading_sem_wait( &(mutex->semaphore) );
   if (err != 0) {
     error = ErrNew(ERR_THREADING, 0, NULL,
                    "sem_wait failed." );
@@ -620,7 +620,7 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
 
   Boolean timedout;
   
-  err = sem_wait( &(mutex->semaphore) );
+  err = threading_sem_wait( &(mutex->semaphore) );
   assert( err == 0 );
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
@@ -670,8 +670,8 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
     fprintf( stderr, "threading_cond_wait( %p, %p ), pid %d: reaquiring\n",
              condition, mutex, getpid() );
 #endif
-  err = sem_wait( &(mutex->semaphore) );
-  /* assert( err == 0 ); */
+  err = threading_sem_wait( &(mutex->semaphore) );
+  assert( err == 0 );
 
     
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
@@ -805,4 +805,20 @@ int threading_pthread_create(pthread_t * thread, pthread_attr_t * attr,
 #endif
 
   return i_return;
+}
+
+/* sem_wait can return non-zero, and set errno to EINTR if the process
+   receives a signal. This function repeats the sem_wait until it returns
+   successfully
+*/
+int threading_sem_wait( sem_t *semaphore )
+{
+  int err;
+  
+  do
+  {
+    err = sem_wait( semaphore );
+  } while( (err != 0) && (errno == EINTR) );
+  
+  return err;
 }
