@@ -15,7 +15,7 @@
  *  Type definitions
  */
 
-typedef Error (*DriverGetAPIVersionFuncPtr)( int *version );
+/* typedef Error (*DriverGetAPIVersionFuncPtr)( int *version ); */
 
 /*
   driverOpen assumes that the driver has a function called 'getAPIVersion' 
@@ -68,11 +68,11 @@ OPEN_DRIVER_FAIL_1:
   return error;
 }
 
-Error driverClose( void *driverStruct )
+Error driverClose( SharedLibrary driverStruct )
 {
   Error error;
 
-  error = shlib_close( (SharedLibrary) driverStruct );
+  error = shlib_close( driverStruct );
   if( error != NULL )
     error = ErrNew( ERR_DRIVER, ERR_DRIVER_UNSPECIFIED, error, 
       "Failed to close the driver's shared library" );
