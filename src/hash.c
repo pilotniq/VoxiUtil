@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1999-2002 Voxi AB. All rights reserved.
+  Copyright (C) 1999-2007 Voxi AB. All rights reserved.
 
   This software is the proprietary information of Voxi AB, Stockholm, Sweden.
   Use of this software is subject to license terms.
@@ -55,6 +55,7 @@
 
 #include <voxi/alwaysInclude.h>
 #include <voxi/util/err.h>
+#include <voxi/util/threading.h>
 
 #include <voxi/util/hash.h>
 
@@ -543,12 +544,16 @@ int HashLowercaseString( const char *string )
 
 static void removeCursorFromList( HashTableCursor cursor )
 {
+  int err;
+  
   if( cursor->hashTable->debugLevel > 1 )
     fprintf( stderr, "hash.c: removeCursorFromList( %p ): entry\n", cursor );
 
   assert( cursor->element != NULL );
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
-  sem_wait( &(cursor->element->cursorListSemaphore) );
+  err = threading_sem_wait( &(cursor->element->cursorListSemaphore) );
+  assert( err == 0 );
+  
 #endif
   if( cursor->hashTable->debugLevel > 2 )
     fprintf( stderr, "hash.c: removeCursorFromList( %p ): prevCursor=%p, "
@@ -578,12 +583,15 @@ static void removeCursorFromList( HashTableCursor cursor )
 
 static void addCursorToList( HashTableCursor cursor )
 {
+  int err;
+  
   assert( cursor->element != NULL );
 
   if( cursor->hashTable->debugLevel > 1 )
     fprintf( stderr, "hash.c: addCursorToList( %p ): entry\n", cursor );
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
-  sem_wait( &(cursor->element->cursorListSemaphore) );
+  err = threading_sem_wait( &(cursor->element->cursorListSemaphore) );
+  assert( err == 0 );
 #endif
   /* add the cursor to the list of cursors that point at this element */
   cursor->nextCursor = cursor->element->firstCursor;
