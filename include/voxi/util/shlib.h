@@ -9,6 +9,8 @@
 /*
   Shared Library functions
 */
+#ifndef VOXI_UTIL_SHLIB_H
+#define VOXI_UTIL_SHLIB_H
 
 #include <voxi/util/err.h>
 #include <voxi/util/config.h>
@@ -34,3 +36,4 @@ EXTERN_UTIL Error shlib_findFunc( SharedLibrary shlib, const char *name,
 }  /* only need to export C interface if used by C++ source code */
 #endif
 
+#endif
