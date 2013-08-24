@@ -9,6 +9,7 @@
 #include <time.h>
 
 #include <voxi/util/mem.h>
+#include <voxi/util/threading.h>
 #include <voxi/util/queue.h>
 
 typedef struct sQueueEntry *QueueEntry;

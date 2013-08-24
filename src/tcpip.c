@@ -288,7 +288,7 @@ static const char *voxi_sock_error( int err )
         
     default:
       /* This is a memory leak, but we ignore it because it is so rare. */
-      sprintf( buf, "Unknown h_error code: %d", err );
+      snprintf( buf, sizeof(buf), "Unknown h_error code: %d", err );
       return strdup( buf );
   }
 #endif

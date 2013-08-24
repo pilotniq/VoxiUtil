@@ -288,7 +288,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
              mutex, (where == NULL) ? "NULL" : where, getpid() );
   
   err = threading_sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
   /* assert( err == 0 ); */
@@ -343,7 +343,7 @@ const char *threading_mutex_lock_debug( VoxiMutex mutex, const char *where )
       DEBUG( "threading_mutex_lock: wait sem_wait" );
 
       err = threading_sem_wait( &(mutex->semaphore) );
-      assert( err == 0 );
+      /* assert( err == 0 ); */
 
       err = sem_getvalue( &(mutex->semaphore), &tempInt );
       /* assert( err == 0 ); */
@@ -408,7 +408,7 @@ void threading_mutex_unlock_debug( VoxiMutex mutex, const char *oldWhere )
   
   /* wait for the semaphore to have a non-zero value, then decrease it */
   err = threading_sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
   
   err = sem_getvalue( &(mutex->semaphore), &tempInt );
   /* assert( err == 0 ); */
@@ -671,7 +671,7 @@ Boolean threading_cond_absolute_timedwait( pthread_cond_t *condition,
              condition, mutex, getpid() );
 #endif
   err = threading_sem_wait( &(mutex->semaphore) );
-  assert( err == 0 );
+  /* assert( err == 0 ); */
 
     
   err = sem_getvalue( &(mutex->semaphore), &tempInt );

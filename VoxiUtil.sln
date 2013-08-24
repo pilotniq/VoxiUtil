@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoxiUtil", "VoxiUtil.vcproj", "{21C3D8F5-1507-46D5-AA76-9246BC32F43F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoxiUtilStatic", "VoxiUtilStatic.vcproj", "{A3EA1322-AEBF-4031-AB56-991B002ED7A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21C3D8F5-1507-46D5-AA76-9246BC32F43F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21C3D8F5-1507-46D5-AA76-9246BC32F43F}.Debug|Win32.Build.0 = Debug|Win32
+		{21C3D8F5-1507-46D5-AA76-9246BC32F43F}.Release|Win32.ActiveCfg = Release|Win32
+		{21C3D8F5-1507-46D5-AA76-9246BC32F43F}.Release|Win32.Build.0 = Release|Win32
+		{A3EA1322-AEBF-4031-AB56-991B002ED7A1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A3EA1322-AEBF-4031-AB56-991B002ED7A1}.Debug|Win32.Build.0 = Debug|Win32
+		{A3EA1322-AEBF-4031-AB56-991B002ED7A1}.Release|Win32.ActiveCfg = Release|Win32
+		{A3EA1322-AEBF-4031-AB56-991B002ED7A1}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

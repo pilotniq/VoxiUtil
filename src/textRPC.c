@@ -496,7 +496,7 @@ static void connection_sock_handler( SocketConnection connection,
             client->protocolState = PROTOCOL_STATE_NEGOTIATING_PROTOCOL_2;
 #endif
             
-            sprintf( buf, "protocolVersion %d\n", client->protocolVersion );
+            snprintf( buf, sizeof(buf), "protocolVersion %d\n", client->protocolVersion );
             
             error = sock_send( (Socket) connection, buf );
             assert( error == NULL );
@@ -641,7 +641,7 @@ static void connection_sock_handler( SocketConnection connection,
           }
           else if (strcasecmp( charPtr, "ping" ) == 0) {
             char pingBuf[256];
-            sprintf( pingBuf, "ping-reply \n");
+            snprintf( pingBuf, sizeof(pingBuf), "ping-reply \n");
             error = sock_send(client->tcpConnection,
                               pingBuf);
           }
@@ -1019,7 +1019,7 @@ Error textRPC_call( TextRPCConnection connection, const char *text,
   err = pthread_mutex_unlock(&((connection)->lock));
   assert(err == 0);
   
-  sprintf(buffer,"C %i ",callId);
+  snprintf(buffer,sizeof(buffer),"C %i ",callId);
 
   callText = strcat(buffer,text);
 

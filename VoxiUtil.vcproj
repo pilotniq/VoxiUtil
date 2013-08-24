@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\..\pthreads,..\..\external\pthreads_win32\include"
+				AdditionalIncludeDirectories="include/voxi/util;include;..\..\pthreads;&quot;..\external\pthreads_win32\pthreads-2.7.0&quot;;..\..\external\pthreads_win32\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VOXIUTIL_EXPORTS;LIB_UTIL_INTERNAL;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\..\pthreads,..\..\external\pthreads_win32\include"
+				AdditionalIncludeDirectories="include/voxi/util;include;..\..\pthreads;&quot;..\external\pthreads_win32\pthreads-2.7.0&quot;;..\..\external\pthreads_win32\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;VOXIUTIL_EXPORTS;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -837,15 +837,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="include\voxi\util\bag.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\bag.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\bitFippling.h"
+				RelativePath="include\voxi\util\bag.h"
 				>
 			</File>
 			<File
@@ -853,11 +849,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\bt.h"
+				RelativePath="include\voxi\util\bitFippling.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\bt.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\bt.h"
 				>
 			</File>
 			<File
@@ -873,11 +873,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\collection.h"
+				RelativePath="util\include\voxi\util\collection.h"
 				>
 			</File>
 			<File
-				RelativePath="util\include\voxi\util\collection.h"
+				RelativePath="include\voxi\util\collection.h"
 				>
 			</File>
 			<File
@@ -885,11 +885,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\config.h"
+				RelativePath="util\include\voxi\util\config.h"
 				>
 			</File>
 			<File
-				RelativePath="util\include\voxi\util\config.h"
+				RelativePath="include\voxi\util\config.h"
 				>
 			</File>
 			<File
@@ -901,15 +901,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\driver.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\driver.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\err.h"
+				RelativePath="include\voxi\util\driver.h"
 				>
 			</File>
 			<File
@@ -917,11 +913,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\file.h"
+				RelativePath="include\voxi\util\err.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\file.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\file.h"
 				>
 			</File>
 			<File
@@ -933,15 +933,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\hash.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\hash.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\idTable.h"
+				RelativePath="include\voxi\util\hash.h"
 				>
 			</File>
 			<File
@@ -949,11 +945,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\libcCompat.h"
+				RelativePath="include\voxi\util\idTable.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\libcCompat.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\libcCompat.h"
 				>
 			</File>
 			<File
@@ -969,15 +969,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\mem.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\mem.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\memory.h"
+				RelativePath="include\voxi\util\mem.h"
 				>
 			</File>
 			<File
@@ -985,7 +981,7 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\path.h"
+				RelativePath="include\voxi\util\memory.h"
 				>
 			</File>
 			<File
@@ -993,11 +989,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\queue.h"
+				RelativePath="include\voxi\util\path.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\shlib.h"
+				RelativePath="include\voxi\util\queue.h"
 				>
 			</File>
 			<File
@@ -1005,11 +1001,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\sock.h"
+				RelativePath="include\voxi\util\shlib.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\sock.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\sock.h"
 				>
 			</File>
 			<File
@@ -1029,15 +1029,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\textRPC.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\textRPC.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\threading.h"
+				RelativePath="include\voxi\util\textRPC.h"
 				>
 			</File>
 			<File
@@ -1045,11 +1041,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\threadpool.h"
+				RelativePath="include\voxi\util\threading.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\threadpool.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\threadpool.h"
 				>
 			</File>
 			<File
@@ -1065,15 +1065,11 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\vector.h"
-				>
-			</File>
-			<File
 				RelativePath="util\include\voxi\util\vector.h"
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\win32_glue.h"
+				RelativePath="include\voxi\util\vector.h"
 				>
 			</File>
 			<File
@@ -1081,11 +1077,15 @@
 				>
 			</File>
 			<File
-				RelativePath="include\voxi\util\wordMap.h"
+				RelativePath="include\voxi\util\win32_glue.h"
 				>
 			</File>
 			<File
 				RelativePath="util\include\voxi\util\wordMap.h"
+				>
+			</File>
+			<File
+				RelativePath="include\voxi\util\wordMap.h"
 				>
 			</File>
 			<Filter

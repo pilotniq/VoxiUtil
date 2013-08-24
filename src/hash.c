@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1999-2007 Voxi AB. All rights reserved.
+  Copyright (C) 1999-2002 Voxi AB. All rights reserved.
 
   This software is the proprietary information of Voxi AB, Stockholm, Sweden.
   Use of this software is subject to license terms.
@@ -59,7 +59,7 @@
 
 #include <voxi/util/hash.h>
 
-CVSID("$Id$");
+CVSID("$Id: hash.c 6744 2009-11-19 15:54:29Z mst $");
 
 /* --------- Definitions */
 
@@ -170,7 +170,7 @@ static void DestroyInfo(HashTable ht, HashInfoPtr rec)
 /* ----------------------- */
 
 HashTable HashCreateTable(unsigned int sz, HashFuncPtr calc, 
-                     CompFuncPtr comp, DestroyFuncPtr destr)
+                          CompFuncPtr comp, DestroyFuncPtr destr)
 {
   HashTable ht;
 
@@ -552,8 +552,6 @@ static void removeCursorFromList( HashTableCursor cursor )
   assert( cursor->element != NULL );
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
   err = threading_sem_wait( &(cursor->element->cursorListSemaphore) );
-  assert( err == 0 );
-  
 #endif
   if( cursor->hashTable->debugLevel > 2 )
     fprintf( stderr, "hash.c: removeCursorFromList( %p ): prevCursor=%p, "
@@ -591,7 +589,6 @@ static void addCursorToList( HashTableCursor cursor )
     fprintf( stderr, "hash.c: addCursorToList( %p ): entry\n", cursor );
 #if defined (_POSIX_SEMAPHORES) && defined (_POSIX_THREADS)
   err = threading_sem_wait( &(cursor->element->cursorListSemaphore) );
-  assert( err == 0 );
 #endif
   /* add the cursor to the list of cursors that point at this element */
   cursor->nextCursor = cursor->element->firstCursor;

@@ -18,7 +18,11 @@ extern "C" {
 #endif
   
   /* For struct in_addr */
+#ifdef WIN32
+#include <voxi/util/win32_glue.h>
+#else 
 #include <netinet/in.h>
+#endif /* WIN32 */
   
 #include <voxi/util/err.h>
 #include <voxi/types.h>

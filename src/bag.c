@@ -119,12 +119,12 @@ Bag bagCreate2( int initialCapacity,
   
   assert( capacityIncrement >= 0 );
 
-  result = malloc( sizeof( sBag ) );
+  result = (Bag)malloc( sizeof( sBag ) );
   if (result == NULL) {
     goto ERR_RETURN1;
   }
 
-  result->cookie = bag_isValid;
+  result->cookie = (void*)bag_isValid;
 
   result->noElements = 0;
   result->capacity = initialCapacity;
@@ -176,7 +176,7 @@ Bag bagDuplicate( const Bag original )
   if( original == NULL )
     return NULL;
 
-  result = malloc( sizeof( sBag ) );
+  result = (Bag)malloc( sizeof( sBag ) );
   assert( result != NULL ); 
 
   bagLock( original );
@@ -215,7 +215,7 @@ void bagDestroy( Bag bag, DestroyElementFunc destroyFunc )
 
   /* use bagDestroy2 otherwise */
   assert( bag->elementSize == sizeof( void * ) ); 
-  bag->cookie = bagDestroy;
+  bag->cookie = (void*)bagDestroy;
   
   if( destroyFunc != NULL )
     for( i = 0; i < bag->noElements; i++ )
@@ -237,18 +237,21 @@ void bagDestroy2( Bag bag )
   if( bag == NULL )
     return;
 
-  bag->cookie = bagDestroy;
+  bag->cookie = (void*)bagDestroy;
   
   if( bag->destroyFunc != NULL )
   {
     char *ptr;
     int i;
 
-    for( ptr = bag->array, i = 0; i < bag->noElements; i++, 
+    for( ptr = (char*)bag->array, i = 0; i < bag->noElements; i++, 
            ptr += bag->elementSize )
       bag->destroyFunc( (void **) ptr );
   }
-
+#ifdef _POSIX_THREADS
+  threading_mutex_destroy( &(bag->lock) );
+#endif
+  
   free( bag->array );
   
   free( bag );
@@ -400,7 +403,7 @@ void **bagElements( Bag bag )
   
   assert( bag->elementSize == sizeof( void * ) );
 
-  return bag->array;
+  return (void**)bag->array;
 }
 
 void *bagElements2( Bag bag )
@@ -725,7 +728,7 @@ void bagGetRandomElement2( const Bag bag, void *ptr )
    was bagGetTheIterator */
 BagIterator bagIteratorCreate2(const Bag bag)
 {
-  BagIterator bi = malloc(sizeof(sBagIterator));
+  BagIterator bi = (BagIterator)malloc(sizeof(sBagIterator));
 
   PreCond( bag_isValid( bag ) );
   
@@ -741,7 +744,7 @@ Error bagIteratorCreate(const Bag bag,
 {
   PreCond( bag_isValid( bag ) );
 
-  *bi = malloc(sizeof(sBagIterator));
+  *bi = (BagIterator)malloc(sizeof(sBagIterator));
   
   (*bi)->current = 0;
   (*bi)->bag = bag;
@@ -848,7 +851,7 @@ Error bagCrossProd( Bag bag1, Bag bag2, Bag *result )
       if ((bagIteratorGetNext(bi2, &str2)) != NULL)
         goto RETURN_ERROR;
     
-      sprintf(buf,"%s %s", str1, str2);
+      snprintf(buf, 512, "%s %s", str1, str2);
       
       bagAdd(bag,strdup(buf));
     }

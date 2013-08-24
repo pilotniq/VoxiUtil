@@ -640,7 +640,7 @@ void sock_destroy_server(Server s)
 #endif
 char *sock_serv_conn_adrs_c(ServerConn sc)
 {
-  return( inet_ntoa(sc->addr.sin_addr) );
+  return(inet_ntoa(sc->addr.sin_addr));
 }
 
 Error sock_send(Socket c, const char *msg)
@@ -865,7 +865,7 @@ static const char *voxi_sock_error( int err )
         
     default:
       /* This is a memory leak, but we ignore it because it is so rare. */
-      sprintf( buf, "Unknown h_error code: %d", err );
+      snprintf( buf, sizeof(buf), "Unknown h_error code: %d", err );
       return strdup( buf );
   }
 #endif
@@ -873,6 +873,10 @@ static const char *voxi_sock_error( int err )
 
 Boolean sock_ip_is_private( struct in_addr address )
 {
+#ifdef WIN32
+  /* FIXME: Port me! */
+  return 0;
+#else
   uint32_t hip;
   uint16_t topTwo;
   
@@ -882,6 +886,7 @@ Boolean sock_ip_is_private( struct in_addr address )
   return( (topTwo & 0xff00 == 0x0a00) || 
           (topTwo >= 0xac10 && topTwo < 0xac20) ||
           (topTwo == 0xc0a8) );
+#endif /* WIN32 */
 }
 
 #ifdef WIN32 

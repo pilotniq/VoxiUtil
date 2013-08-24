@@ -59,13 +59,13 @@ IDTable idt_create2( int initialCount, size_t elementSize )
 	
   DEBUG("enter\n");
 
-	result = malloc( sizeof( sIDTable ));
+  result = (IDTable)malloc( sizeof( sIDTable ));
 	assert( result != NULL );
 	
 	result->elementSize = elementSize;
   result->slotSize = sizeof( sTableSlot ) + (elementSize >= sizeof( int ) ? elementSize : sizeof( int )) - sizeof( int );
   
-	result->table = malloc( result->slotSize * initialCount );
+  result->table = (TableSlot)malloc( result->slotSize * initialCount );
 	assert( result->table != NULL );
 	
 	result->tableSize = initialCount;
@@ -176,7 +176,7 @@ static void idt_enlarge( IDTable idt )
 	oldSize = idt->tableSize;
 	newSize = oldSize * 2; 
 	
-	idt->table = realloc( idt->table, newSize * idt->slotSize );
+	idt->table = (TableSlot)realloc( idt->table, newSize * idt->slotSize );
 	assert( idt->table != NULL );
 	
 	idt->tableSize = newSize;

@@ -171,9 +171,9 @@ void ErrPushFunc(char *funcname, ...)
 
   va_start(args, funcname);
 
-  vsprintf(buf, funcname, args); /* print parameters int buf */
+  vsnprintf(buf, sizeof(buf), funcname, args); /* print parameters int buf */
 
-  /* allocate a string the exact length of the sprintf'd string */
+  /* allocate a string the exact length of the snprintf'd string */
   
   string = strdup( buf );
   
@@ -495,7 +495,7 @@ Error ErrToString( ConstError error, StringBuffer strbuf )
 
 __inline static Vector getErrorStack()
 {
-#if _REENTRANT
+#if _REENTRANT && defined(_POSIX_THREADS)
   Vector  ErrorStack = pthread_getspecific( ErrorStackKey );
 
   if( ErrorStack == NULL )
@@ -625,7 +625,7 @@ const char *ErrOSErrName( OSErr err )
       break;
 
     default:
-      sprintf(buf, "Unknown MacOS error (#%d)", err );
+      snprintf(buf, sizeof(buf), "Unknown MacOS error (#%d)", err );
       return strdup(buf);
       break;
   }

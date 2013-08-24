@@ -10,6 +10,10 @@ extern "C" {
   C library (in)compatibility stuff
 */
 
+#ifdef WIN32
+#pragma warning(disable:4996) // Ignore "name for this item is deprecated"
+#endif
+
 /* This is because on Windows, when somebody else uses this as a DLL,
    we must declare external variables with a special directive.
    Note: Since the EXTERN macro may be redefined in other .h files, the
@@ -20,6 +24,14 @@ extern "C" {
 #  error EXTERN_UTIL already defined
 #endif
 #ifdef WIN32
+# ifdef LIB_UTIL_STATIC
+#  define EXTERN_UTIL
+#  ifdef LIB_UTIL_LOGGING_INTERNAL
+#    define LOGGING_EXTERN
+#  else
+#    define LOGGING_EXTERN extern
+#  endif
+# else
 #  ifdef LIB_UTIL_INTERNAL
 #    define EXTERN_UTIL __declspec(dllexport)
 #    ifdef LIB_UTIL_LOGGING_INTERNAL
@@ -31,6 +43,7 @@ extern "C" {
 #    define EXTERN_UTIL __declspec(dllimport)
 #    define LOGGING_EXTERN __declspec(dllimport)
 #  endif /* LIB_UTIL_INTERNAL */
+# endif /* LIB_UTIL_STATIC */
 #else
 #  define EXTERN_UTIL extern
 #  define LOGGING_EXTERN extern
@@ -69,7 +82,9 @@ extern "C" {
 
 #define STRSEP_LINUX_BEHAVIOUR
 /** strsep(3) */
+#ifdef WIN32
 EXTERN_UTIL char *strsep(char **stringp, const char *delim);
+#endif /* WIN32 */
 
 #endif
 

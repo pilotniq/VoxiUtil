@@ -370,8 +370,8 @@ Error license_isValid( SoftwareLicense license, const char *product,
     tempStr1 = strdup( ctime( &license->expiryDate ) );
     tempStr2 = strdup( ctime( &now ) );
     
-    sprintf( buf, "License expired on %s, it is now %s.\n", 
-             tempStr1, tempStr2 );
+    snprintf( buf, sizeof(buf), "License expired on %s, it is now %s.\n", 
+              tempStr1, tempStr2 );
     free( tempStr1 );
     free( tempStr2 );
     
@@ -379,7 +379,7 @@ Error license_isValid( SoftwareLicense license, const char *product,
   }
   else if( strcasecmp( license->product, product ) != 0 )
   {
-    sprintf( buf, "License mismatch." );
+    snprintf( buf, sizeof(buf), "License mismatch." );
     
     *invalidReason = strdup( buf );
   }
