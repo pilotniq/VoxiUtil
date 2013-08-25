@@ -45,7 +45,7 @@ int gettimeofday(struct timeval *tv, void *tz)
 {
   struct _timeb tbuf;
   _ftime(&tbuf);
-  tv->tv_sec = tbuf.time;
+  tv->tv_sec = (long)tbuf.time;
   tv->tv_usec = tbuf.millitm * 1000;
   return 0;
 }

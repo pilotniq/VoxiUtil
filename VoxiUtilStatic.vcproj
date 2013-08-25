@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="VoxiUtil_static"
 	ProjectGUID="{A3EA1322-AEBF-4031-AB56-991B002ED7A1}"
 	RootNamespace="VoxiUtilStatic"

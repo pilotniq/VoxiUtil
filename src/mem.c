@@ -117,7 +117,7 @@ Error estrdup( const char *originalString, char **newString )
   assert( newString != NULL );
   assert( originalString != NULL );
 
-  *newString = strdup( originalString );
+  *newString = _strdup( originalString );
   
   if( *newString == NULL )
     return ErrNew( ERR_MEMORY, MEMERR_OUT, NULL, "Out of memory when "

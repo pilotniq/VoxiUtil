@@ -63,7 +63,7 @@ CVSID("$Id$");
 
 __inline static Vector getErrorStack();
 static void writeHumanReadableString( Error error, char *string, 
-                                      int remainingLength );
+                                      size_t remainingLength );
 static size_t calculateHumanReadableStringLength( ConstError error );
 #define ERR_BECAUSE_STR ", because "
 
@@ -387,7 +387,7 @@ Error ErrNew(ErrType t, int number, Error reason, const char *description, ...)
 
   vsnprintf( buf, sizeof(buf), description, args); /* print parameters int buf */
   buf[ERR_BUFF_SIZE-1] = '\0';
-  string = strdup( buf );
+  string = _strdup( buf );
 
   if( string == NULL )
     ERR ERR_ABORT, "Ran out of memory in ErrNew" ENDERR;
@@ -681,7 +681,7 @@ Error ErrToHumanReadableString( ConstError error, char **string )
 }
 
 static void writeHumanReadableString( Error error, char *string, 
-                                      int remainingLength )
+                                      size_t remainingLength )
 {
   size_t addedLength;
 
@@ -701,7 +701,7 @@ static void writeHumanReadableString( Error error, char *string,
 /* Returns the length of the required string, not including the final '\0' */
 static size_t calculateHumanReadableStringLength( ConstError error )
 {
-  int length;
+  size_t length;
 
   length = strlen( error->description );
   if( error->reason != NULL )

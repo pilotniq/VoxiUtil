@@ -44,7 +44,7 @@ Error path_parse(const char *path, Vector *pathVec)
      element is done to be able to use the vector structure in
      conjunction with free to clean up each element separately. */
   
-  if ((pathCopy = strdup(path)) == NULL) {
+  if ((pathCopy = _strdup(path)) == NULL) {
     error = ErrNew(ERR_ERRNO, errno, NULL,
                    "path_parse: strdup failed when creating temporary copy");
     goto ERR_BAIL_OUT;
@@ -55,7 +55,7 @@ Error path_parse(const char *path, Vector *pathVec)
 
   nextDir = pathCopy;
   while ((nextDir = path_separate(&pathCopy)) != NULL) {
-    if ((nextDirCopy = strdup(nextDir)) == NULL) {
+    if ((nextDirCopy = _strdup(nextDir)) == NULL) {
       error = ErrNew(ERR_ERRNO, errno, NULL,
                      "path_parse: strdup failed when copying path");
       goto ERR_BAIL_OUT;
@@ -79,7 +79,7 @@ char *path_separate(char **path)
 char *path_concat_path(const char *path, const char *str)
 {
   char *result;
-  int resultLen = strlen(path) + 1 + strlen(str) + 1;
+  size_t resultLen = strlen(path) + 1 + strlen(str) + 1;
 
   result = (char*)malloc(resultLen);
   snprintf(result, resultLen, "%s%c%s", path, PATH_DELIM, str);
@@ -89,7 +89,7 @@ char *path_concat_path(const char *path, const char *str)
 char *path_concat_dir(const char *dir, const char *str)
 {
   char *result;
-  int resultLen = strlen(dir) + 1 + strlen(str) + 1;
+  size_t resultLen = strlen(dir) + 1 + strlen(str) + 1;
 
   result = (char*)malloc(resultLen);
   snprintf(result, resultLen, "%s%c%s", dir, DIR_DELIM, str);

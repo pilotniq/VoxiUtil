@@ -153,7 +153,7 @@ Error stateMachine_createClass( StateMachineDefinition def, StateClass *result,
   if( error != NULL )
     return error;
 
-  (*result)->name = strdup( name );
+  (*result)->name = _strdup( name );
   (*result)->machineDefinition = def;
   (*result)->entryFunc = entryFunc;
   (*result)->exitFunc = exitFunc;
@@ -189,7 +189,7 @@ Error stateMachine_createState( StateMachineDefinition def, StateMachineState *s
   if( error != NULL )
     return error;
 
-  (*state)->name = strdup( name );
+  (*state)->name = _strdup( name );
   (*state)->machineDefinition = def;
   (*state)->cls = stateClass;
   (*state)->entryFunc = entryFunc;

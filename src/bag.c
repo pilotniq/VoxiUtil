@@ -853,7 +853,7 @@ Error bagCrossProd( Bag bag1, Bag bag2, Bag *result )
     
       snprintf(buf, 512, "%s %s", str1, str2);
       
-      bagAdd(bag,strdup(buf));
+      bagAdd(bag,_strdup(buf));
     }
     free(bi2);
   }

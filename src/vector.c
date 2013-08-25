@@ -107,7 +107,7 @@ Vector vectorCreate( const char *name, size_t elementSize,
   if( name == NULL )
     result->name = NULL;
   else {
-    result->name = strdup( name );
+    result->name = _strdup( name );
     if (result->name == NULL) {
       goto ERR_RETURN;
     }

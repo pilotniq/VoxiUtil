@@ -92,5 +92,24 @@ EXTERN_UTIL char *strsep(char **stringp, const char *delim);
 }
 #endif
 
+#ifndef WIN32
+
+#include <strings.h>
+
+// Portability stuff:
+
+#ifndef _stricmp
+#define _stricmp(x, y) strcasecmp((x), (y))
+#endif
+
+#ifndef _strnicmp
+#define _strnicmp(x, y, z) strncasecmp((x), (y), (z))
+#endif
+
+#ifndef _strdup
+#define _strdup(x) strdup((x))
+#endif
+
+#endif
 
 #endif /* ifndef LIBCCOMPAT_H */

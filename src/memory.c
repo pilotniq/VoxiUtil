@@ -90,7 +90,7 @@ MemoryManager memManager_create( size_t elementSize, const char *name,
   }
   result->elementSize = elementSize;
   result->blockSize = elementSize + sizeof( sBlockHeader );
-  result->name = (name == NULL) ? NULL : strdup( name );
+  result->name = (name == NULL) ? NULL : _strdup( name );
   result->capacity = capacity;
   result->firstFree = 0;
 #ifdef _POSIX_THREADS

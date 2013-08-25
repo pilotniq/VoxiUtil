@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="VoxiUtil"
 	ProjectGUID="{21C3D8F5-1507-46D5-AA76-9246BC32F43F}"
+	RootNamespace="VoxiUtil"
 	>
 	<Platforms>
 		<Platform

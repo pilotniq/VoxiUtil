@@ -598,7 +598,7 @@ static void connection_sock_handler( SocketConnection connection,
             call = malloc( sizeof( sIncomingCall ) );
             assert( call != NULL );
             
-            call->input = strdup( message );
+            call->input = _strdup( message );
             call->connection = client;
 
 #ifdef USE_THREADED_CALLS
@@ -742,7 +742,7 @@ static Error handleReturn( Boolean isException, TextRPCConnection client,
       if( message == NULL )
         outstandingCall->result = NULL;
       else
-        outstandingCall->result = strdup( message );
+        outstandingCall->result = _strdup( message );
       
       outstandingCall->error = NULL;
     }
@@ -1086,7 +1086,7 @@ Error textRPC_call( TextRPCConnection connection, const char *text,
   else
   {
     if( result != NULL )
-      *result = strdup((outstandingCall)->result);
+      *result = _strdup((outstandingCall)->result);
   }
   
   HashDelete((connection->outstandingCalls),outstandingCall);

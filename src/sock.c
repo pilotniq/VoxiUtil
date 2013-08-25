@@ -261,7 +261,7 @@ Error sock_connect(const char *computer, unsigned short port, sock_handler readp
     goto CONNECT_FAIL_1;
   }
   
-  (*connection)->computer = strdup( computer );
+  (*connection)->computer = _strdup( computer );
   (*connection)->typ = ST_CONNECTION;
   (*connection)->buflen = 0;
   (*connection)->handler = readproc;

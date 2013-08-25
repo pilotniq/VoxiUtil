@@ -189,8 +189,7 @@ Error queue_pop( Queue queue, void **result )
   QueueEntry element;
 
   err = threading_sem_wait( &(queue->semaphore) );
-  assert( err == 0 );
-  
+
   element = doPop( queue );
   if (element == NULL) {
     return ErrNew(ERR_QUEUE, ERR_QUEUE_UNSPECIFIED, NULL,
@@ -245,6 +244,13 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
   QueueEntry element;
 
   err = sem_timedwait( &(queue->semaphore), timeoutTime );
+#ifdef WIN32
+  if ( err == -1 ) {
+    Error error;
+    error = ErrNew( ERR_QUEUE, ERR_QUEUE_TIMEDOUT, NULL, "Wait timed out" );
+    return error;
+  }
+#else
   if( err != 0 )
   {
     Error error;
@@ -258,6 +264,7 @@ Error queue_waitFor( Queue queue, const struct timespec *timeoutTime, void **res
 
     return error;
   }
+#endif
 
   element = doPop( queue );
   if (element == NULL) {

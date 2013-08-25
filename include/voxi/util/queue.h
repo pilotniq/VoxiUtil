@@ -37,7 +37,7 @@ EXTERN_UTIL Error queue_destroy( Queue queue );
 EXTERN_UTIL Error queue_push( Queue queue, void *element );
 
 /* Returns TRUE if the queue contains elements */
-  EXTERN_UTIL Boolean queue_poll( const Queue queue );
+EXTERN_UTIL Boolean queue_poll( const Queue queue );
   
 /* Returns error if there is no element to pop */
 EXTERN_UTIL Error queue_pop( Queue, void **result );

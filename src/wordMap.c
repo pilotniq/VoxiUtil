@@ -86,7 +86,7 @@ Error wordMap_create2( const char *name, WordMapType type, WordMap *phoneMap,
 
   assert( *phoneMap != NULL );
 
-  (*phoneMap)->name = strdup( name );
+  (*phoneMap)->name = _strdup( name );
   (*phoneMap)->type = type;
 
   if( type & WORDMAPMASK_BYNAME )
@@ -126,7 +126,7 @@ Error wordMap_add( WordMap map, const char *name, int number )
   newEntry = malloc( sizeof( sEntry ));
   assert( newEntry != NULL );
 
-  newEntry->name = strdup( name );
+  newEntry->name = _strdup( name );
   newEntry->number = number;
 
   if( map->type & WORDMAPMASK_BYNAME )
@@ -388,7 +388,7 @@ Error wordMap_createFromString(const char *str[], WordMap *map)
     char *charPtr1, *charPtr2;
     
     /* fscanf here doesn't work if there are spaces in the name */
-    buffer = strdup( str[j] );
+    buffer = _strdup( str[j] );
     j++;
     
     charPtr1 = buffer;

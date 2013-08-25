@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>VoxiUtil_static</ProjectName>
+    <ProjectGuid>{A3EA1322-AEBF-4031-AB56-991B002ED7A1}</ProjectGuid>
+    <RootNamespace>VoxiUtilStatic</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ICS_LIB)\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ICS_LIB)_x64\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)_static\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)_static_x64\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ICS_LIB)\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ICS_LIB)_x64\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)_static\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)_static_x64\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;..\..\pthreads_win32\pthreads-2.7.0;..\..\external\pthreads_win32\pthreads-2.7.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_LIB;LIB_UTIL_INTERNAL;LIB_UTIL_STATIC;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;..\..\pthreads_win32\pthreads-2.7.0;..\..\external\pthreads_win32\pthreads-2.7.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_LIB;LIB_UTIL_INTERNAL;LIB_UTIL_STATIC;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;..\..\pthreads_win32\pthreads-2.7.0;..\..\external\pthreads_win32\pthreads-2.7.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_LIB;LIB_UTIL_STATIC;LIB_UTIL_INTERNAL;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;..\..\pthreads_win32\pthreads-2.7.0;..\..\external\pthreads_win32\pthreads-2.7.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_LIB;LIB_UTIL_STATIC;LIB_UTIL_INTERNAL;PTHREADS_WIN32;_POSIX_THREADS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bag.c" />
+    <ClCompile Include="src\bitFippling.c" />
+    <ClCompile Include="src\bt.c" />
+    <ClCompile Include="src\byteQueue.cpp" />
+    <ClCompile Include="src\checksums.c" />
+    <ClCompile Include="src\circularBuffer.c" />
+    <ClCompile Include="src\driver.c" />
+    <ClCompile Include="src\err.c" />
+    <ClCompile Include="src\file.c" />
+    <ClCompile Include="src\geometry.c" />
+    <ClCompile Include="src\hash.c" />
+    <ClCompile Include="src\idTable.c" />
+    <ClCompile Include="src\libcCompat.c" />
+    <ClCompile Include="src\logging.c" />
+    <ClCompile Include="src\mem.c" />
+    <ClCompile Include="src\memory.c" />
+    <ClCompile Include="src\path.c" />
+    <ClCompile Include="src\queue.c" />
+    <ClCompile Include="src\shlib.c" />
+    <ClCompile Include="src\sock.c" />
+    <ClCompile Include="src\stateMachine.c" />
+    <ClCompile Include="src\strbuf.c" />
+    <ClCompile Include="src\textRPC.c" />
+    <ClCompile Include="src\threading.c" />
+    <ClCompile Include="src\threadpool.c" />
+    <ClCompile Include="src\time.c" />
+    <ClCompile Include="src\vector.c" />
+    <ClCompile Include="src\win32_glue.c" />
+    <ClCompile Include="src\wordMap.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\config.h" />
+    <ClInclude Include="include\voxi\alwaysInclude.h" />
+    <ClInclude Include="include\voxi\util\bag.h" />
+    <ClInclude Include="include\voxi\util\bitFippling.h" />
+    <ClInclude Include="include\voxi\util\bt.h" />
+    <ClInclude Include="include\voxi\util\byteQueue.hpp" />
+    <ClInclude Include="include\voxi\util\checksums.h" />
+    <ClInclude Include="include\voxi\util\circularBuffer.h" />
+    <ClInclude Include="include\voxi\util\collection.h" />
+    <ClInclude Include="include\voxi\util\config-msvc.h" />
+    <ClInclude Include="include\voxi\util\config.h" />
+    <ClInclude Include="include\voxi\cvsid.h" />
+    <ClInclude Include="include\voxi\debug.h" />
+    <ClInclude Include="include\voxi\util\driver.h" />
+    <ClInclude Include="include\voxi\util\err.h" />
+    <ClInclude Include="include\voxi\util\err.hpp" />
+    <ClInclude Include="include\voxi\util\file.h" />
+    <ClInclude Include="include\voxi\util\geometry.h" />
+    <ClInclude Include="include\voxi\util\hash.h" />
+    <ClInclude Include="include\voxi\util\idTable.h" />
+    <ClInclude Include="include\voxi\util\libcCompat.h" />
+    <ClInclude Include="include\voxi\util\libcCompat0.h" />
+    <ClInclude Include="include\voxi\util\license.h" />
+    <ClInclude Include="include\voxi\util\logging.h" />
+    <ClInclude Include="include\voxi\util\mem.h" />
+    <ClInclude Include="include\voxi\util\memory.h" />
+    <ClInclude Include="include\voxi\util\path.h" />
+    <ClInclude Include="include\voxi\util\queue.h" />
+    <ClInclude Include="include\voxi\util\shlib.h" />
+    <ClInclude Include="include\voxi\util\sock.h" />
+    <ClInclude Include="include\voxi\util\stateMachine.h" />
+    <ClInclude Include="include\voxi\util\stdint.h" />
+    <ClInclude Include="include\voxi\util\strbuf.h" />
+    <ClInclude Include="include\voxi\util\tanClient.h" />
+    <ClInclude Include="include\voxi\util\tcpip.h" />
+    <ClInclude Include="include\voxi\util\textRPC.h" />
+    <ClInclude Include="include\voxi\util\threading.h" />
+    <ClInclude Include="include\voxi\util\threadpool.h" />
+    <ClInclude Include="include\voxi\util\time.h" />
+    <ClInclude Include="include\voxi\types.h" />
+    <ClInclude Include="include\voxi\util\vector.h" />
+    <ClInclude Include="include\voxi\util\win32_glue.h" />
+    <ClInclude Include="include\voxi\util\wordMap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

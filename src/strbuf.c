@@ -260,7 +260,7 @@ const char *strbuf_getString( StringBuffer strbuf )
 
 char *strbuf_getStringCopy( StringBuffer strbuf )
 {
-  return strdup( strbuf->string );
+  return _strdup( strbuf->string );
 }
 
 Error strbuf_appendBinary( StringBuffer strbuf, size_t length, 
